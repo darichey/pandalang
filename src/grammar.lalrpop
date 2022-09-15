@@ -8,6 +8,7 @@ pub Expr: Box<Expr> = {
     #[precedence(level="0")]
     Int => Box::new(Expr::Int(<>)),
     Var => Box::new(Expr::Var(<>.to_string())),
+    "(" <ExprReset> ")",
 
     #[precedence(level="1")]
     #[assoc(side="left")]
@@ -19,6 +20,9 @@ pub Expr: Box<Expr> = {
     <left:Expr> "+" <right:Expr> => Box::new(Expr::BinOp { left, right, kind: BinOpKind::Add }),
     <left:Expr> "-" <right:Expr> => Box::new(Expr::BinOp { left, right, kind: BinOpKind::Sub }),
 };
+
+// See https://github.com/lalrpop/lalrpop/issues/596
+ExprReset = <Expr>;
 
 Int: i64 = r"\-?[0-9]+" => i64::from_str(<>).unwrap();
 

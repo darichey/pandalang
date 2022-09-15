@@ -156,4 +156,74 @@ mod tests {
             })
         );
     }
+
+    #[test]
+    fn parses_parens() {
+        assert_eq!(parse("(0)").unwrap(), Box::new(Expr::Int(0)));
+        assert_eq!(parse("(x)").unwrap(), Box::new(Expr::Var("x".to_string())));
+
+        assert_eq!(
+            parse("(a + b)").unwrap(),
+            Box::new(Expr::BinOp {
+                left: Box::new(Expr::Var("a".to_string())),
+                right: Box::new(Expr::Var("b".to_string())),
+                kind: BinOpKind::Add
+            })
+        );
+
+        assert_eq!(
+            parse("(a + b) + c").unwrap(),
+            Box::new(Expr::BinOp {
+                left: Box::new(Expr::BinOp {
+                    left: Box::new(Expr::Var("a".to_string())),
+                    right: Box::new(Expr::Var("b".to_string())),
+                    kind: BinOpKind::Add
+                }),
+                right: Box::new(Expr::Var("c".to_string())),
+                kind: BinOpKind::Add
+            })
+        );
+
+        assert_eq!(
+            parse("a + (b * c) - (d / e)").unwrap(),
+            Box::new(Expr::BinOp {
+                left: Box::new(Expr::BinOp {
+                    left: Box::new(Expr::Var("a".to_string())),
+                    right: Box::new(Expr::BinOp {
+                        left: Box::new(Expr::Var("b".to_string())),
+                        right: Box::new(Expr::Var("c".to_string())),
+                        kind: BinOpKind::Mul
+                    }),
+                    kind: BinOpKind::Add
+                }),
+                right: Box::new(Expr::BinOp {
+                    left: Box::new(Expr::Var("d".to_string())),
+                    right: Box::new(Expr::Var("e".to_string())),
+                    kind: BinOpKind::Div
+                }),
+                kind: BinOpKind::Sub
+            })
+        );
+
+        assert_eq!(
+            parse("(a + b * (c - d)) / e").unwrap(),
+            Box::new(Expr::BinOp {
+                left: Box::new(Expr::BinOp {
+                    left: Box::new(Expr::Var("a".to_string())),
+                    right: Box::new(Expr::BinOp {
+                        left: Box::new(Expr::Var("b".to_string())),
+                        right: Box::new(Expr::BinOp {
+                            left: Box::new(Expr::Var("c".to_string())),
+                            right: Box::new(Expr::Var("d".to_string())),
+                            kind: BinOpKind::Sub
+                        }),
+                        kind: BinOpKind::Mul
+                    }),
+                    kind: BinOpKind::Add
+                }),
+                right: Box::new(Expr::Var("e".to_string())),
+                kind: BinOpKind::Div
+            })
+        );
+    }
 }
