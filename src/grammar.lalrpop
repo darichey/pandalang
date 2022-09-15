@@ -1,0 +1,10 @@
+use std::str::FromStr;
+use crate::ast::Expr;
+
+grammar;
+
+pub Expr: Box<Expr> = {
+    Int => Box::new(Expr::Int(<>))
+};
+
+Int: i64 = r"\-?[0-9]+" => i64::from_str(<>).unwrap();
