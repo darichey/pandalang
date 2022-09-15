@@ -22,4 +22,11 @@ mod tests {
         assert_eq!(*parse("1337").unwrap(), Expr::Int(1337));
         assert_eq!(*parse("-0").unwrap(), Expr::Int(-0));
     }
+
+    #[test]
+    fn parses_vars() {
+        assert_eq!(*parse("x").unwrap(), Expr::Var("x".to_string()));
+        assert_eq!(*parse("foo").unwrap(), Expr::Var("foo".to_string()));
+        assert_eq!(*parse("x'").unwrap(), Expr::Var("x'".to_string()));
+    }
 }

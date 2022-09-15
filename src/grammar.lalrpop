@@ -4,7 +4,10 @@ use crate::ast::Expr;
 grammar;
 
 pub Expr: Box<Expr> = {
-    Int => Box::new(Expr::Int(<>))
+    Int => Box::new(Expr::Int(<>)),
+    Var => Box::new(Expr::Var(<>.to_string())),
 };
 
 Int: i64 = r"\-?[0-9]+" => i64::from_str(<>).unwrap();
+
+Var: &'input str = r"[a-zA-Z]+'?";
