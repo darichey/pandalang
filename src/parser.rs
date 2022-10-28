@@ -13,7 +13,7 @@ pub fn parse<'input>(
 #[cfg(test)]
 mod tests {
     use crate::{
-        ast::{BinOp, BinOpKind, Expr, Int, Let, Var},
+        ast::{BinOp, BinOpKind, Expr, Fun, Int, Let, Var},
         parser::parse,
     };
 
@@ -336,6 +336,41 @@ mod tests {
                 body: Box::new(Expr::Let(Let {
                     name: "y".to_string(),
                     value: Box::new(Expr::Int(Int { n: 5 })),
+                    body: Box::new(Expr::BinOp(BinOp {
+                        left: Box::new(Expr::Var(Var {
+                            name: "x".to_string()
+                        })),
+                        right: Box::new(Expr::Var(Var {
+                            name: "y".to_string()
+                        })),
+                        kind: BinOpKind::Add
+                    }))
+                }))
+            }))
+        )
+    }
+
+    #[test]
+    fn parses_fun() {
+        assert_eq!(
+            parse("fun x -> x").unwrap(),
+            Box::new(Expr::Fun(Fun {
+                arg: "x".to_string(),
+                body: Box::new(Expr::Var(Var {
+                    name: "x".to_string()
+                }))
+            }))
+        )
+    }
+
+    #[test]
+    fn parses_fun_nested() {
+        assert_eq!(
+            parse("fun x -> fun y -> x + y").unwrap(),
+            Box::new(Expr::Fun(Fun {
+                arg: "x".to_string(),
+                body: Box::new(Expr::Fun(Fun {
+                    arg: "y".to_string(),
                     body: Box::new(Expr::BinOp(BinOp {
                         left: Box::new(Expr::Var(Var {
                             name: "x".to_string()

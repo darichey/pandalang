@@ -56,6 +56,7 @@ mod tests {
     use crate::ast::BinOp;
     use crate::ast::BinOpKind;
     use crate::ast::Expr;
+    use crate::ast::Fun;
     use crate::ast::Int;
     use crate::ast::Let;
     use crate::ast::Var;
@@ -292,6 +293,28 @@ mod tests {
                 &env
             ),
             Value::Int(Int { n: 8 })
+        )
+    }
+
+    #[test]
+    fn fun_eval_id() {
+        let env = new_env!();
+        assert_eq!(
+            eval(
+                Expr::Fun(Fun {
+                    arg: "x".to_string(),
+                    body: Box::new(Expr::Var(Var {
+                        name: "x".to_string()
+                    }))
+                }),
+                &env
+            ),
+            Value::Fun(Fun {
+                arg: "x".to_string(),
+                body: Box::new(Expr::Var(Var {
+                    name: "x".to_string()
+                }))
+            })
         )
     }
 }

@@ -2,6 +2,7 @@ use std::str::FromStr;
 use crate::ast::BinOp;
 use crate::ast::BinOpKind;
 use crate::ast::Expr;
+use crate::ast::Fun;
 use crate::ast::Int;
 use crate::ast::Let;
 use crate::ast::Var;
@@ -27,6 +28,10 @@ pub Expr: Box<Expr> = {
     #[precedence(level="3")]
     #[assoc(side="right")]
     "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(Let { name: name.to_string(), value, body })),
+
+    #[precedence(level="4")]
+    #[assoc(side="right")]
+    "fun" <arg:Name> "->" <body:Expr> => Box::new(Expr::Fun(Fun { arg: arg.to_string(), body })),
 };
 
 // See https://github.com/lalrpop/lalrpop/issues/596
