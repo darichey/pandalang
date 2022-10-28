@@ -7,7 +7,7 @@ grammar;
 pub Expr: Box<Expr> = {
     #[precedence(level="0")]
     Int => Box::new(Expr::Int(<>)),
-    Var => Box::new(Expr::Var(<>.to_string())),
+    Name => Box::new(Expr::Var(<>.to_string())),
     "(" <ExprReset> ")",
 
     #[precedence(level="1")]
@@ -19,6 +19,10 @@ pub Expr: Box<Expr> = {
     #[assoc(side="left")]
     <left:Expr> "+" <right:Expr> => Box::new(Expr::BinOp { left, right, kind: BinOpKind::Add }),
     <left:Expr> "-" <right:Expr> => Box::new(Expr::BinOp { left, right, kind: BinOpKind::Sub }),
+
+    #[precedence(level="3")]
+    #[assoc(side="right")]
+    "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let { name: name.to_string(), value, body }),
 };
 
 // See https://github.com/lalrpop/lalrpop/issues/596
@@ -26,4 +30,4 @@ ExprReset = <Expr>;
 
 Int: i64 = r"\-?[0-9]+" => i64::from_str(<>).unwrap();
 
-Var: &'input str = r"[a-zA-Z]+'?";
+Name: &'input str = r"[a-zA-Z]+'?";

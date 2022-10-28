@@ -31,6 +31,13 @@ pub fn eval(expr: Expr, env: &Env) -> i64 {
             };
             f(eval(*left, env), eval(*right, env))
         }
+        Expr::Let { name, value, body } => {
+            let mut new_env = Env {
+                bindings: env.bindings.clone(),
+            }; // TODO: no
+            new_env.bindings.insert(name, eval(*value, env));
+            eval(*body, &new_env)
+        }
     }
 }
 
@@ -39,6 +46,7 @@ mod tests {
     use std::collections::HashMap;
 
     use crate::ast::Expr;
+    use crate::ast::BinOpKind;
 
     use super::eval;
     use super::Env;
@@ -63,7 +71,7 @@ mod tests {
                 Expr::BinOp {
                     left: Box::new(Expr::Int(1)),
                     right: Box::new(Expr::Int(2)),
-                    kind: crate::ast::BinOpKind::Add,
+                    kind: BinOpKind::Add,
                 },
                 &env
             ),
@@ -79,7 +87,7 @@ mod tests {
                 Expr::BinOp {
                     left: Box::new(Expr::Int(1)),
                     right: Box::new(Expr::Int(2)),
-                    kind: crate::ast::BinOpKind::Sub,
+                    kind: BinOpKind::Sub,
                 },
                 &env
             ),
@@ -95,7 +103,7 @@ mod tests {
                 Expr::BinOp {
                     left: Box::new(Expr::Int(1)),
                     right: Box::new(Expr::Int(2)),
-                    kind: crate::ast::BinOpKind::Mul,
+                    kind: BinOpKind::Mul,
                 },
                 &env
             ),
@@ -111,7 +119,7 @@ mod tests {
                 Expr::BinOp {
                     left: Box::new(Expr::Int(1)),
                     right: Box::new(Expr::Int(2)),
-                    kind: crate::ast::BinOpKind::Div,
+                    kind: BinOpKind::Div,
                 },
                 &env
             ),
@@ -127,7 +135,7 @@ mod tests {
                 Expr::BinOp {
                     left: Box::new(Expr::Var("x".to_string())),
                     right: Box::new(Expr::Var("y".to_string())),
-                    kind: crate::ast::BinOpKind::Add,
+                    kind: BinOpKind::Add,
                 },
                 &env
             ),
@@ -143,7 +151,7 @@ mod tests {
                 Expr::BinOp {
                     left: Box::new(Expr::Var("x".to_string())),
                     right: Box::new(Expr::Var("y".to_string())),
-                    kind: crate::ast::BinOpKind::Sub,
+                    kind: BinOpKind::Sub,
                 },
                 &env
             ),
@@ -159,7 +167,7 @@ mod tests {
                 Expr::BinOp {
                     left: Box::new(Expr::Var("x".to_string())),
                     right: Box::new(Expr::Var("y".to_string())),
-                    kind: crate::ast::BinOpKind::Mul,
+                    kind: BinOpKind::Mul,
                 },
                 &env
             ),
@@ -175,11 +183,67 @@ mod tests {
                 Expr::BinOp {
                     left: Box::new(Expr::Var("x".to_string())),
                     right: Box::new(Expr::Var("y".to_string())),
-                    kind: crate::ast::BinOpKind::Div,
+                    kind: BinOpKind::Div,
                 },
                 &env
             ),
             0
+        )
+    }
+
+    #[test]
+    fn let_eval_id() {
+        let env = new_env!();
+        assert_eq!(
+            eval(
+                Expr::Let {
+                    name: "x".to_string(),
+                    value: Box::new(Expr::Int(3)),
+                    body: Box::new(Expr::Var("x".to_string()))
+                },
+                &env
+            ),
+            3
+        )
+    }
+
+    #[test]
+    fn let_eval_shadow() {
+        let env = new_env!("x" => 5);
+        assert_eq!(
+            eval(
+                Expr::Let {
+                    name: "x".to_string(),
+                    value: Box::new(Expr::Int(3)),
+                    body: Box::new(Expr::Var("x".to_string()))
+                },
+                &env
+            ),
+            3
+        )
+    }
+
+    #[test]
+    fn let_eval_nested() {
+        let env = new_env!();
+        assert_eq!(
+            eval(
+                Expr::Let {
+                    name: "x".to_string(),
+                    value: Box::new(Expr::Int(3)),
+                    body: Box::new(Expr::Let {
+                        name: "y".to_string(),
+                        value: Box::new(Expr::Int(5)),
+                        body: Box::new(Expr::BinOp {
+                            left: Box::new(Expr::Var("x".to_string())),
+                            right: Box::new(Expr::Var("y".to_string())),
+                            kind: BinOpKind::Add
+                        })
+                    })
+                },
+                &env
+            ),
+            8
         )
     }
 }

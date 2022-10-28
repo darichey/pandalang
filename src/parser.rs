@@ -226,4 +226,36 @@ mod tests {
             })
         );
     }
+
+    #[test]
+    fn parses_let() {
+        assert_eq!(
+            parse("let x = 3 in x").unwrap(),
+            Box::new(Expr::Let {
+                name: "x".to_string(),
+                value: Box::new(Expr::Int(3)),
+                body: Box::new(Expr::Var("x".to_string()))
+            })
+        )
+    }
+
+    #[test]
+    fn parses_let_nested() {
+        assert_eq!(
+            parse("let x = 3 in let y = 5 in x + y").unwrap(),
+            Box::new(Expr::Let {
+                name: "x".to_string(),
+                value: Box::new(Expr::Int(3)),
+                body: Box::new(Expr::Let {
+                    name: "y".to_string(),
+                    value: Box::new(Expr::Int(5)),
+                    body: Box::new(Expr::BinOp {
+                        left: Box::new(Expr::Var("x".to_string())),
+                        right: Box::new(Expr::Var("y".to_string())),
+                        kind: BinOpKind::Add
+                    })
+                })
+            })
+        )
+    }
 }

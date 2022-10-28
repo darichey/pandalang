@@ -6,6 +6,11 @@ pub enum Expr {
         left: Box<Expr>,
         right: Box<Expr>,
         kind: BinOpKind,
+    },
+    Let {
+        name: String,
+        value: Box<Expr>,
+        body: Box<Expr>,
     }
 }
 
