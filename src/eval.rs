@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
-use crate::ast::{BinOpKind, Expr};
+use crate::ast::{BinOp, BinOpKind, Expr, Int, Let, Var};
+use crate::value::Value;
 
 pub struct Env {
-    bindings: HashMap<String, i64>,
+    bindings: HashMap<String, Value>,
 }
 
 macro_rules! new_env {
@@ -13,31 +14,38 @@ macro_rules! new_env {
 }
 
 impl Env {
-    pub fn lookup(&self, x: &String) -> i64 {
-        *self.bindings.get(x).unwrap()
+    pub fn lookup(&self, x: &String) -> Value {
+        self.bindings.get(x).unwrap().clone()
     }
 }
 
-pub fn eval(expr: Expr, env: &Env) -> i64 {
+pub fn eval(expr: Expr, env: &Env) -> Value {
     match expr {
-        Expr::Int(n) => n,
-        Expr::Var(x) => env.lookup(&x),
-        Expr::BinOp { left, right, kind } => {
-            let f: fn(i64, i64) -> i64 = match kind {
+        Expr::Int(n) => Value::Int(n),
+        Expr::Var(Var { name }) => env.lookup(&name),
+        Expr::BinOp(BinOp { left, right, kind }) => {
+            let f = match kind {
                 BinOpKind::Add => std::ops::Add::add,
                 BinOpKind::Sub => std::ops::Sub::sub,
                 BinOpKind::Mul => std::ops::Mul::mul,
                 BinOpKind::Div => std::ops::Div::div,
             };
-            f(eval(*left, env), eval(*right, env))
+
+            let (x, y) = match (eval(*left, env), eval(*right, env)) {
+                (Value::Int(Int { n: x }), Value::Int(Int { n: y })) => (x, y),
+                _ => panic!("oh god oh fuck"),
+            };
+
+            Value::Int(Int { n: f(x, y) })
         }
-        Expr::Let { name, value, body } => {
+        Expr::Let(Let { name, value, body }) => {
             let mut new_env = Env {
                 bindings: env.bindings.clone(),
             }; // TODO: no
             new_env.bindings.insert(name, eval(*value, env));
             eval(*body, &new_env)
         }
+        Expr::Fun(fun) => Value::Fun(fun),
     }
 }
 
@@ -45,8 +53,13 @@ pub fn eval(expr: Expr, env: &Env) -> i64 {
 mod tests {
     use std::collections::HashMap;
 
-    use crate::ast::Expr;
+    use crate::ast::BinOp;
     use crate::ast::BinOpKind;
+    use crate::ast::Expr;
+    use crate::ast::Int;
+    use crate::ast::Let;
+    use crate::ast::Var;
+    use crate::value::Value;
 
     use super::eval;
     use super::Env;
@@ -54,13 +67,24 @@ mod tests {
     #[test]
     fn int_eval_id() {
         let env = new_env!();
-        assert_eq!(eval(Expr::Int(0), &env), 0)
+        assert_eq!(
+            eval(Expr::Int(Int { n: 0 }), &env),
+            Value::Int(Int { n: 0 })
+        )
     }
 
     #[test]
     fn var_eval_id() {
-        let env = new_env!("x" => 3);
-        assert_eq!(eval(Expr::Var("x".to_string()), &env), 3);
+        let env = new_env!("x" => Value::Int(Int { n: 3 }));
+        assert_eq!(
+            eval(
+                Expr::Var(Var {
+                    name: "x".to_string()
+                }),
+                &env
+            ),
+            Value::Int(Int { n: 3 })
+        );
     }
 
     #[test]
@@ -68,14 +92,14 @@ mod tests {
         let env = new_env!();
         assert_eq!(
             eval(
-                Expr::BinOp {
-                    left: Box::new(Expr::Int(1)),
-                    right: Box::new(Expr::Int(2)),
+                Expr::BinOp(BinOp {
+                    left: Box::new(Expr::Int(Int { n: 1 })),
+                    right: Box::new(Expr::Int(Int { n: 2 })),
                     kind: BinOpKind::Add,
-                },
+                }),
                 &env
             ),
-            3
+            Value::Int(Int { n: 3 })
         )
     }
 
@@ -84,14 +108,14 @@ mod tests {
         let env = new_env!();
         assert_eq!(
             eval(
-                Expr::BinOp {
-                    left: Box::new(Expr::Int(1)),
-                    right: Box::new(Expr::Int(2)),
+                Expr::BinOp(BinOp {
+                    left: Box::new(Expr::Int(Int { n: 1 })),
+                    right: Box::new(Expr::Int(Int { n: 2 })),
                     kind: BinOpKind::Sub,
-                },
+                }),
                 &env
             ),
-            -1
+            Value::Int(Int { n: -1 })
         )
     }
 
@@ -100,14 +124,14 @@ mod tests {
         let env = new_env!();
         assert_eq!(
             eval(
-                Expr::BinOp {
-                    left: Box::new(Expr::Int(1)),
-                    right: Box::new(Expr::Int(2)),
+                Expr::BinOp(BinOp {
+                    left: Box::new(Expr::Int(Int { n: 1 })),
+                    right: Box::new(Expr::Int(Int { n: 2 })),
                     kind: BinOpKind::Mul,
-                },
+                }),
                 &env
             ),
-            2
+            Value::Int(Int { n: 2 })
         )
     }
 
@@ -116,78 +140,94 @@ mod tests {
         let env = new_env!();
         assert_eq!(
             eval(
-                Expr::BinOp {
-                    left: Box::new(Expr::Int(1)),
-                    right: Box::new(Expr::Int(2)),
+                Expr::BinOp(BinOp {
+                    left: Box::new(Expr::Int(Int { n: 1 })),
+                    right: Box::new(Expr::Int(Int { n: 2 })),
                     kind: BinOpKind::Div,
-                },
+                }),
                 &env
             ),
-            0
+            Value::Int(Int { n: 0 })
         )
     }
 
     #[test]
     fn var_eval_add() {
-        let env = new_env!("x" => 1, "y" => 2);
+        let env = new_env!("x" => Value::Int(Int { n: 1 }), "y" => Value::Int(Int { n: 2 }));
         assert_eq!(
             eval(
-                Expr::BinOp {
-                    left: Box::new(Expr::Var("x".to_string())),
-                    right: Box::new(Expr::Var("y".to_string())),
+                Expr::BinOp(BinOp {
+                    left: Box::new(Expr::Var(Var {
+                        name: "x".to_string()
+                    })),
+                    right: Box::new(Expr::Var(Var {
+                        name: "y".to_string()
+                    })),
                     kind: BinOpKind::Add,
-                },
+                }),
                 &env
             ),
-            3
+            Value::Int(Int { n: 3 })
         )
     }
 
     #[test]
     fn var_eval_sub() {
-        let env = new_env!("x" => 1, "y" => 2);
+        let env = new_env!("x" => Value::Int(Int { n: 1 }), "y" => Value::Int(Int { n: 2 }));
         assert_eq!(
             eval(
-                Expr::BinOp {
-                    left: Box::new(Expr::Var("x".to_string())),
-                    right: Box::new(Expr::Var("y".to_string())),
+                Expr::BinOp(BinOp {
+                    left: Box::new(Expr::Var(Var {
+                        name: "x".to_string()
+                    })),
+                    right: Box::new(Expr::Var(Var {
+                        name: "y".to_string()
+                    })),
                     kind: BinOpKind::Sub,
-                },
+                }),
                 &env
             ),
-            -1
+            Value::Int(Int { n: -1 })
         )
     }
 
     #[test]
     fn var_eval_mul() {
-        let env = new_env!("x" => 1, "y" => 2);
+        let env = new_env!("x" => Value::Int(Int { n: 1 }), "y" => Value::Int(Int { n: 2 }));
         assert_eq!(
             eval(
-                Expr::BinOp {
-                    left: Box::new(Expr::Var("x".to_string())),
-                    right: Box::new(Expr::Var("y".to_string())),
+                Expr::BinOp(BinOp {
+                    left: Box::new(Expr::Var(Var {
+                        name: "x".to_string()
+                    })),
+                    right: Box::new(Expr::Var(Var {
+                        name: "y".to_string()
+                    })),
                     kind: BinOpKind::Mul,
-                },
+                }),
                 &env
             ),
-            2
+            Value::Int(Int { n: 2 })
         )
     }
 
     #[test]
     fn var_eval_div() {
-        let env = new_env!("x" => 1, "y" => 2);
+        let env = new_env!("x" => Value::Int(Int { n: 1 }), "y" => Value::Int(Int { n: 2 }));
         assert_eq!(
             eval(
-                Expr::BinOp {
-                    left: Box::new(Expr::Var("x".to_string())),
-                    right: Box::new(Expr::Var("y".to_string())),
+                Expr::BinOp(BinOp {
+                    left: Box::new(Expr::Var(Var {
+                        name: "x".to_string()
+                    })),
+                    right: Box::new(Expr::Var(Var {
+                        name: "y".to_string()
+                    })),
                     kind: BinOpKind::Div,
-                },
+                }),
                 &env
             ),
-            0
+            Value::Int(Int { n: 0 })
         )
     }
 
@@ -196,30 +236,34 @@ mod tests {
         let env = new_env!();
         assert_eq!(
             eval(
-                Expr::Let {
+                Expr::Let(Let {
                     name: "x".to_string(),
-                    value: Box::new(Expr::Int(3)),
-                    body: Box::new(Expr::Var("x".to_string()))
-                },
+                    value: Box::new(Expr::Int(Int { n: 3 })),
+                    body: Box::new(Expr::Var(Var {
+                        name: "x".to_string()
+                    }))
+                }),
                 &env
             ),
-            3
+            Value::Int(Int { n: 3 })
         )
     }
 
     #[test]
     fn let_eval_shadow() {
-        let env = new_env!("x" => 5);
+        let env = new_env!("x" => Value::Int(Int { n: 5 }));
         assert_eq!(
             eval(
-                Expr::Let {
+                Expr::Let(Let {
                     name: "x".to_string(),
-                    value: Box::new(Expr::Int(3)),
-                    body: Box::new(Expr::Var("x".to_string()))
-                },
+                    value: Box::new(Expr::Int(Int { n: 3 })),
+                    body: Box::new(Expr::Var(Var {
+                        name: "x".to_string()
+                    }))
+                }),
                 &env
             ),
-            3
+            Value::Int(Int { n: 3 })
         )
     }
 
@@ -228,22 +272,26 @@ mod tests {
         let env = new_env!();
         assert_eq!(
             eval(
-                Expr::Let {
+                Expr::Let(Let {
                     name: "x".to_string(),
-                    value: Box::new(Expr::Int(3)),
-                    body: Box::new(Expr::Let {
+                    value: Box::new(Expr::Int(Int { n: 3 })),
+                    body: Box::new(Expr::Let(Let {
                         name: "y".to_string(),
-                        value: Box::new(Expr::Int(5)),
-                        body: Box::new(Expr::BinOp {
-                            left: Box::new(Expr::Var("x".to_string())),
-                            right: Box::new(Expr::Var("y".to_string())),
+                        value: Box::new(Expr::Int(Int { n: 5 })),
+                        body: Box::new(Expr::BinOp(BinOp {
+                            left: Box::new(Expr::Var(Var {
+                                name: "x".to_string()
+                            })),
+                            right: Box::new(Expr::Var(Var {
+                                name: "y".to_string()
+                            })),
                             kind: BinOpKind::Add
-                        })
-                    })
-                },
+                        }))
+                    }))
+                }),
                 &env
             ),
-            8
+            Value::Int(Int { n: 8 })
         )
     }
 }

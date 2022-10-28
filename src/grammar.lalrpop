@@ -1,28 +1,32 @@
 use std::str::FromStr;
-use crate::ast::Expr;
+use crate::ast::BinOp;
 use crate::ast::BinOpKind;
+use crate::ast::Expr;
+use crate::ast::Int;
+use crate::ast::Let;
+use crate::ast::Var;
 
 grammar;
 
 pub Expr: Box<Expr> = {
     #[precedence(level="0")]
-    Int => Box::new(Expr::Int(<>)),
-    Name => Box::new(Expr::Var(<>.to_string())),
+    Int => Box::new(Expr::Int(Int { n: <> })),
+    Name => Box::new(Expr::Var(Var { name: <>.to_string() })),
     "(" <ExprReset> ")",
 
     #[precedence(level="1")]
     #[assoc(side="left")]
-    <left:Expr> "*" <right:Expr> => Box::new(Expr::BinOp { left, right, kind: BinOpKind::Mul }),
-    <left:Expr> "/" <right:Expr> => Box::new(Expr::BinOp { left, right, kind: BinOpKind::Div }),
+    <left:Expr> "*" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Mul })),
+    <left:Expr> "/" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Div })),
 
     #[precedence(level="2")]
     #[assoc(side="left")]
-    <left:Expr> "+" <right:Expr> => Box::new(Expr::BinOp { left, right, kind: BinOpKind::Add }),
-    <left:Expr> "-" <right:Expr> => Box::new(Expr::BinOp { left, right, kind: BinOpKind::Sub }),
+    <left:Expr> "+" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Add })),
+    <left:Expr> "-" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Sub })),
 
     #[precedence(level="3")]
     #[assoc(side="right")]
-    "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let { name: name.to_string(), value, body }),
+    "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(Let { name: name.to_string(), value, body })),
 };
 
 // See https://github.com/lalrpop/lalrpop/issues/596
