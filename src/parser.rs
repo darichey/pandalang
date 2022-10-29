@@ -13,7 +13,7 @@ pub fn parse<'input>(
 #[cfg(test)]
 mod tests {
     use crate::{
-        ast::{BinOp, BinOpKind, Expr, Fun, Int, Let, Var},
+        ast::{BinOp, BinOpKind, Expr, Fun, Int, Var},
         parser::parse,
     };
 
@@ -312,43 +312,43 @@ mod tests {
         );
     }
 
-    #[test]
-    fn parses_let() {
-        assert_eq!(
-            parse("let x = 3 in x").unwrap(),
-            Box::new(Expr::Let(Let {
-                name: "x".to_string(),
-                value: Box::new(Expr::Int(Int { n: 3 })),
-                body: Box::new(Expr::Var(Var {
-                    name: "x".to_string()
-                }))
-            }))
-        )
-    }
+    // #[test]
+    // fn parses_let() {
+    //     assert_eq!(
+    //         parse("let x = 3 in x").unwrap(),
+    //         Box::new(Expr::Let(Let {
+    //             name: "x".to_string(),
+    //             value: Box::new(Expr::Int(Int { n: 3 })),
+    //             body: Box::new(Expr::Var(Var {
+    //                 name: "x".to_string()
+    //             }))
+    //         }))
+    //     )
+    // }
 
-    #[test]
-    fn parses_let_nested() {
-        assert_eq!(
-            parse("let x = 3 in let y = 5 in x + y").unwrap(),
-            Box::new(Expr::Let(Let {
-                name: "x".to_string(),
-                value: Box::new(Expr::Int(Int { n: 3 })),
-                body: Box::new(Expr::Let(Let {
-                    name: "y".to_string(),
-                    value: Box::new(Expr::Int(Int { n: 5 })),
-                    body: Box::new(Expr::BinOp(BinOp {
-                        left: Box::new(Expr::Var(Var {
-                            name: "x".to_string()
-                        })),
-                        right: Box::new(Expr::Var(Var {
-                            name: "y".to_string()
-                        })),
-                        kind: BinOpKind::Add
-                    }))
-                }))
-            }))
-        )
-    }
+    // #[test]
+    // fn parses_let_nested() {
+    //     assert_eq!(
+    //         parse("let x = 3 in let y = 5 in x + y").unwrap(),
+    //         Box::new(Expr::Let(Let {
+    //             name: "x".to_string(),
+    //             value: Box::new(Expr::Int(Int { n: 3 })),
+    //             body: Box::new(Expr::Let(Let {
+    //                 name: "y".to_string(),
+    //                 value: Box::new(Expr::Int(Int { n: 5 })),
+    //                 body: Box::new(Expr::BinOp(BinOp {
+    //                     left: Box::new(Expr::Var(Var {
+    //                         name: "x".to_string()
+    //                     })),
+    //                     right: Box::new(Expr::Var(Var {
+    //                         name: "y".to_string()
+    //                     })),
+    //                     kind: BinOpKind::Add
+    //                 }))
+    //             }))
+    //         }))
+    //     )
+    // }
 
     #[test]
     fn parses_fun() {

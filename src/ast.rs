@@ -3,7 +3,7 @@ pub enum Expr {
     Int(Int),
     Var(Var),
     BinOp(BinOp),
-    Let(Let),
+    // Let(Let),
     Fun(Fun),
 }
 
@@ -24,12 +24,12 @@ pub struct BinOp {
     pub kind: BinOpKind,
 }
 
-#[derive(PartialEq, Eq, Debug, Clone)]
-pub struct Let {
-    pub name: String,
-    pub value: Box<Expr>,
-    pub body: Box<Expr>,
-}
+// #[derive(PartialEq, Eq, Debug, Clone)]
+// pub struct Let {
+//     pub name: String,
+//     pub value: Box<Expr>,
+//     pub body: Box<Expr>,
+// }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Fun {
