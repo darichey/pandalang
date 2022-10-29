@@ -1,0 +1,15 @@
+---
+source: src/eval.rs
+expression: source
+input_file: src/snapshot_inputs/fun/id.panda
+---
+Fun(
+    Fun {
+        arg: "x",
+        body: Var(
+            Var {
+                name: "x",
+            },
+        ),
+    },
+)

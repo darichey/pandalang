@@ -1,0 +1,10 @@
+---
+source: src/eval.rs
+expression: source
+input_file: src/snapshot_inputs/bin_op/prec1.panda
+---
+Int(
+    Int {
+        n: 3,
+    },
+)

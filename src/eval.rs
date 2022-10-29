@@ -9,7 +9,7 @@ pub struct Env {
 
 macro_rules! new_env {
     ($($k:expr => $v:expr),* $(,)?) => {{
-        Env { bindings: HashMap::from([$(($k.to_string(), $v),)*]) }
+        Env { bindings: HashMap::from([$(($k.to_string(), Value::Int(Int { n: $v })),)*]) }
     }};
 }
 
@@ -51,269 +51,24 @@ pub fn eval(expr: Expr, env: &Env) -> Value {
 
 #[cfg(test)]
 mod tests {
+    use super::Env;
+    use crate::ast::Int;
+    use crate::value::Value;
+    use crate::{eval, parser};
     use std::collections::HashMap;
 
-    use crate::ast::BinOp;
-    use crate::ast::BinOpKind;
-    use crate::ast::Expr;
-    use crate::ast::Fun;
-    use crate::ast::Int;
-    use crate::ast::Var;
-    use crate::value::Value;
-
-    use super::eval;
-    use super::Env;
-
-    #[test]
-    fn int_eval_id() {
-        let env = new_env!();
-        assert_eq!(
-            eval(Expr::Int(Int { n: 0 }), &env),
-            Value::Int(Int { n: 0 })
+    fn eval(s: String) -> Value {
+        eval::eval(
+            *parser::parse(s.as_str()).unwrap(),
+            &new_env!("x" => 0, "y" => 1, "x'" => 2, "foo" => 3, "a" => 4, "b" => 5, "c" => 6, "d" => 7, "e" => 8),
         )
     }
 
     #[test]
-    fn var_eval_id() {
-        let env = new_env!("x" => Value::Int(Int { n: 3 }));
-        assert_eq!(
-            eval(
-                Expr::Var(Var {
-                    name: "x".to_string()
-                }),
-                &env
-            ),
-            Value::Int(Int { n: 3 })
-        );
-    }
-
-    #[test]
-    fn int_eval_add() {
-        let env = new_env!();
-        assert_eq!(
-            eval(
-                Expr::BinOp(BinOp {
-                    left: Box::new(Expr::Int(Int { n: 1 })),
-                    right: Box::new(Expr::Int(Int { n: 2 })),
-                    kind: BinOpKind::Add,
-                }),
-                &env
-            ),
-            Value::Int(Int { n: 3 })
-        )
-    }
-
-    #[test]
-    fn int_eval_sub() {
-        let env = new_env!();
-        assert_eq!(
-            eval(
-                Expr::BinOp(BinOp {
-                    left: Box::new(Expr::Int(Int { n: 1 })),
-                    right: Box::new(Expr::Int(Int { n: 2 })),
-                    kind: BinOpKind::Sub,
-                }),
-                &env
-            ),
-            Value::Int(Int { n: -1 })
-        )
-    }
-
-    #[test]
-    fn int_eval_mul() {
-        let env = new_env!();
-        assert_eq!(
-            eval(
-                Expr::BinOp(BinOp {
-                    left: Box::new(Expr::Int(Int { n: 1 })),
-                    right: Box::new(Expr::Int(Int { n: 2 })),
-                    kind: BinOpKind::Mul,
-                }),
-                &env
-            ),
-            Value::Int(Int { n: 2 })
-        )
-    }
-
-    #[test]
-    fn int_eval_div() {
-        let env = new_env!();
-        assert_eq!(
-            eval(
-                Expr::BinOp(BinOp {
-                    left: Box::new(Expr::Int(Int { n: 1 })),
-                    right: Box::new(Expr::Int(Int { n: 2 })),
-                    kind: BinOpKind::Div,
-                }),
-                &env
-            ),
-            Value::Int(Int { n: 0 })
-        )
-    }
-
-    #[test]
-    fn var_eval_add() {
-        let env = new_env!("x" => Value::Int(Int { n: 1 }), "y" => Value::Int(Int { n: 2 }));
-        assert_eq!(
-            eval(
-                Expr::BinOp(BinOp {
-                    left: Box::new(Expr::Var(Var {
-                        name: "x".to_string()
-                    })),
-                    right: Box::new(Expr::Var(Var {
-                        name: "y".to_string()
-                    })),
-                    kind: BinOpKind::Add,
-                }),
-                &env
-            ),
-            Value::Int(Int { n: 3 })
-        )
-    }
-
-    #[test]
-    fn var_eval_sub() {
-        let env = new_env!("x" => Value::Int(Int { n: 1 }), "y" => Value::Int(Int { n: 2 }));
-        assert_eq!(
-            eval(
-                Expr::BinOp(BinOp {
-                    left: Box::new(Expr::Var(Var {
-                        name: "x".to_string()
-                    })),
-                    right: Box::new(Expr::Var(Var {
-                        name: "y".to_string()
-                    })),
-                    kind: BinOpKind::Sub,
-                }),
-                &env
-            ),
-            Value::Int(Int { n: -1 })
-        )
-    }
-
-    #[test]
-    fn var_eval_mul() {
-        let env = new_env!("x" => Value::Int(Int { n: 1 }), "y" => Value::Int(Int { n: 2 }));
-        assert_eq!(
-            eval(
-                Expr::BinOp(BinOp {
-                    left: Box::new(Expr::Var(Var {
-                        name: "x".to_string()
-                    })),
-                    right: Box::new(Expr::Var(Var {
-                        name: "y".to_string()
-                    })),
-                    kind: BinOpKind::Mul,
-                }),
-                &env
-            ),
-            Value::Int(Int { n: 2 })
-        )
-    }
-
-    #[test]
-    fn var_eval_div() {
-        let env = new_env!("x" => Value::Int(Int { n: 1 }), "y" => Value::Int(Int { n: 2 }));
-        assert_eq!(
-            eval(
-                Expr::BinOp(BinOp {
-                    left: Box::new(Expr::Var(Var {
-                        name: "x".to_string()
-                    })),
-                    right: Box::new(Expr::Var(Var {
-                        name: "y".to_string()
-                    })),
-                    kind: BinOpKind::Div,
-                }),
-                &env
-            ),
-            Value::Int(Int { n: 0 })
-        )
-    }
-
-    // #[test]
-    // fn let_eval_id() {
-    //     let env = new_env!();
-    //     assert_eq!(
-    //         eval(
-    //             Expr::Let(Let {
-    //                 name: "x".to_string(),
-    //                 value: Box::new(Expr::Int(Int { n: 3 })),
-    //                 body: Box::new(Expr::Var(Var {
-    //                     name: "x".to_string()
-    //                 }))
-    //             }),
-    //             &env
-    //         ),
-    //         Value::Int(Int { n: 3 })
-    //     )
-    // }
-
-    // #[test]
-    // fn let_eval_shadow() {
-    //     let env = new_env!("x" => Value::Int(Int { n: 5 }));
-    //     assert_eq!(
-    //         eval(
-    //             Expr::Let(Let {
-    //                 name: "x".to_string(),
-    //                 value: Box::new(Expr::Int(Int { n: 3 })),
-    //                 body: Box::new(Expr::Var(Var {
-    //                     name: "x".to_string()
-    //                 }))
-    //             }),
-    //             &env
-    //         ),
-    //         Value::Int(Int { n: 3 })
-    //     )
-    // }
-
-    // #[test]
-    // fn let_eval_nested() {
-    //     let env = new_env!();
-    //     assert_eq!(
-    //         eval(
-    //             Expr::Let(Let {
-    //                 name: "x".to_string(),
-    //                 value: Box::new(Expr::Int(Int { n: 3 })),
-    //                 body: Box::new(Expr::Let(Let {
-    //                     name: "y".to_string(),
-    //                     value: Box::new(Expr::Int(Int { n: 5 })),
-    //                     body: Box::new(Expr::BinOp(BinOp {
-    //                         left: Box::new(Expr::Var(Var {
-    //                             name: "x".to_string()
-    //                         })),
-    //                         right: Box::new(Expr::Var(Var {
-    //                             name: "y".to_string()
-    //                         })),
-    //                         kind: BinOpKind::Add
-    //                     }))
-    //                 }))
-    //             }),
-    //             &env
-    //         ),
-    //         Value::Int(Int { n: 8 })
-    //     )
-    // }
-
-    #[test]
-    fn fun_eval_id() {
-        let env = new_env!();
-        assert_eq!(
-            eval(
-                Expr::Fun(Fun {
-                    arg: "x".to_string(),
-                    body: Box::new(Expr::Var(Var {
-                        name: "x".to_string()
-                    }))
-                }),
-                &env
-            ),
-            Value::Fun(Fun {
-                arg: "x".to_string(),
-                body: Box::new(Expr::Var(Var {
-                    name: "x".to_string()
-                }))
-            })
-        )
+    fn evals() {
+        insta::glob!("snapshot_inputs/**/*.panda", |path| {
+            let source = eval(std::fs::read_to_string(&path).unwrap());
+            insta::assert_debug_snapshot!(source);
+        });
     }
 }

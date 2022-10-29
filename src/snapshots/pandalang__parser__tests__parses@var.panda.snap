@@ -1,0 +1,10 @@
+---
+source: src/parser.rs
+expression: source
+input_file: src/snapshot_inputs/var/var.panda
+---
+Var(
+    Var {
+        name: "x",
+    },
+)
