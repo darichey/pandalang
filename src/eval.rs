@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ast::{BinOp, BinOpKind, Expr, Int, Var};
+use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Var};
 use crate::value::Value;
 
 pub struct Env {
@@ -38,15 +38,52 @@ pub fn eval(expr: Expr, env: &Env) -> Value {
 
             Value::Int(Int { n: f(x, y) })
         }
-        // Expr::Let(Let { name, value, body }) => {
-        //     let mut new_env = Env {
-        //         bindings: env.bindings.clone(),
-        //     }; // TODO: no
-        //     new_env.bindings.insert(name, eval(*value, env));
-        //     eval(*body, &new_env)
-        // }
         Expr::Fun(fun) => Value::Fun(fun),
+        Expr::App(App { fun, arg }) => {
+            let Fun {
+                arg: arg_name,
+                body,
+            } = match eval(*fun, env) {
+                Value::Fun(fun) => fun,
+                _ => panic!("oh god oh fuck"),
+            };
+            let arg = eval(*arg, env).as_expr();
+
+            eval(cas(*body, arg, arg_name), env)
+        }
     }
+}
+
+fn cas(e1: Expr, e2: Expr, var: String) -> Expr {
+    return match e1 {
+        Expr::Var(Var { name }) => {
+            if var == name {
+                e2
+            } else {
+                Expr::Var(Var { name })
+            }
+        }
+        Expr::Fun(Fun { arg, body }) => {
+            if var == arg {
+                Expr::Fun(Fun { arg, body })
+            } else {
+                Expr::Fun(Fun {
+                    arg,
+                    body: Box::new(cas(*body, e2, var)),
+                })
+            }
+        }
+        Expr::App(App { fun, arg }) => Expr::App(App {
+            fun: Box::new(cas(*fun, e2.clone(), var.clone())),
+            arg: Box::new(cas(*arg, e2, var)),
+        }),
+        Expr::Int(n) => Expr::Int(n),
+        Expr::BinOp(BinOp { left, right, kind }) => Expr::BinOp(BinOp {
+            left: Box::new(cas(*left, e2.clone(), var.clone())),
+            right: Box::new(cas(*right, e2, var)),
+            kind,
+        }),
+    };
 }
 
 #[cfg(test)]

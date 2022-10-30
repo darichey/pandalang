@@ -5,6 +5,7 @@ pub enum Expr {
     BinOp(BinOp),
     // Let(Let),
     Fun(Fun),
+    App(App),
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -35,6 +36,12 @@ pub struct BinOp {
 pub struct Fun {
     pub arg: String,
     pub body: Box<Expr>,
+}
+
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub struct App {
+    pub fun: Box<Expr>,
+    pub arg: Box<Expr>,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
