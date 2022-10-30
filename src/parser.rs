@@ -6,7 +6,7 @@ lalrpop_mod!(pub grammar);
 
 pub fn parse<'input>(
     s: &'input str,
-) -> Result<Box<Expr>, ParseError<usize, Token<'input>, &'static str>> {
+) -> Result<Expr, ParseError<usize, Token<'input>, &'static str>> {
     grammar::ExprParser::new().parse(s)
 }
 
@@ -14,7 +14,7 @@ pub fn parse<'input>(
 mod tests {
     use crate::{ast::Expr, parser};
 
-    fn parse(s: String) -> Box<Expr> {
+    fn parse(s: String) -> Expr {
         parser::parse(s.as_str()).unwrap()
     }
 

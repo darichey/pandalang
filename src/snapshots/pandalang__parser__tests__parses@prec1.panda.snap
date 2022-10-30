@@ -3,16 +3,16 @@ source: src/parser.rs
 expression: source
 input_file: src/snapshot_inputs/bin_op/prec1.panda
 ---
-BinOp(
+Expr(
     BinOp {
-        left: BinOp(
+        left: Expr(
             BinOp {
-                left: Var(
+                left: Expr(
                     Var {
                         name: "a",
                     },
                 ),
-                right: Var(
+                right: Expr(
                     Var {
                         name: "b",
                     },
@@ -20,7 +20,7 @@ BinOp(
                 kind: Add,
             },
         ),
-        right: Var(
+        right: Expr(
             Var {
                 name: "c",
             },

@@ -3,30 +3,30 @@ source: src/parser.rs
 expression: source
 input_file: src/snapshot_inputs/parens/parens5.panda
 ---
-BinOp(
+Expr(
     BinOp {
-        left: BinOp(
+        left: Expr(
             BinOp {
-                left: Var(
+                left: Expr(
                     Var {
                         name: "a",
                     },
                 ),
-                right: BinOp(
+                right: Expr(
                     BinOp {
-                        left: Var(
+                        left: Expr(
                             Var {
                                 name: "b",
                             },
                         ),
-                        right: BinOp(
+                        right: Expr(
                             BinOp {
-                                left: Var(
+                                left: Expr(
                                     Var {
                                         name: "c",
                                     },
                                 ),
-                                right: Var(
+                                right: Expr(
                                     Var {
                                         name: "d",
                                     },
@@ -40,7 +40,7 @@ BinOp(
                 kind: Add,
             },
         ),
-        right: Var(
+        right: Expr(
             Var {
                 name: "e",
             },

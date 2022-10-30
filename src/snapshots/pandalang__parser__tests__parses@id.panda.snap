@@ -3,19 +3,19 @@ source: src/parser.rs
 expression: source
 input_file: src/snapshot_inputs/app/id.panda
 ---
-App(
+Expr(
     App {
-        fun: Fun(
+        fun: Expr(
             Fun {
                 arg: "x",
-                body: Var(
+                body: Expr(
                     Var {
                         name: "x",
                     },
                 ),
             },
         ),
-        arg: Int(
+        arg: Expr(
             Int {
                 n: 3,
             },

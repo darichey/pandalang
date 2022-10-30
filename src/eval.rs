@@ -1,31 +1,30 @@
 use std::collections::HashMap;
 
-use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Var};
-use crate::value::Value;
+use crate::ast::{BinOpKind, Expr, ExprF};
 
 pub struct Env {
-    pub bindings: HashMap<String, Value>,
+    pub bindings: HashMap<String, Expr>,
 }
 
 macro_rules! new_env {
     ($($k:expr => $v:expr),* $(,)?) => {{
-        Env { bindings: std::collections::HashMap::from([$(($k.to_string(), Value::Int(Int { n: $v })),)*]) }
+        Env { bindings: std::collections::HashMap::from([$(($k.to_string(), Expr(Box::new(ExprF::Int { n: $v }))),)*]) }
     }};
 }
 
 pub(crate) use new_env;
 
 impl Env {
-    pub fn lookup(&self, x: &String) -> Value {
+    pub fn lookup(&self, x: &String) -> Expr {
         self.bindings.get(x).unwrap().clone()
     }
 }
 
-pub fn eval(expr: Expr, env: &Env) -> Value {
-    match expr {
-        Expr::Int(n) => Value::Int(n),
-        Expr::Var(Var { name }) => env.lookup(&name),
-        Expr::BinOp(BinOp { left, right, kind }) => {
+pub fn eval(expr: Expr, env: &Env) -> Expr {
+    match *expr.0 {
+        ExprF::Int { n } => expr,
+        ExprF::Var { name } => env.lookup(&name),
+        ExprF::BinOp { left, right, kind } => {
             let f = match kind {
                 BinOpKind::Add => std::ops::Add::add,
                 BinOpKind::Sub => std::ops::Sub::sub,
@@ -33,71 +32,66 @@ pub fn eval(expr: Expr, env: &Env) -> Value {
                 BinOpKind::Div => std::ops::Div::div,
             };
 
-            let (x, y) = match (eval(*left, env), eval(*right, env)) {
-                (Value::Int(Int { n: x }), Value::Int(Int { n: y })) => (x, y),
+            let (x, y) = match (*eval(left, env).0, *eval(right, env).0) {
+                (ExprF::Int { n: x }, ExprF::Int { n: y }) => (x, y),
                 _ => panic!("oh god oh fuck"),
             };
 
-            Value::Int(Int { n: f(x, y) })
+            Expr(Box::new(ExprF::Int { n: f(x, y) }))
         }
-        Expr::Fun(fun) => Value::Fun(fun),
-        Expr::App(App { fun, arg }) => {
-            let Fun {
-                arg: arg_name,
-                body,
-            } = match eval(*fun, env) {
-                Value::Fun(fun) => fun,
+        ExprF::Fun { arg, body } => Expr(Box::new(ExprF::Fun { arg, body })),
+        ExprF::App { fun, arg } => {
+            let (arg_name, body) = match *eval(fun, env).0 {
+                ExprF::Fun { arg, body } => (arg, body),
                 _ => panic!("oh god oh fuck"),
             };
-            let arg = eval(*arg, env).as_expr();
+            let arg = eval(arg, env);
 
-            eval(cas(*body, arg, arg_name), env)
+            eval(cas(body, arg, arg_name), env)
         }
     }
 }
 
 fn cas(e1: Expr, e2: Expr, var: String) -> Expr {
-    return match e1 {
-        Expr::Var(Var { name }) => {
+    return match *e1.0 {
+        ExprF::Var { name } => {
             if var == name {
                 e2
             } else {
-                Expr::Var(Var { name })
+                Expr(Box::new(ExprF::Var { name }))
             }
         }
-        Expr::Fun(Fun { arg, body }) => {
+        ExprF::Fun { arg, body } => {
             if var == arg {
-                Expr::Fun(Fun { arg, body })
+                Expr(Box::new(ExprF::Fun { arg, body }))
             } else {
-                Expr::Fun(Fun {
+                Expr(Box::new(ExprF::Fun {
                     arg,
-                    body: Box::new(cas(*body, e2, var)),
-                })
+                    body: cas(body, e2, var),
+                }))
             }
         }
-        Expr::App(App { fun, arg }) => Expr::App(App {
-            fun: Box::new(cas(*fun, e2.clone(), var.clone())),
-            arg: Box::new(cas(*arg, e2, var)),
-        }),
-        Expr::Int(n) => Expr::Int(n),
-        Expr::BinOp(BinOp { left, right, kind }) => Expr::BinOp(BinOp {
-            left: Box::new(cas(*left, e2.clone(), var.clone())),
-            right: Box::new(cas(*right, e2, var)),
+        ExprF::App { fun, arg } => Expr(Box::new(ExprF::App {
+            fun: cas(fun, e2.clone(), var.clone()),
+            arg: cas(arg, e2, var),
+        })),
+        ExprF::Int { n } => Expr(Box::new(ExprF::Int { n })),
+        ExprF::BinOp { left, right, kind } => Expr(Box::new(ExprF::BinOp {
+            left: cas(left, e2.clone(), var.clone()),
+            right: cas(right, e2, var),
             kind,
-        }),
+        })),
     };
 }
 
 #[cfg(test)]
 mod tests {
     use super::Env;
-    use crate::ast::Int;
-    use crate::value::Value;
-    use crate::{eval, parser};
+    use crate::{ast::Expr, ast::ExprF, eval, parser};
 
-    fn eval_test(s: String) -> Value {
+    fn eval_test(s: String) -> Expr {
         eval::eval(
-            *parser::parse(s.as_str()).unwrap(),
+            parser::parse(s.as_str()).unwrap(),
             &new_env!("x" => 0, "y" => 1, "x'" => 2, "foo" => 3, "a" => 4, "b" => 5, "c" => 6, "d" => 7, "e" => 8),
         )
     }

@@ -3,7 +3,7 @@ source: src/parser.rs
 expression: source
 input_file: src/snapshot_inputs/var/prime.panda
 ---
-Var(
+Expr(
     Var {
         name: "x'",
     },

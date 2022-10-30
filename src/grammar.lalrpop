@@ -1,23 +1,23 @@
 use std::str::FromStr;
-use crate::ast::{BinOp, BinOpKind, Expr, Fun, Int, Var, App};
+use crate::ast::{BinOpKind, Expr, ExprF};
 
 grammar;
 
-pub Expr: Box<Expr> = {
+pub Expr: Expr = {
     #[precedence(level="0")]
-    Int => Box::new(Expr::Int(Int { n: <> })),
-    Name => Box::new(Expr::Var(Var { name: <>.to_string() })),
+    Int => Expr(Box::new(ExprF::Int { n: <> })),
+    Name => Expr(Box::new(ExprF::Var { name: <>.to_string() })),
     "(" <ExprReset> ")",
 
     #[precedence(level="1")]
     #[assoc(side="left")]
-    <left:Expr> "*" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Mul })),
-    <left:Expr> "/" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Div })),
+    <left:Expr> "*" <right:Expr> => Expr(Box::new(ExprF::BinOp { left, right, kind: BinOpKind::Mul })),
+    <left:Expr> "/" <right:Expr> => Expr(Box::new(ExprF::BinOp { left, right, kind: BinOpKind::Div })),
 
     #[precedence(level="2")]
     #[assoc(side="left")]
-    <left:Expr> "+" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Add })),
-    <left:Expr> "-" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Sub })),
+    <left:Expr> "+" <right:Expr> => Expr(Box::new(ExprF::BinOp { left, right, kind: BinOpKind::Add })),
+    <left:Expr> "-" <right:Expr> => Expr(Box::new(ExprF::BinOp { left, right, kind: BinOpKind::Sub })),
 
     // #[precedence(level="3")]
     // #[assoc(side="right")]
@@ -25,11 +25,11 @@ pub Expr: Box<Expr> = {
 
     #[precedence(level="4")]
     #[assoc(side="right")]
-    "fun" <arg:Name> "->" <body:Expr> => Box::new(Expr::Fun(Fun { arg: arg.to_string(), body })),
+    "fun" <arg:Name> "->" <body:Expr> => Expr(Box::new(ExprF::Fun { arg: arg.to_string(), body })),
 
     #[precedence(level="5")]
     #[assoc(side="left")]
-    <fun:Expr> <arg:Expr> => Box::new(Expr::App(App { fun, arg }))
+    <fun:Expr> <arg:Expr> => Expr(Box::new(ExprF::App { fun, arg }))
 };
 
 // See https://github.com/lalrpop/lalrpop/issues/596

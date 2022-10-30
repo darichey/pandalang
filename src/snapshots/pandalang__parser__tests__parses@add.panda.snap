@@ -3,24 +3,24 @@ source: src/parser.rs
 expression: source
 input_file: src/snapshot_inputs/app/add.panda
 ---
-App(
+Expr(
     App {
-        fun: App(
+        fun: Expr(
             App {
-                fun: Fun(
+                fun: Expr(
                     Fun {
                         arg: "x",
-                        body: Fun(
+                        body: Expr(
                             Fun {
                                 arg: "y",
-                                body: BinOp(
+                                body: Expr(
                                     BinOp {
-                                        left: Var(
+                                        left: Expr(
                                             Var {
                                                 name: "x",
                                             },
                                         ),
-                                        right: Var(
+                                        right: Expr(
                                             Var {
                                                 name: "y",
                                             },
@@ -32,14 +32,14 @@ App(
                         ),
                     },
                 ),
-                arg: Int(
+                arg: Expr(
                     Int {
                         n: 2,
                     },
                 ),
             },
         ),
-        arg: Int(
+        arg: Expr(
             Int {
                 n: 3,
             },
