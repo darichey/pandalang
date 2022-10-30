@@ -1,99 +1,102 @@
-use std::collections::HashMap;
+use recursion::{Collapse, expand_and_collapse};
 
-use crate::ast::{BinOpKind, ExprBoxed, ExprF};
+use crate::{
+    ast::{BinOpKind, Expr, ExprF},
+    value::Value,
+};
 
-pub struct Env {
-    pub bindings: HashMap<String, ExprBoxed>,
-}
-
-macro_rules! new_env {
-    ($($k:expr => $v:expr),* $(,)?) => {{
-        Env { bindings: std::collections::HashMap::from([$(($k.to_string(), ExprBoxed(Box::new(ExprF::Int { n: $v }))),)*]) }
-    }};
-}
-
-pub(crate) use new_env;
-
-impl Env {
-    pub fn lookup(&self, x: &String) -> ExprBoxed {
-        self.bindings.get(x).unwrap().clone()
+fn global_env_TEMP(name: &str) -> i64 {
+    match name {
+        "x" => 0,
+        "y" => 1,
+        "x'" => 2,
+        "foo" => 3,
+        "a" => 4,
+        "b" => 5,
+        "c" => 6,
+        "d" => 7,
+        "e" => 8,
+        _ => panic!("unknown env var"),
     }
 }
 
-pub fn eval(expr: ExprBoxed, env: &Env) -> ExprBoxed {
-    match *expr.0 {
-        ExprF::Int { n } => expr,
-        ExprF::Var { name } => env.lookup(&name),
-        ExprF::BinOp { left, right, kind } => {
-            let f = match kind {
-                BinOpKind::Add => std::ops::Add::add,
-                BinOpKind::Sub => std::ops::Sub::sub,
-                BinOpKind::Mul => std::ops::Mul::mul,
-                BinOpKind::Div => std::ops::Div::div,
-            };
+pub fn eval(expr: Expr) -> Value {
+    // Collapse::collapse_layers(expr, |expr| match expr {
+    //     ExprF::Int { n } => Value::Int { n },
+    //     ExprF::Var { name } => Value::Int {
+    //         n: global_env_TEMP(name.as_str()),
+    //     },
+    //     ExprF::BinOp { left, right, kind } => {
+    //         let f = match kind {
+    //             BinOpKind::Add => std::ops::Add::add,
+    //             BinOpKind::Sub => std::ops::Sub::sub,
+    //             BinOpKind::Mul => std::ops::Mul::mul,
+    //             BinOpKind::Div => std::ops::Div::div,
+    //         };
 
-            let (x, y) = match (*eval(left, env).0, *eval(right, env).0) {
-                (ExprF::Int { n: x }, ExprF::Int { n: y }) => (x, y),
-                _ => panic!("oh god oh fuck"),
-            };
+    //         let (x, y) = match (left, right) {
+    //             (Value::Int { n: x }, Value::Int { n: y }) => (x, y),
+    //             _ => panic!("oh god oh fuck"),
+    //         };
 
-            ExprBoxed(Box::new(ExprF::Int { n: f(x, y) }))
-        }
-        ExprF::Fun { arg, body } => ExprBoxed(Box::new(ExprF::Fun { arg, body })),
-        ExprF::App { fun, arg } => {
-            let (arg_name, body) = match *eval(fun, env).0 {
-                ExprF::Fun { arg, body } => (arg, body),
-                _ => panic!("oh god oh fuck"),
-            };
-            let arg = eval(arg, env);
+    //         Value::Int { n: f(x, y) }
+    //     }
+    //     ExprF::Fun { arg, body } => Value::Fun {
+    //         arg,
+    //         body: Box::new(body),
+    //     },
+    //     ExprF::App { fun, arg } => {
+    //         let (arg_name, body) = match fun {
+    //             Value::Fun { arg, body } => (arg, *body),
+    //             _ => panic!("oh god oh fuck"),
+    //         };
 
-            eval(cas(body, arg, arg_name), env)
-        }
-    }
+    //         cas(body, arg, arg_name)
+    //     }
+    // })
+
+    todo!()
 }
 
-fn cas(e1: ExprBoxed, e2: ExprBoxed, var: String) -> ExprBoxed {
-    return match *e1.0 {
-        ExprF::Var { name } => {
-            if var == name {
-                e2
-            } else {
-                ExprBoxed(Box::new(ExprF::Var { name }))
-            }
-        }
-        ExprF::Fun { arg, body } => {
-            if var == arg {
-                ExprBoxed(Box::new(ExprF::Fun { arg, body }))
-            } else {
-                ExprBoxed(Box::new(ExprF::Fun {
-                    arg,
-                    body: cas(body, e2, var),
-                }))
-            }
-        }
-        ExprF::App { fun, arg } => ExprBoxed(Box::new(ExprF::App {
-            fun: cas(fun, e2.clone(), var.clone()),
-            arg: cas(arg, e2, var),
-        })),
-        ExprF::Int { n } => ExprBoxed(Box::new(ExprF::Int { n })),
-        ExprF::BinOp { left, right, kind } => ExprBoxed(Box::new(ExprF::BinOp {
-            left: cas(left, e2.clone(), var.clone()),
-            right: cas(right, e2, var),
-            kind,
-        })),
-    };
+fn cas(e1: Expr, e2: Expr, var: String) -> Expr {
+    // return match *e1.0 {
+    //     ExprF::Var { name } => {
+    //         if var == name {
+    //             e2
+    //         } else {
+    //             ExprBoxed(Box::new(ExprF::Var { name }))
+    //         }
+    //     }
+    //     ExprF::Fun { arg, body } => {
+    //         if var == arg {
+    //             ExprBoxed(Box::new(ExprF::Fun { arg, body }))
+    //         } else {
+    //             ExprBoxed(Box::new(ExprF::Fun {
+    //                 arg,
+    //                 body: cas(body, e2, var),
+    //             }))
+    //         }
+    //     }
+    //     ExprF::App { fun, arg } => ExprBoxed(Box::new(ExprF::App {
+    //         fun: cas(fun, e2.clone(), var.clone()),
+    //         arg: cas(arg, e2, var),
+    //     })),
+    //     ExprF::Int { n } => ExprBoxed(Box::new(ExprF::Int { n })),
+    //     ExprF::BinOp { left, right, kind } => ExprBoxed(Box::new(ExprF::BinOp {
+    //         left: cas(left, e2.clone(), var.clone()),
+    //         right: cas(right, e2, var),
+    //         kind,
+    //     })),
+    // };
+    todo!()
 }
 
 #[cfg(test)]
 mod tests {
-    use super::Env;
-    use crate::{ast::ExprBoxed, ast::ExprF, eval, parser};
+    use crate::{eval, parser, value::Value};
 
-    fn eval_test(s: String) -> ExprBoxed {
-        eval::eval(
-            parser::parse(s.as_str()).unwrap().into(),
-            &new_env!("x" => 0, "y" => 1, "x'" => 2, "foo" => 3, "a" => 4, "b" => 5, "c" => 6, "d" => 7, "e" => 8),
-        )
+    fn eval_test(s: String) -> Value {
+        eval::eval(parser::parse(s.as_str()).unwrap().into())
     }
 
     #[test]
