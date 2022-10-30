@@ -4,14 +4,16 @@ use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Var};
 use crate::value::Value;
 
 pub struct Env {
-    bindings: HashMap<String, Value>,
+    pub bindings: HashMap<String, Value>,
 }
 
 macro_rules! new_env {
     ($($k:expr => $v:expr),* $(,)?) => {{
-        Env { bindings: HashMap::from([$(($k.to_string(), Value::Int(Int { n: $v })),)*]) }
+        Env { bindings: std::collections::HashMap::from([$(($k.to_string(), Value::Int(Int { n: $v })),)*]) }
     }};
 }
+
+pub(crate) use new_env;
 
 impl Env {
     pub fn lookup(&self, x: &String) -> Value {
@@ -92,9 +94,8 @@ mod tests {
     use crate::ast::Int;
     use crate::value::Value;
     use crate::{eval, parser};
-    use std::collections::HashMap;
 
-    fn eval(s: String) -> Value {
+    fn eval_test(s: String) -> Value {
         eval::eval(
             *parser::parse(s.as_str()).unwrap(),
             &new_env!("x" => 0, "y" => 1, "x'" => 2, "foo" => 3, "a" => 4, "b" => 5, "c" => 6, "d" => 7, "e" => 8),
@@ -104,7 +105,7 @@ mod tests {
     #[test]
     fn evals() {
         insta::glob!("snapshot_inputs/**/*.panda", |path| {
-            let source = eval(std::fs::read_to_string(&path).unwrap());
+            let source = eval_test(std::fs::read_to_string(&path).unwrap());
             insta::assert_debug_snapshot!(source);
         });
     }
