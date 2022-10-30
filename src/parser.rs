@@ -1,21 +1,23 @@
 use lalrpop_util::{lexer::Token, ParseError};
+use recursion::Expand;
 
-use crate::ast::Expr;
+use crate::ast::{ExprBoxed, Expr};
 
 lalrpop_mod!(pub grammar);
 
 pub fn parse<'input>(
     s: &'input str,
 ) -> Result<Expr, ParseError<usize, Token<'input>, &'static str>> {
-    grammar::ExprParser::new().parse(s)
+    let expr_boxed = grammar::ExprParser::new().parse(s)?;
+    Ok(Expand::expand_layers(expr_boxed, |ExprBoxed(boxed)| *boxed))
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{ast::Expr, parser};
+    use crate::{ast::ExprBoxed, parser};
 
-    fn parse(s: String) -> Expr {
-        parser::parse(s.as_str()).unwrap()
+    fn parse(s: String) -> ExprBoxed {
+        parser::parse(s.as_str()).unwrap().into()
     }
 
     #[test]

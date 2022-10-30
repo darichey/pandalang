@@ -8,6 +8,7 @@ lalrpop = "0.19.8"
 
 [dependencies]
 lalrpop-util = { version = "0.19.8", features = [ "lexer" ] }
+recursion = "0.3.3"
 regex = "1"
 rustyline = "10.0.0"
 

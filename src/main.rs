@@ -5,6 +5,7 @@ mod parser;
 #[macro_use]
 extern crate lalrpop_util;
 
+use ast::ExprBoxed;
 use rustyline::error::ReadlineError;
 use rustyline::{Editor, Result};
 
@@ -49,10 +50,11 @@ fn main() -> Result<()> {
 fn eval<'a>(s: &'a str) -> String {
     format!(
         "{:?}",
-        eval::eval(parser::parse(s).unwrap(), &eval::new_env!())
+        eval::eval(parser::parse(s).unwrap().into(), &eval::new_env!())
     )
 }
 
 fn ast<'a>(s: &'a str) -> String {
-    format!("{:?}", parser::parse(s))
+    let expr_boxed: ExprBoxed = parser::parse(s).unwrap().into();
+    format!("{:?}", expr_boxed)
 }
