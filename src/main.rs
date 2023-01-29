@@ -1,6 +1,8 @@
 mod ast;
+mod desugar;
 mod eval;
 mod parser;
+mod pretty;
 mod value;
 
 #[macro_use]
@@ -21,13 +23,15 @@ fn main() -> Result<()> {
 
                 if let Some(source) = line.strip_prefix("#ast ") {
                     println!("{}", ast(source))
+                } else if let Some(source) = line.strip_prefix("#desugar") {
+                    println!("{}", desguar(source))
                 } else {
                     let source = match line.strip_prefix("#eval ") {
                         Some(source) => source,
                         None => line.as_str(),
                     };
 
-                    println!("{}", eval(source)); // TODO: pretty print this
+                    println!("{}", eval(source));
                 }
             }
             Err(ReadlineError::Interrupted) => {
@@ -48,12 +52,22 @@ fn main() -> Result<()> {
 }
 
 fn eval<'a>(s: &'a str) -> String {
-    format!(
-        "{:?}",
-        eval::eval(*parser::parse(s).unwrap(), &eval::new_env!())
+    pretty::pretty(
+        eval::eval(
+            desugar::desugar_let(*parser::parse(s).unwrap()),
+            &eval::new_env!(),
+        )
+        .as_expr(),
     )
 }
 
 fn ast<'a>(s: &'a str) -> String {
     format!("{:?}", parser::parse(s))
+}
+
+fn desguar<'a>(s: &'a str) -> String {
+    match parser::parse(s) {
+        Ok(ast) => format!("{}", pretty::pretty(desugar::desugar_let(*ast))),
+        Err(err) => format!("{:?}", err),
+    }
 }

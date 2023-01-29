@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::ast::{BinOp, BinOpKind, Expr, Fun, Int, Var, App};
+use crate::ast::{BinOp, BinOpKind, Expr, Fun, Int, Var, App, Let};
 
 grammar;
 
@@ -19,9 +19,9 @@ pub Expr: Box<Expr> = {
     <left:Expr> "+" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Add })),
     <left:Expr> "-" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Sub })),
 
-    // #[precedence(level="3")]
-    // #[assoc(side="right")]
-    // "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(Let { name: name.to_string(), value, body })),
+    #[precedence(level="3")]
+    #[assoc(side="right")]
+    "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(Let { name: name.to_string(), value, body })),
 
     #[precedence(level="4")]
     #[assoc(side="right")]

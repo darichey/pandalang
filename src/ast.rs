@@ -3,7 +3,7 @@ pub enum Expr {
     Int(Int),
     Var(Var),
     BinOp(BinOp),
-    // Let(Let),
+    Let(Let),
     Fun(Fun),
     App(App),
 }
@@ -25,12 +25,12 @@ pub struct BinOp {
     pub kind: BinOpKind,
 }
 
-// #[derive(PartialEq, Eq, Debug, Clone)]
-// pub struct Let {
-//     pub name: String,
-//     pub value: Box<Expr>,
-//     pub body: Box<Expr>,
-// }
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub struct Let {
+    pub name: String,
+    pub value: Box<Expr>,
+    pub body: Box<Expr>,
+}
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Fun {
@@ -50,4 +50,16 @@ pub enum BinOpKind {
     Sub,
     Mul,
     Div,
+}
+
+impl ToString for BinOpKind {
+    fn to_string(&self) -> String {
+        match self {
+            BinOpKind::Add => "+",
+            BinOpKind::Sub => "-",
+            BinOpKind::Mul => "*",
+            BinOpKind::Div => "/",
+        }
+        .to_string()
+    }
 }

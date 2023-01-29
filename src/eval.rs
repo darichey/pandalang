@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Var};
+use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Let, Var};
 use crate::value::Value;
 
 pub struct Env {
@@ -53,6 +53,7 @@ pub fn eval(expr: Expr, env: &Env) -> Value {
 
             eval(cas(*body, arg, arg_name), env)
         }
+        Expr::Let(_) => panic!("Let in eval"),
     }
 }
 
@@ -85,6 +86,7 @@ fn cas(e1: Expr, e2: Expr, var: String) -> Expr {
             right: Box::new(cas(*right, e2, var)),
             kind,
         }),
+        Expr::Let(_) => panic!("Let in cas"),
     };
 }
 
