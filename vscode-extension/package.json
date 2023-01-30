@@ -1,0 +1,25 @@
+{
+  "name": "pandalang",
+  "displayName": "PandaLang",
+  "description": "Adds support for PandaLang",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "pandalang",
+      "aliases": ["PandaLang", "pandalang"],
+      "extensions": [".panda"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "pandalang",
+      "scopeName": "source.panda",
+      "path": "./syntaxes/pandalang.tmLanguage.json"
+    }]
+  }
+}

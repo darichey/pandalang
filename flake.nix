@@ -15,6 +15,9 @@
           rust-analyzer
           rustfmt
           clippy
+
+          # JavaScript dev
+          nodejs
         ];
       };
     };
