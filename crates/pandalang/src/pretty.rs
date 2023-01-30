@@ -1,8 +1,9 @@
-use crate::ast::{App, BinOp, Expr, Fun, Int, Let, Var};
+use crate::ast::{App, BinOp, Expr, Fun, Int, Let, Str, Var};
 
 pub fn pretty(e: Expr) -> String {
     match e {
         Expr::Int(Int { n }) => n.to_string(),
+        Expr::Str(Str { s }) => format!("\"{}\"", s),
         Expr::Var(Var { name }) => name,
         Expr::BinOp(BinOp { left, right, kind }) => {
             format!("{} {} {}", pretty(*left), kind.to_string(), pretty(*right))

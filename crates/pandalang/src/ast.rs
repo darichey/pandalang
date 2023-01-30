@@ -1,6 +1,7 @@
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum Expr {
     Int(Int),
+    Str(Str),
     Var(Var),
     BinOp(BinOp),
     Let(Let),
@@ -11,6 +12,11 @@ pub enum Expr {
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Int {
     pub n: i64,
+}
+
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub struct Str {
+    pub s: String,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]

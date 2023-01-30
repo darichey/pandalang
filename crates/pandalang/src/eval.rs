@@ -24,6 +24,7 @@ impl Env {
 pub fn eval(expr: Expr, env: &Env) -> Value {
     match expr {
         Expr::Int(n) => Value::Int(n),
+        Expr::Str(s) => Value::Str(s),
         Expr::Var(Var { name }) => env.lookup(&name),
         Expr::BinOp(BinOp { left, right, kind }) => {
             let f = match kind {
@@ -81,6 +82,7 @@ fn cas(e1: Expr, e2: Expr, var: String) -> Expr {
             arg: Box::new(cas(*arg, e2, var)),
         }),
         Expr::Int(n) => Expr::Int(n),
+        Expr::Str(s) => Expr::Str(s),
         Expr::BinOp(BinOp { left, right, kind }) => Expr::BinOp(BinOp {
             left: Box::new(cas(*left, e2.clone(), var.clone())),
             right: Box::new(cas(*right, e2, var)),
