@@ -1,0 +1,30 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: source
+input_file: crates/pandalang/src/snapshot_inputs/fun/nested.panda
+---
+Fun(
+    Fun {
+        arg: "x",
+        body: Fun(
+            Fun {
+                arg: "y",
+                body: BinOp(
+                    BinOp {
+                        left: Var(
+                            Var {
+                                name: "x",
+                            },
+                        ),
+                        right: Var(
+                            Var {
+                                name: "y",
+                            },
+                        ),
+                        kind: Add,
+                    },
+                ),
+            },
+        ),
+    },
+)

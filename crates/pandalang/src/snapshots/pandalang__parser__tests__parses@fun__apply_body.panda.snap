@@ -1,0 +1,29 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: source
+input_file: crates/pandalang/src/snapshot_inputs/fun/apply_body.panda
+---
+Fun(
+    Fun {
+        arg: "f",
+        body: Fun(
+            Fun {
+                arg: "x",
+                body: App(
+                    App {
+                        fun: Var(
+                            Var {
+                                name: "f",
+                            },
+                        ),
+                        arg: Var(
+                            Var {
+                                name: "x",
+                            },
+                        ),
+                    },
+                ),
+            },
+        ),
+    },
+)

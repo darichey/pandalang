@@ -1,0 +1,24 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: source
+input_file: crates/pandalang/src/snapshot_inputs/app/id.panda
+---
+App(
+    App {
+        fun: Fun(
+            Fun {
+                arg: "x",
+                body: Var(
+                    Var {
+                        name: "x",
+                    },
+                ),
+            },
+        ),
+        arg: Int(
+            Int {
+                n: 3,
+            },
+        ),
+    },
+)

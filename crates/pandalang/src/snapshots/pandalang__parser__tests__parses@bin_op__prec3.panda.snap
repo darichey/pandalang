@@ -1,0 +1,30 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: source
+input_file: crates/pandalang/src/snapshot_inputs/bin_op/prec3.panda
+---
+BinOp(
+    BinOp {
+        left: BinOp(
+            BinOp {
+                left: Var(
+                    Var {
+                        name: "a",
+                    },
+                ),
+                right: Var(
+                    Var {
+                        name: "b",
+                    },
+                ),
+                kind: Mul,
+            },
+        ),
+        right: Var(
+            Var {
+                name: "c",
+            },
+        ),
+        kind: Div,
+    },
+)

@@ -1,0 +1,10 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: source
+input_file: crates/pandalang/src/snapshot_inputs/int/int.panda
+---
+Int(
+    Int {
+        n: 0,
+    },
+)
