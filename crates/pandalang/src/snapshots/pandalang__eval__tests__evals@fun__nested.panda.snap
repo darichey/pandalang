@@ -3,8 +3,8 @@ source: crates/pandalang/src/eval.rs
 expression: source
 input_file: crates/pandalang/src/snapshot_inputs/fun/nested.panda
 ---
-Fun(
-    Fun {
+Fun {
+    fun: Fun {
         arg: "x",
         body: Fun(
             Fun {
@@ -27,4 +27,71 @@ Fun(
             },
         ),
     },
-)
+    env: Env {
+        bindings: {
+            "x'": [
+                Int(
+                    Int {
+                        n: 2,
+                    },
+                ),
+            ],
+            "b": [
+                Int(
+                    Int {
+                        n: 5,
+                    },
+                ),
+            ],
+            "e": [
+                Int(
+                    Int {
+                        n: 8,
+                    },
+                ),
+            ],
+            "y": [
+                Int(
+                    Int {
+                        n: 1,
+                    },
+                ),
+            ],
+            "x": [
+                Int(
+                    Int {
+                        n: 0,
+                    },
+                ),
+            ],
+            "a": [
+                Int(
+                    Int {
+                        n: 4,
+                    },
+                ),
+            ],
+            "d": [
+                Int(
+                    Int {
+                        n: 7,
+                    },
+                ),
+            ],
+            "foo": [
+                Int(
+                    Int {
+                        n: 3,
+                    },
+                ),
+            ],
+            "c": [
+                Int(
+                    Int {
+                        n: 6,
+                    },
+                ),
+            ],
+        },
+    },
+}

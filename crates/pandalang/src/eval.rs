@@ -3,107 +3,111 @@ use std::collections::HashMap;
 use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Let, Var};
 use crate::value::Value;
 
-pub struct Env {
-    pub bindings: HashMap<String, Value>,
-}
-
-macro_rules! new_env {
+macro_rules! bindings {
     ($($k:expr => $v:expr),* $(,)?) => {{
-        Env { bindings: std::collections::HashMap::from([$(($k.to_string(), Value::Int(Int { n: $v })),)*]) }
+        std::collections::HashMap::from([$(($k.to_string(), vec![Value::Int(Int { n: $v })]),)*])
     }};
 }
 
-pub(crate) use new_env;
+#[derive(Debug, Clone)]
+pub struct Env {
+    pub bindings: HashMap<String, Vec<Value>>,
+}
 
 impl Env {
-    pub fn lookup(&self, x: &String) -> Value {
-        self.bindings.get(x).unwrap().clone()
+    pub fn new() -> Env {
+        Env {
+            bindings: bindings!(),
+        }
     }
-}
 
-pub fn eval(expr: Expr, env: &Env) -> Value {
-    match expr {
-        Expr::Int(n) => Value::Int(n),
-        Expr::Str(s) => Value::Str(s),
-        Expr::Var(Var { name }) => env.lookup(&name),
-        Expr::BinOp(BinOp { left, right, kind }) => {
-            let f = match kind {
-                BinOpKind::Add => std::ops::Add::add,
-                BinOpKind::Sub => std::ops::Sub::sub,
-                BinOpKind::Mul => std::ops::Mul::mul,
-                BinOpKind::Div => std::ops::Div::div,
-            };
+    pub fn eval(&mut self, expr: Expr) -> Value {
+        match expr {
+            Expr::Int(n) => Value::Int(n),
+            Expr::Str(s) => Value::Str(s),
+            Expr::Var(Var { name }) => self
+                .lookup(&name)
+                .expect(format!("{} is not bound!", name).as_str()),
+            Expr::BinOp(BinOp { left, right, kind }) => {
+                let f = match kind {
+                    BinOpKind::Add => std::ops::Add::add,
+                    BinOpKind::Sub => std::ops::Sub::sub,
+                    BinOpKind::Mul => std::ops::Mul::mul,
+                    BinOpKind::Div => std::ops::Div::div,
+                };
 
-            let (x, y) = match (eval(*left, env), eval(*right, env)) {
-                (Value::Int(Int { n: x }), Value::Int(Int { n: y })) => (x, y),
-                _ => panic!("oh god oh fuck"),
-            };
+                let (x, y) = match (self.eval(*left), self.eval(*right)) {
+                    (Value::Int(Int { n: x }), Value::Int(Int { n: y })) => (x, y),
+                    _ => panic!("Cannot eval BinOp with non-Int operands"),
+                };
 
-            Value::Int(Int { n: f(x, y) })
+                Value::Int(Int { n: f(x, y) })
+            }
+            Expr::Fun(fun) => Value::Fun {
+                fun,
+                env: self.clone(),
+            },
+            Expr::App(App { fun, arg }) => {
+                let (arg_name, body, mut fun_env) = match self.eval(*fun) {
+                    Value::Fun {
+                        fun: Fun { arg, body },
+                        env,
+                    } => (arg, body, env),
+                    _ => panic!("Cannot apply non-functions"),
+                };
+                let arg = self.eval(*arg);
+
+                fun_env.push_binding(&arg_name, arg);
+                let result = fun_env.eval(*body);
+                fun_env.pop_binding(&arg_name);
+                result
+            }
+            Expr::Let(_) => panic!("Let in eval"),
         }
-        Expr::Fun(fun) => Value::Fun(fun),
-        Expr::App(App { fun, arg }) => {
-            let Fun {
-                arg: arg_name,
-                body,
-            } = match eval(*fun, env) {
-                Value::Fun(fun) => fun,
-                _ => panic!("oh god oh fuck"),
-            };
-            let arg = eval(*arg, env).as_expr();
-
-            eval(cas(*body, arg, arg_name), env)
-        }
-        Expr::Let(_) => panic!("Let in eval"),
     }
-}
 
-fn cas(e1: Expr, e2: Expr, var: String) -> Expr {
-    return match e1 {
-        Expr::Var(Var { name }) => {
-            if var == name {
-                e2
-            } else {
-                Expr::Var(Var { name })
+    fn lookup(&self, name: &String) -> Option<Value> {
+        let bindings = self.bindings.get(name)?;
+        println!("{} = {:?}", name, bindings);
+        let value = bindings.last()?;
+        Some(value.clone()) // TODO: story around cloning here?
+    }
+
+    fn push_binding(&mut self, name: &String, value: Value) -> () {
+        println!("push {} = {:?}", name, value);
+        match self.bindings.get_mut(name) {
+            Some(current_bindings) => current_bindings.push(value),
+            None => {
+                self.bindings.insert(name.clone(), vec![value]);
+                ()
             }
-        }
-        Expr::Fun(Fun { arg, body }) => {
-            if var == arg {
-                Expr::Fun(Fun { arg, body })
-            } else {
-                Expr::Fun(Fun {
-                    arg,
-                    body: Box::new(cas(*body, e2, var)),
-                })
+        };
+    }
+
+    fn pop_binding(&mut self, name: &String) -> () {
+        println!("pop {}", name);
+        match self.bindings.get_mut(name) {
+            Some(current_bindings) => {
+                current_bindings.pop();
+                ()
             }
+            None => (),
         }
-        Expr::App(App { fun, arg }) => Expr::App(App {
-            fun: Box::new(cas(*fun, e2.clone(), var.clone())),
-            arg: Box::new(cas(*arg, e2, var)),
-        }),
-        Expr::Int(n) => Expr::Int(n),
-        Expr::Str(s) => Expr::Str(s),
-        Expr::BinOp(BinOp { left, right, kind }) => Expr::BinOp(BinOp {
-            left: Box::new(cas(*left, e2.clone(), var.clone())),
-            right: Box::new(cas(*right, e2, var)),
-            kind,
-        }),
-        Expr::Let(_) => panic!("Let in cas"),
-    };
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::Env;
     use crate::ast::Int;
+    use crate::parser;
     use crate::value::Value;
-    use crate::{eval, parser};
 
     fn eval_test(s: String) -> Value {
-        eval::eval(
-            *parser::parse(s.as_str()).unwrap(),
-            &new_env!("x" => 0, "y" => 1, "x'" => 2, "foo" => 3, "a" => 4, "b" => 5, "c" => 6, "d" => 7, "e" => 8),
-        )
+        let mut env = Env {
+            bindings: bindings!("x" => 0, "y" => 1, "x'" => 2, "foo" => 3, "a" => 4, "b" => 5, "c" => 6, "d" => 7, "e" => 8),
+        };
+        env.eval(*parser::parse(s.as_str()).unwrap())
     }
 
     #[test]

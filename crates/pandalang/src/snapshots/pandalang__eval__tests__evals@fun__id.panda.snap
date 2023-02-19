@@ -3,8 +3,8 @@ source: crates/pandalang/src/eval.rs
 expression: source
 input_file: crates/pandalang/src/snapshot_inputs/fun/id.panda
 ---
-Fun(
-    Fun {
+Fun {
+    fun: Fun {
         arg: "x",
         body: Var(
             Var {
@@ -12,4 +12,71 @@ Fun(
             },
         ),
     },
-)
+    env: Env {
+        bindings: {
+            "a": [
+                Int(
+                    Int {
+                        n: 4,
+                    },
+                ),
+            ],
+            "b": [
+                Int(
+                    Int {
+                        n: 5,
+                    },
+                ),
+            ],
+            "e": [
+                Int(
+                    Int {
+                        n: 8,
+                    },
+                ),
+            ],
+            "c": [
+                Int(
+                    Int {
+                        n: 6,
+                    },
+                ),
+            ],
+            "y": [
+                Int(
+                    Int {
+                        n: 1,
+                    },
+                ),
+            ],
+            "x": [
+                Int(
+                    Int {
+                        n: 0,
+                    },
+                ),
+            ],
+            "d": [
+                Int(
+                    Int {
+                        n: 7,
+                    },
+                ),
+            ],
+            "foo": [
+                Int(
+                    Int {
+                        n: 3,
+                    },
+                ),
+            ],
+            "x'": [
+                Int(
+                    Int {
+                        n: 2,
+                    },
+                ),
+            ],
+        },
+    },
+}

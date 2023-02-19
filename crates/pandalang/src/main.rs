@@ -52,12 +52,10 @@ fn main() -> Result<()> {
 }
 
 fn eval<'a>(s: &'a str) -> String {
-    pretty::pretty(
-        eval::eval(
-            desugar::desugar_let(*parser::parse(s).unwrap()),
-            &eval::new_env!(),
-        )
-        .as_expr(),
+    let mut env = Env::new();
+    format!(
+        "{:?}",
+        env.eval(desugar::desugar_let(*parser::parse(s).unwrap()))
     )
 }
 
