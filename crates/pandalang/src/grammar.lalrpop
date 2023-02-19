@@ -54,6 +54,6 @@ pub Pattern: Pattern = {
 
 Int: i64 = r"\-?[0-9]+" => i64::from_str(<>).unwrap();
 
-Str: String = <s:r#""[^"]+""#> => String::from(&s[1..(s.len()-1)]);
+Str: String = <s:r#""[^"]*""#> => String::from(&s[1..(s.len()-1)]);
 
 Name: &'input str = r"[a-zA-Z]+'?";
