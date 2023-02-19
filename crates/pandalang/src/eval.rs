@@ -68,13 +68,11 @@ impl Env {
 
     fn lookup(&self, name: &String) -> Option<Value> {
         let bindings = self.bindings.get(name)?;
-        println!("{} = {:?}", name, bindings);
         let value = bindings.last()?;
         Some(value.clone()) // TODO: story around cloning here?
     }
 
     fn push_binding(&mut self, name: &String, value: Value) {
-        println!("push {} = {:?}", name, value);
         match self.bindings.get_mut(name) {
             Some(current_bindings) => current_bindings.push(value),
             None => {
@@ -84,7 +82,6 @@ impl Env {
     }
 
     fn pop_binding(&mut self, name: &String) {
-        println!("pop {}", name);
         if let Some(current_bindings) = self.bindings.get_mut(name) {
             current_bindings.pop();
         }
