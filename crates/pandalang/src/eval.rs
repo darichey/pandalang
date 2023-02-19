@@ -106,7 +106,7 @@ mod tests {
     fn evals() {
         insta::glob!("snapshot_inputs/**/*.panda", |path| {
             let source = eval_test(std::fs::read_to_string(path).unwrap());
-            insta::assert_debug_snapshot!(source);
+            insta::assert_display_snapshot!(source);
         });
     }
 }

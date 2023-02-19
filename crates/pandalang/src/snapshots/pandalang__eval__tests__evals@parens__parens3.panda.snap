@@ -3,8 +3,4 @@ source: crates/pandalang/src/eval.rs
 expression: source
 input_file: crates/pandalang/src/snapshot_inputs/parens/parens3.panda
 ---
-Int(
-    Int {
-        n: 15,
-    },
-)
+15

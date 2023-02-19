@@ -54,7 +54,7 @@ fn main() -> Result<()> {
 fn eval(s: &str) -> String {
     let mut env = Env::new();
     format!(
-        "{:?}",
+        "{}",
         env.eval(desugar::desugar_let(*parser::parse(s).unwrap()))
     )
 }
