@@ -7,7 +7,12 @@ App(
     App {
         fun: Fun(
             Fun {
-                arg: "x",
+                patt: Id {
+                    name: "x",
+                    typ: Base {
+                        name: "Int",
+                    },
+                },
                 body: Var(
                     Var {
                         name: "x",

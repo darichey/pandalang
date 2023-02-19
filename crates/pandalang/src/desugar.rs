@@ -10,15 +10,15 @@ pub fn desugar_let(e: Expr) -> Expr {
             right: Box::new(desugar_let(*right)),
             kind,
         }),
-        Expr::Let(Let { name, value, body }) => Expr::App(App {
+        Expr::Let(Let { patt, value, body }) => Expr::App(App {
             fun: Box::new(Expr::Fun(Fun {
-                arg: name,
+                patt,
                 body: Box::new(desugar_let(*body)),
             })),
             arg: Box::new(desugar_let(*value)),
         }),
-        Expr::Fun(Fun { arg, body }) => Expr::Fun(Fun {
-            arg,
+        Expr::Fun(Fun { patt, body }) => Expr::Fun(Fun {
+            patt,
             body: Box::new(desugar_let(*body)),
         }),
         Expr::App(App { fun, arg }) => Expr::App(App {

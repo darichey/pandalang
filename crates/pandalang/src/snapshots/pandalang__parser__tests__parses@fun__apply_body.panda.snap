@@ -5,10 +5,25 @@ input_file: crates/pandalang/src/snapshot_inputs/fun/apply_body.panda
 ---
 Fun(
     Fun {
-        arg: "f",
+        patt: Id {
+            name: "f",
+            typ: Fun(
+                Base {
+                    name: "Int",
+                },
+                Base {
+                    name: "Int",
+                },
+            ),
+        },
         body: Fun(
             Fun {
-                arg: "x",
+                patt: Id {
+                    name: "x",
+                    typ: Base {
+                        name: "Int",
+                    },
+                },
                 body: App(
                     App {
                         fun: Var(

@@ -5,10 +5,20 @@ input_file: crates/pandalang/src/snapshot_inputs/fun/nested.panda
 ---
 Fun(
     Fun {
-        arg: "x",
+        patt: Id {
+            name: "x",
+            typ: Base {
+                name: "Int",
+            },
+        },
         body: Fun(
             Fun {
-                arg: "y",
+                patt: Id {
+                    name: "y",
+                    typ: Base {
+                        name: "Int",
+                    },
+                },
                 body: BinOp(
                     BinOp {
                         left: Var(
