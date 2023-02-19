@@ -51,7 +51,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn eval<'a>(s: &'a str) -> String {
+fn eval(s: &str) -> String {
     let mut env = Env::new();
     format!(
         "{:?}",
@@ -59,13 +59,13 @@ fn eval<'a>(s: &'a str) -> String {
     )
 }
 
-fn ast<'a>(s: &'a str) -> String {
+fn ast(s: &str) -> String {
     format!("{:?}", parser::parse(s))
 }
 
-fn desguar<'a>(s: &'a str) -> String {
+fn desguar(s: &str) -> String {
     match parser::parse(s) {
-        Ok(ast) => format!("{}", pretty::pretty(desugar::desugar_let(*ast))),
+        Ok(ast) => pretty::pretty(desugar::desugar_let(*ast)),
         Err(err) => format!("{:?}", err),
     }
 }

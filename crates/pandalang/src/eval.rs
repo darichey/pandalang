@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Let, Var};
+use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Var};
 use crate::value::Value;
 
 macro_rules! bindings {
@@ -27,7 +27,7 @@ impl Env {
             Expr::Str(s) => Value::Str(s),
             Expr::Var(Var { name }) => self
                 .lookup(&name)
-                .expect(format!("{} is not bound!", name).as_str()),
+                .unwrap_or_else(|| panic!("{} is not bound!", name)),
             Expr::BinOp(BinOp { left, right, kind }) => {
                 let f = match kind {
                     BinOpKind::Add => std::ops::Add::add,
@@ -73,25 +73,20 @@ impl Env {
         Some(value.clone()) // TODO: story around cloning here?
     }
 
-    fn push_binding(&mut self, name: &String, value: Value) -> () {
+    fn push_binding(&mut self, name: &String, value: Value) {
         println!("push {} = {:?}", name, value);
         match self.bindings.get_mut(name) {
             Some(current_bindings) => current_bindings.push(value),
             None => {
                 self.bindings.insert(name.clone(), vec![value]);
-                ()
             }
         };
     }
 
-    fn pop_binding(&mut self, name: &String) -> () {
+    fn pop_binding(&mut self, name: &String) {
         println!("pop {}", name);
-        match self.bindings.get_mut(name) {
-            Some(current_bindings) => {
-                current_bindings.pop();
-                ()
-            }
-            None => (),
+        if let Some(current_bindings) = self.bindings.get_mut(name) {
+            current_bindings.pop();
         }
     }
 }
@@ -113,7 +108,7 @@ mod tests {
     #[test]
     fn evals() {
         insta::glob!("snapshot_inputs/**/*.panda", |path| {
-            let source = eval_test(std::fs::read_to_string(&path).unwrap());
+            let source = eval_test(std::fs::read_to_string(path).unwrap());
             insta::assert_debug_snapshot!(source);
         });
     }
