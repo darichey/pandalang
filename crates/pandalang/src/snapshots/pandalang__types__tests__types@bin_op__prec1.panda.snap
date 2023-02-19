@@ -1,0 +1,8 @@
+---
+source: crates/pandalang/src/types.rs
+expression: source
+input_file: crates/pandalang/src/snapshot_inputs/bin_op/prec1.panda
+---
+Ok(
+    Int,
+)

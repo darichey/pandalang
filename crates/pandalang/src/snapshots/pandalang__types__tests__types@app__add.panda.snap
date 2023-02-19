@@ -1,0 +1,8 @@
+---
+source: crates/pandalang/src/types.rs
+expression: source
+input_file: crates/pandalang/src/snapshot_inputs/app/add.panda
+---
+Ok(
+    Int,
+)

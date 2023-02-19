@@ -3,6 +3,7 @@ mod desugar;
 mod eval;
 mod parser;
 mod pretty;
+mod types;
 mod value;
 
 #[macro_use]
@@ -12,6 +13,7 @@ use rustyline::error::ReadlineError;
 use rustyline::{Editor, Result};
 
 use eval::Env;
+use types::Context;
 
 fn main() -> Result<()> {
     let mut rl = Editor::<()>::new()?;
@@ -25,6 +27,8 @@ fn main() -> Result<()> {
                     println!("{}", ast(source))
                 } else if let Some(source) = line.strip_prefix("#desugar") {
                     println!("{}", desguar(source))
+                } else if let Some(source) = line.strip_prefix("#type") {
+                    println!("{}", type_check(source))
                 } else {
                     let source = match line.strip_prefix("#eval ") {
                         Some(source) => source,
@@ -66,6 +70,20 @@ fn ast(s: &str) -> String {
 fn desguar(s: &str) -> String {
     match parser::parse(s) {
         Ok(ast) => pretty::pretty(desugar::desugar_let(*ast)),
+        Err(err) => format!("{:?}", err),
+    }
+}
+
+fn type_check(s: &str) -> String {
+    match parser::parse(s) {
+        Ok(ast) => {
+            let ast = desugar::desugar_let(*ast);
+            let mut ctx = Context::new();
+            match ctx.check(ast) {
+                Ok(t) => format!("{}", t),
+                Err(e) => format!("{:?}", e),
+            }
+        }
         Err(err) => format!("{:?}", err),
     }
 }
