@@ -18,9 +18,9 @@
         devShells.default = mkShell {
           buildInputs = [
             # Rust dev
-            (rust-bin.stable.latest.default.override {
-              extensions = ["rust-src"];
-            })
+            (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default.override {
+              extensions = [ "rust-src" ];
+            }))
             
             # rustc
             # cargo
