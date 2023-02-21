@@ -1,6 +1,9 @@
+#![feature(if_let_guard)]
+
 mod ast;
 mod desugar;
 mod eval;
+mod managed_vec;
 mod parser;
 mod pretty;
 mod types;
@@ -13,7 +16,7 @@ use rustyline::error::ReadlineError;
 use rustyline::{Editor, Result};
 
 use eval::Env;
-use types::Context;
+use types::Checker;
 
 fn main() -> Result<()> {
     let mut rl = Editor::<()>::new()?;
@@ -77,10 +80,9 @@ fn desguar(s: &str) -> String {
 fn type_check(s: &str) -> String {
     match parser::parse(s) {
         Ok(ast) => {
-            let ast = desugar::desugar_let(*ast);
-            let mut ctx = Context::new();
-            match ctx.check(ast) {
-                Ok(t) => format!("{}", t),
+            let mut ctx = Checker::new();
+            match ctx.check(*ast) {
+                Ok(t) => format!("{}", ctx.string_of_type(t)),
                 Err(e) => format!("{:?}", e),
             }
         }

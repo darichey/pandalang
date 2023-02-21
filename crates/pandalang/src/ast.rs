@@ -72,7 +72,10 @@ impl ToString for BinOpKind {
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum Pattern {
-    Id { name: String, typ: Type },
+    Id {
+        name: String,
+        // typ: Type
+    },
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]

@@ -1,4 +1,4 @@
-use crate::ast::{App, BinOp, Expr, Fun, Int, Let, Pattern, Str, Type, Var};
+use crate::ast::{App, BinOp, Expr, Fun, Int, Let, Pattern, Str, Var};
 
 pub fn pretty(e: Expr) -> String {
     match e {
@@ -25,13 +25,6 @@ pub fn pretty(e: Expr) -> String {
 
 fn pretty_pattern(patt: Pattern) -> String {
     match patt {
-        Pattern::Id { name, typ } => format!("{}: {}", name, pretty_type(typ)),
-    }
-}
-
-fn pretty_type(typ: Type) -> String {
-    match typ {
-        Type::Base { name } => name,
-        Type::Fun(i, o) => format!("({} -> {})", pretty_type(*i), pretty_type(*o)),
+        Pattern::Id { name } => format!("{}", name),
     }
 }

@@ -1,175 +1,310 @@
-use std::collections::HashMap;
+use std::{
+    cmp::min,
+    collections::{hash_map::Entry, HashMap, HashSet},
+};
 
-use crate::ast::{self, Expr};
+use crate::{
+    ast::{self, Expr},
+    managed_vec::{Idx, ManagedVec},
+};
 
-#[derive(PartialEq, Eq, Debug, Clone)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
+struct Level(usize);
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone)]
 pub enum Type {
     Int,
     Str,
+    Var(Idx),
     Fun(Box<Type>, Box<Type>),
 }
 
-impl std::fmt::Display for Type {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Type::Int => write!(f, "Int"),
-            Type::Str => write!(f, "Str"),
-            Type::Fun(i, o) => write!(f, "({} -> {})", i, o),
+enum TVar {
+    Bound(Type),
+    Unbound(Idx, Level),
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone)]
+struct Polytype(Vec<Idx>, Type);
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone)]
+pub enum Error {
+    NotInScope { name: String },
+    NoUnify,
+    Occurs,
+}
+
+pub struct Checker {
+    cur_level: Level,
+    tvars: ManagedVec<TVar>,
+    bindings: HashMap<String, Polytype>,
+}
+
+impl Checker {
+    pub fn new() -> Checker {
+        Checker {
+            cur_level: Level(0),
+            tvars: ManagedVec::new(),
+            bindings: HashMap::new(),
         }
-    }
-}
-
-macro_rules! types {
-    ($($k:expr => $v:ident),* $(,)?) => {{
-        std::collections::HashMap::from([$(($k.to_string(), vec![Type::$v]),)*])
-    }};
-}
-
-pub struct Context {
-    types: HashMap<String, Vec<Type>>,
-}
-
-impl Context {
-    pub fn new() -> Context {
-        Context { types: types!() }
     }
 
     pub fn check(&mut self, expr: Expr) -> Result<Type, Error> {
         match expr {
             Expr::Int(_) => Ok(Type::Int),
             Expr::Str(_) => Ok(Type::Str),
-            Expr::Var(ast::Var { name }) => match self.lookup(&name) {
-                Some(t) => Ok(t),
+            Expr::Var(ast::Var { name }) => match self.bindings.get(&name) {
+                Some(t) => Ok(self.monomorphize(t.clone())),
                 None => Err(Error::NotInScope { name }),
             },
-            Expr::BinOp(ast::BinOp { left, right, kind }) => match kind {
-                ast::BinOpKind::Add
-                | ast::BinOpKind::Sub
-                | ast::BinOpKind::Mul
-                | ast::BinOpKind::Div => {
-                    let lhs_t = self.check(*left)?;
-                    let rhs_t = self.check(*right)?;
-
-                    expect_t(&Type::Int, &lhs_t)?;
-                    expect_t(&Type::Int, &rhs_t)?;
-
-                    Ok(Type::Int)
-                }
-            },
-            Expr::Let(_) => {
-                panic!("Let in type checking")
-            }
-            Expr::Fun(ast::Fun { patt, body }) => {
-                let (name, name_t) = match patt {
-                    ast::Pattern::Id { name, typ } => (name, parse_type(typ)?),
-                };
-                self.push_type(&name, &name_t);
-                let body_t = self.check(*body)?;
-                self.pop_type(&name);
-                Ok(Type::Fun(Box::new(name_t), Box::new(body_t)))
-            }
             Expr::App(ast::App { fun, arg }) => {
                 let fun_t = self.check(*fun)?;
-                match fun_t {
-                    Type::Fun(in_t, out_t) => {
-                        let arg_t = self.check(*arg)?;
-                        expect_t(&in_t, &arg_t)?;
-                        Ok(*out_t)
-                    }
-                    _ => Err(Error::NotFunction { actual: fun_t }),
+                let arg_t = self.check(*arg)?;
+                let t = self.new_tvar();
+                self.unify(fun_t, Type::Fun(Box::new(arg_t), Box::new(t.clone())))?;
+                Ok(t)
+            }
+            Expr::Fun(ast::Fun { patt, body }) => {
+                let ast::Pattern::Id { name } = patt;
+                let in_t = self.new_tvar();
+                self.bindings
+                    .insert(name.clone(), Polytype(vec![], in_t.clone()));
+                let out_t = self.check(*body)?;
+                self.bindings.remove(&name);
+                Ok(Type::Fun(Box::new(in_t), Box::new(out_t)))
+            }
+            Expr::Let(ast::Let { patt, value, body }) => {
+                let ast::Pattern::Id { name } = patt;
+                self.enter_level();
+                let value_t = self.check(*value)?;
+                self.exit_level();
+                let poly = self.polymorphize(value_t);
+                self.bindings.insert(name.clone(), poly);
+                let t = self.check(*body)?;
+                self.bindings.remove(&name);
+                Ok(t)
+            }
+            Expr::BinOp(ast::BinOp { left, right, kind }) => {
+                let op_t = match kind {
+                    ast::BinOpKind::Add
+                    | ast::BinOpKind::Sub
+                    | ast::BinOpKind::Mul
+                    | ast::BinOpKind::Div => Type::Fun(
+                        Box::new(Type::Int),
+                        Box::new(Type::Fun(Box::new(Type::Int), Box::new(Type::Int))),
+                    ),
+                };
+                let left_t = self.check(*left)?;
+                let right_t = self.check(*right)?;
+                let t = self.new_tvar();
+                self.unify(
+                    op_t,
+                    Type::Fun(
+                        Box::new(left_t),
+                        Box::new(Type::Fun(Box::new(right_t), Box::new(t.clone()))),
+                    ),
+                )?;
+                Ok(t)
+            }
+        }
+    }
+
+    pub fn string_of_type(&mut self, typ: Type) -> String {
+        StringOfType::new(self).string_of_type(typ)
+    }
+
+    fn enter_level(&mut self) {
+        let Level(level) = self.cur_level;
+        self.cur_level = Level(level + 1);
+    }
+
+    fn exit_level(&mut self) {
+        let Level(level) = self.cur_level;
+        self.cur_level = Level(level - 1);
+    }
+
+    fn new_tvar(&mut self) -> Type {
+        Type::Var(self.tvars.add(|idx| TVar::Unbound(idx, self.cur_level)))
+    }
+
+    fn monomorphize(&mut self, poly: Polytype) -> Type {
+        Monomorphize::new(self).monomorphize(poly)
+    }
+
+    fn polymorphize(&mut self, typ: Type) -> Polytype {
+        Polymorphize::new(self).polymorphize(typ)
+    }
+
+    fn occurs(&mut self, id: Idx, level: Level, typ: Type) -> bool {
+        match typ {
+            Type::Int => false,
+            Type::Str => false,
+            Type::Var(tvar) => match self.tvars.get(tvar) {
+                TVar::Bound(t) => self.occurs(id, level, t.clone()),
+                TVar::Unbound(b_id, b_level) => {
+                    let ret = id == *b_id;
+                    let min_level = min(level, *b_level);
+                    self.tvars.set(tvar, TVar::Unbound(*b_id, min_level));
+                    ret
+                }
+            },
+            Type::Fun(a, b) => self.occurs(id, level, *a) || self.occurs(id, level, *b),
+        }
+    }
+
+    fn unify(&mut self, t1: Type, t2: Type) -> Result<(), Error> {
+        match (t1.clone(), t2.clone()) {
+            (Type::Int, Type::Int) => Ok(()),
+            (Type::Str, Type::Str) => Ok(()),
+            (Type::Fun(a, b), Type::Fun(c, d)) => {
+                self.unify(*a, *c)?;
+                self.unify(*b, *d)
+            }
+            (Type::Var(tvar), b) if let TVar::Bound(a) = self.tvars.get(tvar) => self.unify(a.clone(), b),
+            (a, Type::Var(tvar)) if let TVar::Bound(b) = self.tvars.get(tvar) => self.unify(a, b.clone()),
+            (Type::Var(tvar), b) if let TVar::Unbound(a_id, a_level) = self.tvars.get(tvar) => {
+                if t1 == t2 {
+                    Ok(())
+                } else if self.occurs(*a_id, *a_level, b.clone()) {
+                    Err(Error::Occurs)
+                } else {
+                    self.tvars.set(tvar, TVar::Bound(b));
+                    Ok(())
                 }
             }
+            (a, Type::Var(tvar)) if let TVar::Unbound(b_id, b_level) = self.tvars.get(tvar) => {
+                if t1 == t2 {
+                    Ok(())
+                } else if self.occurs(*b_id, *b_level, a.clone()) {
+                    Err(Error::Occurs)
+                } else {
+                    self.tvars.set(tvar, TVar::Bound(a));
+                    Ok(())
+                }
+            }
+            _ => Err(Error::NoUnify),
+        }
+    }
+}
+
+struct Monomorphize<'a> {
+    checker: &'a mut Checker,
+    to_replace: HashMap<Idx, Type>,
+}
+
+impl<'a> Monomorphize<'a> {
+    fn new(checker: &mut Checker) -> Monomorphize {
+        Monomorphize {
+            checker,
+            to_replace: HashMap::new(),
         }
     }
 
-    fn lookup(&self, name: &String) -> Option<Type> {
-        let ts = self.types.get(name)?;
-        let t = ts.last()?;
-        Some(t.clone())
+    fn monomorphize(mut self, poly: Polytype) -> Type {
+        let Polytype(vars, typ) = poly;
+        for tvar_id in vars {
+            self.to_replace.insert(tvar_id, self.checker.new_tvar());
+        }
+        self.replace(typ)
     }
 
-    fn push_type(&mut self, name: &String, t: &Type) {
-        match self.types.get_mut(name) {
-            Some(types) => types.push(t.clone()),
-            None => {
-                self.types.insert(name.clone(), vec![t.clone()]);
+    fn replace(&mut self, typ: Type) -> Type {
+        match typ {
+            Type::Int => Type::Int,
+            Type::Str => Type::Str,
+            Type::Var(tvar) => match self.checker.tvars.get(tvar) {
+                TVar::Bound(t) => self.replace(t.clone()),
+                TVar::Unbound(id, _) => match self.to_replace.get(&id) {
+                    Some(t) => t.clone(),
+                    None => typ.clone(),
+                },
+            },
+            Type::Fun(a, b) => Type::Fun(Box::new(self.replace(*a)), Box::new(self.replace(*b))),
+        }
+    }
+}
+
+struct Polymorphize<'a> {
+    checker: &'a mut Checker,
+    vars: HashSet<Idx>,
+}
+
+impl<'a> Polymorphize<'a> {
+    fn new(checker: &'a mut Checker) -> Polymorphize {
+        Polymorphize {
+            checker,
+            vars: HashSet::new(),
+        }
+    }
+
+    fn polymorphize(mut self, typ: Type) -> Polytype {
+        self.collect_vars(typ.clone());
+        let vars = self.vars.into_iter().collect();
+        Polytype(vars, typ)
+    }
+
+    fn collect_vars(&mut self, typ: Type) {
+        match typ {
+            Type::Int => (),
+            Type::Str => (),
+            Type::Var(tvar) => match self.checker.tvars.get(tvar) {
+                TVar::Bound(t) => self.collect_vars(t.clone()),
+                TVar::Unbound(id, level) => {
+                    if level > &self.checker.cur_level {
+                        self.vars.insert(*id);
+                    }
+                }
+            },
+            Type::Fun(a, b) => {
+                self.collect_vars(*a);
+                self.collect_vars(*b);
+            }
+        }
+    }
+}
+
+struct StringOfType<'a> {
+    checker: &'a mut Checker,
+    names: HashMap<Idx, String>,
+    i: u8,
+}
+
+impl<'a> StringOfType<'a> {
+    fn new(checker: &'a mut Checker) -> StringOfType {
+        StringOfType {
+            checker,
+            names: HashMap::new(),
+            i: 0,
+        }
+    }
+
+    fn string_of_type(&mut self, typ: Type) -> String {
+        match typ {
+            Type::Int => "Int".to_string(),
+            Type::Str => "Str".to_string(),
+            Type::Var(var) => match self.checker.tvars.get(var) {
+                TVar::Bound(t) => self.string_of_type(t.clone()),
+                TVar::Unbound(idx, _) => self.var_name(*idx),
+            },
+            Type::Fun(a, b) => {
+                format!(
+                    "({} -> {})",
+                    self.string_of_type(*a),
+                    self.string_of_type(*b)
+                )
             }
         }
     }
 
-    fn pop_type(&mut self, name: &String) {
-        if let Some(types) = self.types.get_mut(name) {
-            types.pop();
-        }
-    }
-}
-
-fn expect_t(expected: &Type, actual: &Type) -> Result<(), Error> {
-    if expected != actual {
-        Err(Error::Incompatible {
-            expected: expected.clone(),
-            actual: actual.clone(),
-        })
-    } else {
-        Ok(())
-    }
-}
-
-#[derive(PartialEq, Eq, Debug, Clone)]
-pub enum Error {
-    Incompatible { expected: Type, actual: Type },
-    NotFunction { actual: Type },
-    NotInScope { name: String },
-    UnknownType { name: String },
-}
-
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Error::Incompatible { expected, actual } => {
-                write!(f, "{} is incompatible with {}", expected, actual)
+    fn var_name(&mut self, idx: Idx) -> String {
+        match self.names.entry(idx) {
+            Entry::Occupied(o) => o.get().clone(),
+            Entry::Vacant(v) => {
+                let name = format!("'{}", std::str::from_utf8(&[b'a' + self.i]).unwrap());
+                v.insert(name.clone());
+                self.i += 1;
+                name
             }
-            Error::NotFunction { actual } => write!(f, "{} is not a function", actual),
-            Error::NotInScope { name } => write!(f, "The variable {} is not in scope", name),
-            Error::UnknownType { name } => write!(f, "The type {} is not in scope", name),
         }
-    }
-}
-
-fn parse_type(typ: ast::Type) -> Result<Type, Error> {
-    match typ {
-        ast::Type::Base { name } => match name.as_str() {
-            "Int" => Ok(Type::Int),
-            "Str" => Ok(Type::Str),
-            _ => Err(Error::UnknownType { name }),
-        },
-        ast::Type::Fun(i, o) => Ok(Type::Fun(
-            Box::new(parse_type(*i)?),
-            Box::new(parse_type(*o)?),
-        )),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::path::Path;
-
-    use super::{Context, Type};
-    use crate::parser;
-
-    fn test(path: &Path) -> Result<Type, String> {
-        let mut ctx = Context {
-            types: types!("x" => Int, "y" => Int, "x'" => Int, "foo" => Int, "a" => Int, "b" => Int, "c" => Int, "d" => Int, "e" => Int),
-        };
-        let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
-        let ast = parser::parse(&source).map_err(|err| err.to_string())?;
-        ctx.check(*ast).map_err(|err| err.to_string())
-    }
-
-    #[test]
-    fn types() {
-        insta::glob!("snapshot_inputs/**/*.panda", |path| {
-            insta::assert_debug_snapshot!(test(path));
-        });
     }
 }
