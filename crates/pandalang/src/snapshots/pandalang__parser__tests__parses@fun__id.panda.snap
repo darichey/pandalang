@@ -8,9 +8,6 @@ Ok(
         Fun {
             patt: Id {
                 name: "x",
-                typ: Base {
-                    name: "Int",
-                },
             },
             body: Var(
                 Var {

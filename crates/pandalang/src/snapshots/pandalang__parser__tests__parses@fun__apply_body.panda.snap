@@ -8,22 +8,11 @@ Ok(
         Fun {
             patt: Id {
                 name: "f",
-                typ: Fun(
-                    Base {
-                        name: "Int",
-                    },
-                    Base {
-                        name: "Int",
-                    },
-                ),
             },
             body: Fun(
                 Fun {
                     patt: Id {
                         name: "x",
-                        typ: Base {
-                            name: "Int",
-                        },
                     },
                     body: App(
                         App {

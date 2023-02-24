@@ -1,1 +1,1 @@
-fun (f: Int -> Int) -> fun (x: Int) -> f x
+fun f -> fun x -> f x

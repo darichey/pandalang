@@ -8,17 +8,11 @@ Ok(
         fun: Fun {
             patt: Id {
                 name: "x",
-                typ: Base {
-                    name: "Int",
-                },
             },
             body: Fun(
                 Fun {
                     patt: Id {
                         name: "y",
-                        typ: Base {
-                            name: "Int",
-                        },
                     },
                     body: BinOp(
                         BinOp {

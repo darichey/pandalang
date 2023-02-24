@@ -1,1 +1,1 @@
-(fun (x: Int) -> x) 3
+(fun x -> x) 3

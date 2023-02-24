@@ -1,1 +1,1 @@
-fun (x: Int) -> fun (y: Int) -> x + y
+fun x -> fun y -> x + y
