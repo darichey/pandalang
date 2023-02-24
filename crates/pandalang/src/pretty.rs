@@ -25,6 +25,6 @@ pub fn pretty(e: Expr) -> String {
 
 fn pretty_pattern(patt: Pattern) -> String {
     match patt {
-        Pattern::Id { name } => format!("{}", name),
+        Pattern::Id { name } => name,
     }
 }

@@ -29,7 +29,7 @@ impl<'a> Monomorphize<'a> {
             Type::Str => Type::Str,
             Type::Var(tvar) => match self.checker.tvars.get(tvar) {
                 TVar::Bound(t) => self.replace(t.clone()),
-                TVar::Unbound(id, _) => match self.to_replace.get(&id) {
+                TVar::Unbound(id, _) => match self.to_replace.get(id) {
                     Some(t) => t.clone(),
                     None => typ.clone(),
                 },
