@@ -23,7 +23,7 @@ impl<'a> StringOfType<'a> {
             Type::Str => "Str".to_string(),
             Type::Var(var) => match self.checker.tvars.get(var) {
                 TVar::Bound(t) => self.string_of_type(t.clone()),
-                TVar::Unbound(idx, _) => self.var_name(*idx),
+                TVar::Unbound(var_ref, _) => self.var_name(*var_ref),
             },
             Type::Fun(a, b) => {
                 format!(
@@ -35,8 +35,8 @@ impl<'a> StringOfType<'a> {
         }
     }
 
-    fn var_name(&mut self, idx: TVarRef) -> String {
-        match self.names.entry(idx) {
+    fn var_name(&mut self, var_ref: TVarRef) -> String {
+        match self.names.entry(var_ref) {
             Entry::Occupied(o) => o.get().clone(),
             Entry::Vacant(v) => {
                 let name = format!("'{}", std::str::from_utf8(&[b'a' + self.i]).unwrap());

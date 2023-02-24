@@ -10,9 +10,9 @@ impl TVars {
     }
 
     pub fn add<F: Fn(TVarRef) -> TVar>(&mut self, f: F) -> TVarRef {
-        let next_idx = TVarRef(self.vars.len());
-        self.vars.push(f(next_idx));
-        next_idx
+        let next_ref = TVarRef(self.vars.len());
+        self.vars.push(f(next_ref));
+        next_ref
     }
 
     pub fn get(&self, var_ref: TVarRef) -> &TVar {
@@ -21,10 +21,10 @@ impl TVars {
             .unwrap_or_else(|| panic!("No such var: {:?}", var_ref))
     }
 
-    pub fn set(&mut self, idx: TVarRef, x: TVar) {
-        match self.vars.get_mut(idx.0) {
+    pub fn set(&mut self, var_ref: TVarRef, x: TVar) {
+        match self.vars.get_mut(var_ref.0) {
             Some(cur) => *cur = x,
-            None => panic!("No such idx: {:?}", idx),
+            None => panic!("No such var: {:?}", var_ref),
         }
     }
 }

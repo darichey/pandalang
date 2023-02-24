@@ -93,7 +93,10 @@ impl Checker {
     }
 
     pub fn new_tvar(&mut self) -> Type {
-        Type::Var(self.tvars.add(|idx| TVar::Unbound(idx, self.cur_level)))
+        Type::Var(
+            self.tvars
+                .add(|var_ref| TVar::Unbound(var_ref, self.cur_level)),
+        )
     }
 
     fn occurs(&mut self, id: TVarRef, level: Level, typ: Type) -> bool {
