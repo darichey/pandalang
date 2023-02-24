@@ -3,7 +3,6 @@
 mod ast;
 mod desugar;
 mod eval;
-mod managed_vec;
 mod parser;
 mod pretty;
 mod types;
@@ -16,7 +15,6 @@ use rustyline::error::ReadlineError;
 use rustyline::{Editor, Result};
 
 use eval::Env;
-use types::Checker;
 
 fn main() -> Result<()> {
     let mut rl = Editor::<()>::new()?;
@@ -79,13 +77,10 @@ fn desguar(s: &str) -> String {
 
 fn type_check(s: &str) -> String {
     match parser::parse(s) {
-        Ok(ast) => {
-            let mut ctx = Checker::new();
-            match ctx.check(*ast) {
-                Ok(t) => format!("{}", ctx.string_of_type(t)),
-                Err(e) => format!("{:?}", e),
-            }
-        }
+        Ok(ast) => match types::check_to_string(*ast) {
+            Ok(s) => s,
+            Err(e) => format!("{:?}", e),
+        },
         Err(err) => format!("{:?}", err),
     }
 }

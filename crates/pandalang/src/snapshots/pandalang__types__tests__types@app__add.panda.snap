@@ -1,8 +1,0 @@
----
-source: crates/pandalang/src/types.rs
-expression: test(path)
-input_file: crates/pandalang/src/snapshot_inputs/app/add.panda
----
-Ok(
-    "Int",
-)
