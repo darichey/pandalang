@@ -1,44 +1,46 @@
 ---
 source: crates/pandalang/src/parser.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/fun/apply_body.panda
 ---
-Fun(
-    Fun {
-        patt: Id {
-            name: "f",
-            typ: Fun(
-                Base {
-                    name: "Int",
-                },
-                Base {
-                    name: "Int",
-                },
-            ),
-        },
-        body: Fun(
-            Fun {
-                patt: Id {
-                    name: "x",
-                    typ: Base {
+Ok(
+    Fun(
+        Fun {
+            patt: Id {
+                name: "f",
+                typ: Fun(
+                    Base {
                         name: "Int",
                     },
-                },
-                body: App(
-                    App {
-                        fun: Var(
-                            Var {
-                                name: "f",
-                            },
-                        ),
-                        arg: Var(
-                            Var {
-                                name: "x",
-                            },
-                        ),
+                    Base {
+                        name: "Int",
                     },
                 ),
             },
-        ),
-    },
+            body: Fun(
+                Fun {
+                    patt: Id {
+                        name: "x",
+                        typ: Base {
+                            name: "Int",
+                        },
+                    },
+                    body: App(
+                        App {
+                            fun: Var(
+                                Var {
+                                    name: "f",
+                                },
+                            ),
+                            arg: Var(
+                                Var {
+                                    name: "x",
+                                },
+                            ),
+                        },
+                    ),
+                },
+            ),
+        },
+    ),
 )

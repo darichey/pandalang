@@ -1,20 +1,22 @@
 ---
 source: crates/pandalang/src/parser.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/parens/parens2.panda
 ---
-BinOp(
-    BinOp {
-        left: Var(
-            Var {
-                name: "a",
-            },
-        ),
-        right: Var(
-            Var {
-                name: "b",
-            },
-        ),
-        kind: Add,
-    },
+Ok(
+    BinOp(
+        BinOp {
+            left: Var(
+                Var {
+                    name: "a",
+                },
+            ),
+            right: Var(
+                Var {
+                    name: "b",
+                },
+            ),
+            kind: Add,
+        },
+    ),
 )

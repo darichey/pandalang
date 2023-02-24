@@ -1,10 +1,12 @@
 ---
 source: crates/pandalang/src/parser.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/int/negative.panda
 ---
-Int(
-    Int {
-        n: -37,
-    },
+Ok(
+    Int(
+        Int {
+            n: -37,
+        },
+    ),
 )

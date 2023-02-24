@@ -1,6 +1,23 @@
 ---
 source: crates/pandalang/src/eval.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/fun/id.panda
 ---
-<function>
+Ok(
+    Fun {
+        fun: Fun {
+            patt: Id {
+                name: "x",
+                typ: Base {
+                    name: "Int",
+                },
+            },
+            body: Var(
+                Var {
+                    name: "x",
+                },
+            ),
+        },
+        env: "<opaque>",
+    },
+)

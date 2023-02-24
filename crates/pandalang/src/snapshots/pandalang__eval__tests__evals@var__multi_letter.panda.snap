@@ -1,6 +1,12 @@
 ---
 source: crates/pandalang/src/eval.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/var/multi_letter.panda
 ---
-3
+Ok(
+    Int(
+        Int {
+            n: 3,
+        },
+    ),
+)

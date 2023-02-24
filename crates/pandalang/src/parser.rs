@@ -14,17 +14,19 @@ pub fn parse(s: &str) -> Result<Box<Expr>, ParseError<usize, Token<'_>, &'static
 
 #[cfg(test)]
 mod tests {
+    use std::path::Path;
+
     use crate::{ast::Expr, parser};
 
-    fn parse(s: String) -> Box<Expr> {
-        parser::parse(s.as_str()).unwrap()
+    fn test(path: &Path) -> Result<Box<Expr>, String> {
+        let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
+        parser::parse(&source).map_err(|err| err.to_string())
     }
 
     #[test]
     fn parses() {
         insta::glob!("snapshot_inputs/**/*.panda", |path| {
-            let source = parse(std::fs::read_to_string(path).unwrap());
-            insta::assert_debug_snapshot!(source);
+            insta::assert_debug_snapshot!(test(path));
         });
     }
 }

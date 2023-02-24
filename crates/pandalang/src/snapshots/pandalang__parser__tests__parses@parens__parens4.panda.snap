@@ -1,50 +1,52 @@
 ---
 source: crates/pandalang/src/parser.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/parens/parens4.panda
 ---
-BinOp(
-    BinOp {
-        left: BinOp(
-            BinOp {
-                left: Var(
-                    Var {
-                        name: "a",
-                    },
-                ),
-                right: BinOp(
-                    BinOp {
-                        left: Var(
-                            Var {
-                                name: "b",
-                            },
-                        ),
-                        right: Var(
-                            Var {
-                                name: "c",
-                            },
-                        ),
-                        kind: Mul,
-                    },
-                ),
-                kind: Add,
-            },
-        ),
-        right: BinOp(
-            BinOp {
-                left: Var(
-                    Var {
-                        name: "d",
-                    },
-                ),
-                right: Var(
-                    Var {
-                        name: "e",
-                    },
-                ),
-                kind: Div,
-            },
-        ),
-        kind: Sub,
-    },
+Ok(
+    BinOp(
+        BinOp {
+            left: BinOp(
+                BinOp {
+                    left: Var(
+                        Var {
+                            name: "a",
+                        },
+                    ),
+                    right: BinOp(
+                        BinOp {
+                            left: Var(
+                                Var {
+                                    name: "b",
+                                },
+                            ),
+                            right: Var(
+                                Var {
+                                    name: "c",
+                                },
+                            ),
+                            kind: Mul,
+                        },
+                    ),
+                    kind: Add,
+                },
+            ),
+            right: BinOp(
+                BinOp {
+                    left: Var(
+                        Var {
+                            name: "d",
+                        },
+                    ),
+                    right: Var(
+                        Var {
+                            name: "e",
+                        },
+                    ),
+                    kind: Div,
+                },
+            ),
+            kind: Sub,
+        },
+    ),
 )

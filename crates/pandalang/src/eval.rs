@@ -94,23 +94,26 @@ impl Env {
 
 #[cfg(test)]
 mod tests {
+    use std::path::Path;
+
     use super::Env;
     use crate::ast::Int;
     use crate::parser;
     use crate::value::Value;
 
-    fn eval_test(s: String) -> Value {
+    fn test(path: &Path) -> Result<Value, String> {
         let mut env = Env {
             bindings: bindings!("x" => 0, "y" => 1, "x'" => 2, "foo" => 3, "a" => 4, "b" => 5, "c" => 6, "d" => 7, "e" => 8),
         };
-        env.eval(*parser::parse(s.as_str()).unwrap())
+        let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
+        let ast = parser::parse(&source).map_err(|err| err.to_string())?;
+        Ok(env.eval(*ast))
     }
 
     #[test]
     fn evals() {
         insta::glob!("snapshot_inputs/**/*.panda", |path| {
-            let source = eval_test(std::fs::read_to_string(path).unwrap());
-            insta::assert_display_snapshot!(source);
+            insta::assert_debug_snapshot!(test(path));
         });
     }
 }

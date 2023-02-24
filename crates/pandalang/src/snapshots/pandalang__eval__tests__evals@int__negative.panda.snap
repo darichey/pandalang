@@ -1,6 +1,12 @@
 ---
 source: crates/pandalang/src/eval.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/int/negative.panda
 ---
--37
+Ok(
+    Int(
+        Int {
+            n: -37,
+        },
+    ),
+)

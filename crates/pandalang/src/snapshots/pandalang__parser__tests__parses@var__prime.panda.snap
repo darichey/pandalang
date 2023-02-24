@@ -1,10 +1,12 @@
 ---
 source: crates/pandalang/src/parser.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/var/prime.panda
 ---
-Var(
-    Var {
-        name: "x'",
-    },
+Ok(
+    Var(
+        Var {
+            name: "x'",
+        },
+    ),
 )

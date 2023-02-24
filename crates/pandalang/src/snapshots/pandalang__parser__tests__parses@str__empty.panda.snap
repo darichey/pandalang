@@ -1,10 +1,12 @@
 ---
 source: crates/pandalang/src/parser.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/str/empty.panda
 ---
-Str(
-    Str {
-        s: "",
-    },
+Ok(
+    Str(
+        Str {
+            s: "",
+        },
+    ),
 )

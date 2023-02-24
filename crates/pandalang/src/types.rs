@@ -123,6 +123,19 @@ pub enum Error {
     UnknownType { name: String },
 }
 
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Error::Incompatible { expected, actual } => {
+                write!(f, "{} is incompatible with {}", expected, actual)
+            }
+            Error::NotFunction { actual } => write!(f, "{} is not a function", actual),
+            Error::NotInScope { name } => write!(f, "The variable {} is not in scope", name),
+            Error::UnknownType { name } => write!(f, "The type {} is not in scope", name),
+        }
+    }
+}
+
 fn parse_type(typ: ast::Type) -> Result<Type, Error> {
     match typ {
         ast::Type::Base { name } => match name.as_str() {
@@ -139,21 +152,24 @@ fn parse_type(typ: ast::Type) -> Result<Type, Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Context, Error, Type};
+    use std::path::Path;
+
+    use super::{Context, Type};
     use crate::parser;
 
-    fn type_check(s: String) -> Result<Type, Error> {
+    fn test(path: &Path) -> Result<Type, String> {
         let mut ctx = Context {
             types: types!("x" => Int, "y" => Int, "x'" => Int, "foo" => Int, "a" => Int, "b" => Int, "c" => Int, "d" => Int, "e" => Int),
         };
-        ctx.check(*parser::parse(s.as_str()).unwrap())
+        let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
+        let ast = parser::parse(&source).map_err(|err| err.to_string())?;
+        ctx.check(*ast).map_err(|err| err.to_string())
     }
 
     #[test]
     fn types() {
         insta::glob!("snapshot_inputs/**/*.panda", |path| {
-            let source = type_check(std::fs::read_to_string(path).unwrap());
-            insta::assert_debug_snapshot!(source);
+            insta::assert_debug_snapshot!(test(path));
         });
     }
 }

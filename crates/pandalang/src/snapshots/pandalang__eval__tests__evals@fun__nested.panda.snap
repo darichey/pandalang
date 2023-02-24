@@ -1,6 +1,43 @@
 ---
 source: crates/pandalang/src/eval.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/fun/nested.panda
 ---
-<function>
+Ok(
+    Fun {
+        fun: Fun {
+            patt: Id {
+                name: "x",
+                typ: Base {
+                    name: "Int",
+                },
+            },
+            body: Fun(
+                Fun {
+                    patt: Id {
+                        name: "y",
+                        typ: Base {
+                            name: "Int",
+                        },
+                    },
+                    body: BinOp(
+                        BinOp {
+                            left: Var(
+                                Var {
+                                    name: "x",
+                                },
+                            ),
+                            right: Var(
+                                Var {
+                                    name: "y",
+                                },
+                            ),
+                            kind: Add,
+                        },
+                    ),
+                },
+            ),
+        },
+        env: "<opaque>",
+    },
+)

@@ -1,58 +1,60 @@
 ---
 source: crates/pandalang/src/parser.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/app/add.panda
 ---
-App(
-    App {
-        fun: App(
-            App {
-                fun: Fun(
-                    Fun {
-                        patt: Id {
-                            name: "x",
-                            typ: Base {
-                                name: "Int",
-                            },
-                        },
-                        body: Fun(
-                            Fun {
-                                patt: Id {
-                                    name: "y",
-                                    typ: Base {
-                                        name: "Int",
-                                    },
+Ok(
+    App(
+        App {
+            fun: App(
+                App {
+                    fun: Fun(
+                        Fun {
+                            patt: Id {
+                                name: "x",
+                                typ: Base {
+                                    name: "Int",
                                 },
-                                body: BinOp(
-                                    BinOp {
-                                        left: Var(
-                                            Var {
-                                                name: "x",
-                                            },
-                                        ),
-                                        right: Var(
-                                            Var {
-                                                name: "y",
-                                            },
-                                        ),
-                                        kind: Add,
-                                    },
-                                ),
                             },
-                        ),
-                    },
-                ),
-                arg: Int(
-                    Int {
-                        n: 2,
-                    },
-                ),
-            },
-        ),
-        arg: Int(
-            Int {
-                n: 3,
-            },
-        ),
-    },
+                            body: Fun(
+                                Fun {
+                                    patt: Id {
+                                        name: "y",
+                                        typ: Base {
+                                            name: "Int",
+                                        },
+                                    },
+                                    body: BinOp(
+                                        BinOp {
+                                            left: Var(
+                                                Var {
+                                                    name: "x",
+                                                },
+                                            ),
+                                            right: Var(
+                                                Var {
+                                                    name: "y",
+                                                },
+                                            ),
+                                            kind: Add,
+                                        },
+                                    ),
+                                },
+                            ),
+                        },
+                    ),
+                    arg: Int(
+                        Int {
+                            n: 2,
+                        },
+                    ),
+                },
+            ),
+            arg: Int(
+                Int {
+                    n: 3,
+                },
+            ),
+        },
+    ),
 )

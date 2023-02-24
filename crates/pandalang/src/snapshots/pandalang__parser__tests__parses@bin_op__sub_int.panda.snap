@@ -1,20 +1,22 @@
 ---
 source: crates/pandalang/src/parser.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/bin_op/sub_int.panda
 ---
-BinOp(
-    BinOp {
-        left: Int(
-            Int {
-                n: 1,
-            },
-        ),
-        right: Int(
-            Int {
-                n: 1,
-            },
-        ),
-        kind: Sub,
-    },
+Ok(
+    BinOp(
+        BinOp {
+            left: Int(
+                Int {
+                    n: 1,
+                },
+            ),
+            right: Int(
+                Int {
+                    n: 1,
+                },
+            ),
+            kind: Sub,
+        },
+    ),
 )

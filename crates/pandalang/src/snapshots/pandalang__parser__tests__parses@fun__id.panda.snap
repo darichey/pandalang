@@ -1,20 +1,22 @@
 ---
 source: crates/pandalang/src/parser.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/fun/id.panda
 ---
-Fun(
-    Fun {
-        patt: Id {
-            name: "x",
-            typ: Base {
-                name: "Int",
-            },
-        },
-        body: Var(
-            Var {
+Ok(
+    Fun(
+        Fun {
+            patt: Id {
                 name: "x",
+                typ: Base {
+                    name: "Int",
+                },
             },
-        ),
-    },
+            body: Var(
+                Var {
+                    name: "x",
+                },
+            ),
+        },
+    ),
 )
