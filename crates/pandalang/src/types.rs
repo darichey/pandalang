@@ -34,6 +34,16 @@ pub enum Error {
     Occurs,
 }
 
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Error::NotInScope { name } => write!(f, "{} is not in scope", name),
+            Error::NoUnify => write!(f, "Unification failure"),
+            Error::Occurs => write!(f, "Occurs check failed"),
+        }
+    }
+}
+
 pub struct Checker {
     cur_level: Level,
     tvars: ManagedVec<TVar>,
@@ -306,5 +316,39 @@ impl<'a> StringOfType<'a> {
                 name
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::Path;
+
+    use crate::parser;
+
+    use super::{Checker, Polytype, Type};
+
+    fn test(path: &Path) -> Result<String, String> {
+        let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
+        let ast = parser::parse(&source).map_err(|err| err.to_string())?;
+        let mut checker = Checker::new();
+        let bindings = &mut checker.bindings;
+        bindings.insert("x".to_string(), Polytype(vec![], Type::Int));
+        bindings.insert("y".to_string(), Polytype(vec![], Type::Int));
+        bindings.insert("x'".to_string(), Polytype(vec![], Type::Int));
+        bindings.insert("foo".to_string(), Polytype(vec![], Type::Int));
+        bindings.insert("a".to_string(), Polytype(vec![], Type::Int));
+        bindings.insert("b".to_string(), Polytype(vec![], Type::Int));
+        bindings.insert("c".to_string(), Polytype(vec![], Type::Int));
+        bindings.insert("d".to_string(), Polytype(vec![], Type::Int));
+        bindings.insert("e".to_string(), Polytype(vec![], Type::Int));
+        let t = checker.check(*ast).map_err(|err| err.to_string())?;
+        Ok(checker.string_of_type(t))
+    }
+
+    #[test]
+    fn types() {
+        insta::glob!("snapshot_inputs/**/*.panda", |path| {
+            insta::assert_debug_snapshot!(test(path));
+        });
     }
 }

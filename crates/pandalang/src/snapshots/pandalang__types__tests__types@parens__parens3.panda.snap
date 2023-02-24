@@ -1,8 +1,8 @@
 ---
 source: crates/pandalang/src/types.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/parens/parens3.panda
 ---
 Ok(
-    Int,
+    "Int",
 )

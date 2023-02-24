@@ -1,14 +1,8 @@
 ---
 source: crates/pandalang/src/types.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/fun/nested.panda
 ---
 Ok(
-    Fun(
-        Int,
-        Fun(
-            Int,
-            Int,
-        ),
-    ),
+    "(Int -> (Int -> Int))",
 )

@@ -1,17 +1,8 @@
 ---
 source: crates/pandalang/src/types.rs
-expression: source
+expression: test(path)
 input_file: crates/pandalang/src/snapshot_inputs/fun/apply_body.panda
 ---
 Ok(
-    Fun(
-        Fun(
-            Int,
-            Int,
-        ),
-        Fun(
-            Int,
-            Int,
-        ),
-    ),
+    "(('a -> 'b) -> ('a -> 'b))",
 )
