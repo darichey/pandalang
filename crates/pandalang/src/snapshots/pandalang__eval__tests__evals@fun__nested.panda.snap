@@ -6,14 +6,10 @@ input_file: crates/pandalang/src/snapshot_inputs/fun/nested.panda
 Ok(
     Fun {
         fun: Fun {
-            patt: Id {
-                name: "x",
-            },
+            arg: "x",
             body: Fun(
                 Fun {
-                    patt: Id {
-                        name: "y",
-                    },
+                    arg: "y",
                     body: BinOp(
                         BinOp {
                             left: Var(

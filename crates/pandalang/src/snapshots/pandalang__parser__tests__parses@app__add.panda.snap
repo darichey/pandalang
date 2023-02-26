@@ -10,14 +10,10 @@ Ok(
                 App {
                     fun: Fun(
                         Fun {
-                            patt: Id {
-                                name: "x",
-                            },
+                            arg: "x",
                             body: Fun(
                                 Fun {
-                                    patt: Id {
-                                        name: "y",
-                                    },
+                                    arg: "y",
                                     body: BinOp(
                                         BinOp {
                                             left: Var(

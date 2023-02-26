@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Pattern, Var};
+use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Var};
 use crate::value::Value;
 
 macro_rules! bindings {
@@ -50,13 +50,9 @@ impl Env {
             Expr::App(App { fun, arg }) => {
                 let (arg_name, body, mut fun_env) = match self.eval(*fun) {
                     Value::Fun {
-                        fun:
-                            Fun {
-                                patt: Pattern::Id { name, .. },
-                                body,
-                            },
+                        fun: Fun { arg, body },
                         env,
-                    } => (name, body, env),
+                    } => (arg, body, env),
                     _ => panic!("Cannot apply non-functions"),
                 };
                 let arg = self.eval(*arg);

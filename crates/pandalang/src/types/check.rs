@@ -37,17 +37,15 @@ impl Checker {
                 self.unify(fun_t, Type::Fun(Box::new(arg_t), Box::new(t.clone())))?;
                 Ok(t)
             }
-            Expr::Fun(ast::Fun { patt, body }) => {
-                let ast::Pattern::Id { name } = patt;
+            Expr::Fun(ast::Fun { arg, body }) => {
                 let in_t = self.new_tvar();
                 self.bindings
-                    .insert(name.clone(), Polytype(vec![], in_t.clone()));
+                    .insert(arg.clone(), Polytype(vec![], in_t.clone()));
                 let out_t = self.check(*body)?;
-                self.bindings.remove(&name);
+                self.bindings.remove(&arg);
                 Ok(Type::Fun(Box::new(in_t), Box::new(out_t)))
             }
-            Expr::Let(ast::Let { patt, value, body }) => {
-                let ast::Pattern::Id { name } = patt;
+            Expr::Let(ast::Let { name, value, body }) => {
                 self.enter_level();
                 let value_t = self.check(*value)?;
                 self.exit_level();

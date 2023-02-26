@@ -1,4 +1,4 @@
-use crate::ast::{App, BinOp, Expr, Fun, Int, Let, Pattern, Str, Var};
+use crate::ast::{App, BinOp, Expr, Fun, Int, Let, Str, Var};
 
 pub fn pretty(e: Expr) -> String {
     match e {
@@ -8,23 +8,12 @@ pub fn pretty(e: Expr) -> String {
         Expr::BinOp(BinOp { left, right, kind }) => {
             format!("{} {} {}", pretty(*left), kind.to_string(), pretty(*right))
         }
-        Expr::Let(Let { patt, value, body }) => {
-            format!(
-                "let {} = {} in {}",
-                pretty_pattern(patt),
-                pretty(*value),
-                pretty(*body)
-            )
+        Expr::Let(Let { name, value, body }) => {
+            format!("let {} = {} in {}", name, pretty(*value), pretty(*body))
         }
-        Expr::Fun(Fun { patt, body }) => {
-            format!("fun {} -> {}", pretty_pattern(patt), pretty(*body))
+        Expr::Fun(Fun { arg, body }) => {
+            format!("fun {} -> {}", arg, pretty(*body))
         }
         Expr::App(App { fun, arg }) => format!("({}) ({})", pretty(*fun), pretty(*arg)),
-    }
-}
-
-fn pretty_pattern(patt: Pattern) -> String {
-    match patt {
-        Pattern::Id { name } => name,
     }
 }

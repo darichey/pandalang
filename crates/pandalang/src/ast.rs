@@ -33,14 +33,14 @@ pub struct BinOp {
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Let {
-    pub patt: Pattern,
+    pub name: String,
     pub value: Box<Expr>,
     pub body: Box<Expr>,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Fun {
-    pub patt: Pattern,
+    pub arg: String,
     pub body: Box<Expr>,
 }
 
@@ -68,18 +68,4 @@ impl ToString for BinOpKind {
         }
         .to_string()
     }
-}
-
-#[derive(PartialEq, Eq, Debug, Clone)]
-pub enum Pattern {
-    Id {
-        name: String,
-        // typ: Type
-    },
-}
-
-#[derive(PartialEq, Eq, Debug, Clone)]
-pub enum Type {
-    Base { name: String },
-    Fun(Box<Type>, Box<Type>),
 }

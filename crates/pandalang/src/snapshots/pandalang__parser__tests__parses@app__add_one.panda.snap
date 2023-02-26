@@ -8,9 +8,7 @@ Ok(
         App {
             fun: Fun(
                 Fun {
-                    patt: Id {
-                        name: "x",
-                    },
+                    arg: "x",
                     body: BinOp(
                         BinOp {
                             left: Var(

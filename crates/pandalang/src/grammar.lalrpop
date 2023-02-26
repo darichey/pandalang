@@ -26,32 +26,15 @@ pub Expr: Box<Expr> = {
 
     #[precedence(level="4")]
     #[assoc(side="right")]
-    "let" <patt:Pattern> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(Let { patt, value, body })),
+    "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(Let { name: name.to_string(), value, body })),
 
     #[precedence(level="5")]
     #[assoc(side="right")]
-    "fun" <patt:Pattern> "->" <body:Expr> => Box::new(Expr::Fun(Fun { patt, body })),
+    "fun" <arg:Name> "->" <body:Expr> => Box::new(Expr::Fun(Fun { arg: arg.to_string(), body })),
 };
 
 // See https://github.com/lalrpop/lalrpop/issues/596
 ExprReset = <Expr>;
-
-pub Type: Box<Type> = {
-    #[precedence(level="0")]
-    Name => Box::new(Type::Base { name: <>.to_string() }),
-    "(" <TypeReset> ")",
-    
-    #[precedence(level="1")]
-    #[assoc(side="right")]
-    <i:Type> "->" <o:Type> => Box::new(Type::Fun(i, o)),
-}
-
-TypeReset = <Type>;
-
-pub Pattern: Pattern = {
-    // "(" <name:Name> ":" <typ:Type> ")" => Pattern::Id { name: name.to_string(), typ: *typ }
-    <name:Name> => Pattern::Id { name: name.to_string() }
-}
 
 Int: i64 = r"\-?[0-9]+" => i64::from_str(<>).unwrap();
 
