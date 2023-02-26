@@ -1,7 +1,6 @@
 #![feature(if_let_guard)]
 
 mod ast;
-mod desugar;
 mod eval;
 mod parser;
 mod pretty;
@@ -26,8 +25,6 @@ fn main() -> Result<()> {
 
                 if let Some(source) = line.strip_prefix("#ast ") {
                     println!("{}", ast(source))
-                } else if let Some(source) = line.strip_prefix("#desugar") {
-                    println!("{}", desguar(source))
                 } else if let Some(source) = line.strip_prefix("#type") {
                     println!("{}", type_check(source))
                 } else {
@@ -58,21 +55,11 @@ fn main() -> Result<()> {
 
 fn eval(s: &str) -> String {
     let mut env = Env::new();
-    format!(
-        "{}",
-        env.eval(desugar::desugar_let(*parser::parse(s).unwrap()))
-    )
+    format!("{}", env.eval(*parser::parse(s).unwrap()))
 }
 
 fn ast(s: &str) -> String {
     format!("{:?}", parser::parse(s))
-}
-
-fn desguar(s: &str) -> String {
-    match parser::parse(s) {
-        Ok(ast) => pretty::pretty(desugar::desugar_let(*ast)),
-        Err(err) => format!("{:?}", err),
-    }
 }
 
 fn type_check(s: &str) -> String {

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Var};
+use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Let, Var};
 use crate::value::Value;
 
 macro_rules! bindings {
@@ -62,7 +62,13 @@ impl Env {
                 fun_env.pop_binding(&arg_name);
                 result
             }
-            Expr::Let(_) => panic!("Let in eval"),
+            Expr::Let(Let { name, value, body }) => {
+                let value = self.eval(*value);
+                self.push_binding(&name, value);
+                let result = self.eval(*body);
+                self.pop_binding(&name);
+                result
+            }
         }
     }
 
