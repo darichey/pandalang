@@ -7,6 +7,7 @@ edition = "2021"
 lalrpop = "0.19.8"
 
 [dependencies]
+clap = { version = "4.3.2", features = ["derive"] }
 lalrpop-util = { version = "0.19.8", features = [ "lexer" ] }
 lazy_static = "1.4.0"
 regex = "1"

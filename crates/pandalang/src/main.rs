@@ -2,6 +2,7 @@
 #![feature(str_split_whitespace_remainder)]
 
 mod ast;
+mod cli;
 mod eval;
 mod parser;
 mod pretty;
@@ -16,5 +17,5 @@ extern crate lalrpop_util;
 extern crate lazy_static;
 
 fn main() -> Result<(), String> {
-    repl::run_repl()
+    cli::run_cli()
 }
