@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ast::{App, BinOp, BinOpKind, Expr, Fun, Int, Let, Var};
+use crate::ast::expr::{App, BinOp, BinOpKind, Expr, Fun, Int, Let, Var};
 use crate::value::Value;
 
 macro_rules! bindings {
@@ -99,7 +99,7 @@ mod tests {
     use std::path::Path;
 
     use super::Env;
-    use crate::ast::Int;
+    use crate::ast::expr::Int;
     use crate::parser;
     use crate::value::Value;
 
@@ -108,7 +108,7 @@ mod tests {
             bindings: bindings!("x" => 0, "y" => 1, "x'" => 2, "foo" => 3, "a" => 4, "b" => 5, "c" => 6, "d" => 7, "e" => 8),
         };
         let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
-        let ast = parser::parse(&source).map_err(|err| err.to_string())?;
+        let ast = parser::parse_expr(&source).map_err(|err| err.to_string())?;
         Ok(env.eval(*ast))
     }
 

@@ -1,0 +1,7 @@
+let id = fun x -> x
+
+let foo = 3
+
+let bar = "Hello world"
+
+let baz = id ((5 + foo) * 0)

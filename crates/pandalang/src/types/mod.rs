@@ -1,4 +1,4 @@
-use crate::ast;
+use crate::ast::expr::Expr;
 
 use self::{check::Checker, error::Error};
 
@@ -42,7 +42,7 @@ struct Polytype(Vec<TVarRef>, Type);
 // all to strings too. We should instead have some "Concretizer" that does this
 // process and whatever it spits out can be that exported Type type. We need to
 // decide how best to represent unbound tvars for that type first.
-pub fn check_to_string(ast: ast::Expr) -> Result<String, Error> {
+pub fn check_to_string(ast: Expr) -> Result<String, Error> {
     let mut checker = Checker::new();
     let typ = checker.check(ast)?;
     Ok(string_of_type::string_of_type(&mut checker, typ))

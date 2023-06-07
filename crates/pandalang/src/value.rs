@@ -1,17 +1,17 @@
-use crate::{ast, eval::Env};
+use crate::{ast::expr::*, eval::Env};
 
 #[derive(Clone)]
 pub enum Value {
-    Int(ast::Int),
-    Str(ast::Str),
-    Fun { fun: ast::Fun, env: Env },
+    Int(Int),
+    Str(Str),
+    Fun { fun: Fun, env: Env },
 }
 
 impl std::fmt::Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Value::Int(ast::Int { n }) => write!(f, "{}", n),
-            Value::Str(ast::Str { s }) => write!(f, "{}", s),
+            Value::Int(Int { n }) => write!(f, "{}", n),
+            Value::Str(Str { s }) => write!(f, "{}", s),
             Value::Fun { .. } => write!(f, "<function>"),
         }
     }

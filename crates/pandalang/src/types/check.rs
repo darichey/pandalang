@@ -1,6 +1,6 @@
 use std::{cmp::min, collections::HashMap};
 
-use crate::ast::{self, Expr};
+use crate::ast::expr::*;
 
 use super::{
     error::Error, monomorphize::monomorphize, polymorphize::polymorphize, tvars::TVars, Level,
@@ -26,18 +26,18 @@ impl Checker {
         match expr {
             Expr::Int(_) => Ok(Type::Int),
             Expr::Str(_) => Ok(Type::Str),
-            Expr::Var(ast::Var { name }) => match self.bindings.get(&name) {
+            Expr::Var(Var { name }) => match self.bindings.get(&name) {
                 Some(t) => Ok(monomorphize(self, t.clone())),
                 None => Err(Error::NotInScope { name }),
             },
-            Expr::App(ast::App { fun, arg }) => {
+            Expr::App(App { fun, arg }) => {
                 let fun_t = self.check(*fun)?;
                 let arg_t = self.check(*arg)?;
                 let t = self.new_tvar();
                 self.unify(fun_t, Type::Fun(Box::new(arg_t), Box::new(t.clone())))?;
                 Ok(t)
             }
-            Expr::Fun(ast::Fun { arg, body }) => {
+            Expr::Fun(Fun { arg, body }) => {
                 let in_t = self.new_tvar();
                 self.bindings
                     .insert(arg.clone(), Polytype(vec![], in_t.clone()));
@@ -45,7 +45,7 @@ impl Checker {
                 self.bindings.remove(&arg);
                 Ok(Type::Fun(Box::new(in_t), Box::new(out_t)))
             }
-            Expr::Let(ast::Let { name, value, body }) => {
+            Expr::Let(Let { name, value, body }) => {
                 self.enter_level();
                 let value_t = self.check(*value)?;
                 self.exit_level();
@@ -55,12 +55,9 @@ impl Checker {
                 self.bindings.remove(&name);
                 Ok(t)
             }
-            Expr::BinOp(ast::BinOp { left, right, kind }) => {
+            Expr::BinOp(BinOp { left, right, kind }) => {
                 let op_t = match kind {
-                    ast::BinOpKind::Add
-                    | ast::BinOpKind::Sub
-                    | ast::BinOpKind::Mul
-                    | ast::BinOpKind::Div => Type::Fun(
+                    BinOpKind::Add | BinOpKind::Sub | BinOpKind::Mul | BinOpKind::Div => Type::Fun(
                         Box::new(Type::Int),
                         Box::new(Type::Fun(Box::new(Type::Int), Box::new(Type::Int))),
                     ),
@@ -159,7 +156,7 @@ mod tests {
 
     fn test(path: &Path) -> Result<String, String> {
         let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
-        let ast = parser::parse(&source).map_err(|err| err.to_string())?;
+        let ast = parser::parse_expr(&source).map_err(|err| err.to_string())?;
         let mut checker = Checker::new();
         let bindings = &mut checker.bindings;
         bindings.insert("x".to_string(), Polytype(vec![], Type::Int));

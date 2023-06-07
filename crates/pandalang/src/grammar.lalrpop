@@ -1,7 +1,17 @@
 use std::str::FromStr;
-use crate::ast::*;
+use crate::ast::expr::{self, *};
+use crate::ast::stmt::{self, *};
+use crate::ast::Program;
 
 grammar;
+
+pub Program: Program = {
+    (<Stmt>)+ => Program { stmts: <> }
+}
+
+pub Stmt: Box<Stmt> = {
+    "let" <name:Name> "=" <value:Expr> => Box::new(Stmt::Let(stmt::Let { name: name.to_string(), value })),
+}
 
 pub Expr: Box<Expr> = {
     #[precedence(level="0")]
@@ -26,7 +36,7 @@ pub Expr: Box<Expr> = {
 
     #[precedence(level="4")]
     #[assoc(side="right")]
-    "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(Let { name: name.to_string(), value, body })),
+    "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value, body })),
 
     #[precedence(level="5")]
     #[assoc(side="right")]

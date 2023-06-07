@@ -1,4 +1,4 @@
-use crate::ast::{App, BinOp, Expr, Fun, Int, Let, Str, Var};
+use crate::ast::expr::{App, BinOp, Expr, Fun, Int, Let, Str, Var};
 
 pub fn pretty(e: Expr) -> String {
     match e {
