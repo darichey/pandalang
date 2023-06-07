@@ -1,4 +1,5 @@
 #![feature(if_let_guard)]
+#![feature(str_split_whitespace_remainder)]
 
 mod ast;
 mod eval;
@@ -11,6 +12,9 @@ mod value;
 #[macro_use]
 extern crate lalrpop_util;
 
-fn main() -> rustyline::Result<()> {
+#[macro_use]
+extern crate lazy_static;
+
+fn main() -> Result<(), String> {
     repl::run_repl()
 }

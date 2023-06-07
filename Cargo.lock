@@ -422,6 +422,7 @@ dependencies = [
  "insta",
  "lalrpop",
  "lalrpop-util",
+ "lazy_static",
  "regex",
  "rustyline",
 ]
