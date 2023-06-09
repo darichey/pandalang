@@ -131,7 +131,7 @@ mod tests {
 
     fn test(path: &Path) -> Result<Value, String> {
         let mut env = Env {
-            bindings: bindings!("x" => 0, "y" => 1, "x'" => 2, "foo" => 3, "a" => 4, "b" => 5, "c" => 6, "d" => 7, "e" => 8),
+            bindings: bindings!("x" => 0, "y" => 1, "x'" => 2, "foo" => 3, "a" => 4, "b" => 5, "c" => 6, "d" => 7, "e" => 8, "foo_bar" => 9),
         };
         let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
         let ast = parser::parse_expr(&source).map_err(|err| err.to_string())?;

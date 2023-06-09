@@ -168,6 +168,7 @@ mod tests {
         bindings.insert("c".to_string(), Polytype(vec![], Type::Int));
         bindings.insert("d".to_string(), Polytype(vec![], Type::Int));
         bindings.insert("e".to_string(), Polytype(vec![], Type::Int));
+        bindings.insert("foo_bar".to_string(), Polytype(vec![], Type::Int));
         let t = checker.check(*ast).map_err(|err| err.to_string())?;
         Ok(string_of_type(&mut checker, t))
     }

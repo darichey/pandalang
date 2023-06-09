@@ -1,0 +1,12 @@
+---
+source: crates/pandalang/src/eval.rs
+expression: test(path)
+input_file: crates/pandalang/src/snapshot_inputs/exprs/var/underscore.panda
+---
+Ok(
+    Int(
+        Int {
+            n: 9,
+        },
+    ),
+)
