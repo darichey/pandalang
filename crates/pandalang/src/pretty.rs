@@ -1,4 +1,4 @@
-use crate::ast::expr::{App, BinOp, Bool, Expr, Fun, Int, Let, Str, Var};
+use crate::ast::expr::{App, BinOp, Bool, Expr, Fun, If, Int, Let, Str, Var};
 
 pub fn pretty(e: Expr) -> String {
     match e {
@@ -17,5 +17,11 @@ pub fn pretty(e: Expr) -> String {
             format!("fun {} -> {}", arg, pretty(*body))
         }
         Expr::App(App { fun, arg }) => format!("({}) ({})", pretty(*fun), pretty(*arg)),
+        Expr::If(If { check, then, els }) => format!(
+            "if {} then {} else {}",
+            pretty(*check),
+            pretty(*then),
+            pretty(*els)
+        ),
     }
 }

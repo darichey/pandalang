@@ -1,0 +1,56 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_expr(path)
+input_file: crates/pandalang/src/snapshot_inputs/exprs/if/if_let.panda
+---
+Ok(
+    If(
+        If {
+            check: Let(
+                Let {
+                    name: "b",
+                    value: Bool(
+                        Bool {
+                            b: true,
+                        },
+                    ),
+                    body: Var(
+                        Var {
+                            name: "b",
+                        },
+                    ),
+                },
+            ),
+            then: Let(
+                Let {
+                    name: "x",
+                    value: Int(
+                        Int {
+                            n: 1,
+                        },
+                    ),
+                    body: Var(
+                        Var {
+                            name: "x",
+                        },
+                    ),
+                },
+            ),
+            els: Let(
+                Let {
+                    name: "y",
+                    value: Int(
+                        Int {
+                            n: 0,
+                        },
+                    ),
+                    body: Var(
+                        Var {
+                            name: "y",
+                        },
+                    ),
+                },
+            ),
+        },
+    ),
+)

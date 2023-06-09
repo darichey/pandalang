@@ -1,0 +1,26 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_expr(path)
+input_file: crates/pandalang/src/snapshot_inputs/exprs/if/if_true.panda
+---
+Ok(
+    If(
+        If {
+            check: Bool(
+                Bool {
+                    b: true,
+                },
+            ),
+            then: Int(
+                Int {
+                    n: 1,
+                },
+            ),
+            els: Int(
+                Int {
+                    n: 0,
+                },
+            ),
+        },
+    ),
+)

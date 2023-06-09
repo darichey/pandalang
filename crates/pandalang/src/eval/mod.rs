@@ -2,7 +2,7 @@ mod builtins;
 
 use std::collections::HashMap;
 
-use crate::ast::expr::{App, BinOp, BinOpKind, Expr, Fun, Int, Let, Var};
+use crate::ast::expr::{App, BinOp, BinOpKind, Bool, Expr, Fun, If, Int, Let, Var};
 use crate::ast::stmt::Stmt;
 use crate::ast::{stmt, Program};
 use crate::value::Value;
@@ -117,6 +117,19 @@ impl Env {
                 let result = self.eval(*body);
                 self.pop_binding(&name);
                 result
+            }
+            Expr::If(If { check, then, els }) => {
+                let check = self.eval(*check);
+                match check {
+                    Value::Bool(Bool { b }) => {
+                        if b {
+                            self.eval(*then)
+                        } else {
+                            self.eval(*els)
+                        }
+                    }
+                    _ => panic!("If check must be Bool"),
+                }
             }
         }
     }

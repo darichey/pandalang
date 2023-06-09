@@ -1,0 +1,12 @@
+---
+source: crates/pandalang/src/eval/mod.rs
+expression: test_expr(path)
+input_file: crates/pandalang/src/snapshot_inputs/exprs/if/if_false.panda
+---
+Ok(
+    Int(
+        Int {
+            n: 0,
+        },
+    ),
+)

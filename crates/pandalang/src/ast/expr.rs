@@ -9,6 +9,7 @@ pub enum Expr {
     Let(Let),
     Fun(Fun),
     App(App),
+    If(If),
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -55,6 +56,13 @@ pub struct Fun {
 pub struct App {
     pub fun: Box<Expr>,
     pub arg: Box<Expr>,
+}
+
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub struct If {
+    pub check: Box<Expr>,
+    pub then: Box<Expr>,
+    pub els: Box<Expr>,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]

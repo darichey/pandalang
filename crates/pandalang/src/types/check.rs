@@ -76,6 +76,14 @@ impl Checker {
                 )?;
                 Ok(t)
             }
+            Expr::If(If { check, then, els }) => {
+                let check_t = self.check(*check)?;
+                self.unify(check_t, Type::Bool)?;
+                let then_t = self.check(*then)?;
+                let els_t = self.check(*els)?;
+                self.unify(then_t.clone(), els_t)?;
+                Ok(then_t)
+            }
         }
     }
 
@@ -116,6 +124,7 @@ impl Checker {
         match (t1.clone(), t2.clone()) {
             (Type::Int, Type::Int) => Ok(()),
             (Type::Str, Type::Str) => Ok(()),
+            (Type::Bool, Type::Bool) => Ok(()),
             (Type::Fun(a, b), Type::Fun(c, d)) => {
                 self.unify(*a, *c)?;
                 self.unify(*b, *d)

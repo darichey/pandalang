@@ -1,0 +1,8 @@
+---
+source: crates/pandalang/src/types/check.rs
+expression: test(path)
+input_file: crates/pandalang/src/snapshot_inputs/exprs/if/if_let.panda
+---
+Ok(
+    "Int",
+)

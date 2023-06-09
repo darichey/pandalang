@@ -1,0 +1,8 @@
+if true then
+  if false then
+    "foo"
+  else if false then
+    "bar"
+  else "baz" 
+else
+  "qux"
