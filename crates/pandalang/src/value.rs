@@ -5,6 +5,7 @@ pub enum Value {
     Int(Int),
     Str(Str),
     Fun { fun: Fun, env: Env },
+    Builtin(String),
 }
 
 impl std::fmt::Display for Value {
@@ -13,6 +14,7 @@ impl std::fmt::Display for Value {
             Value::Int(Int { n }) => write!(f, "{}", n),
             Value::Str(Str { s }) => write!(f, "{}", s),
             Value::Fun { .. } => write!(f, "<function>"),
+            Value::Builtin(_) => write!(f, "<builtin>"),
         }
     }
 }
@@ -27,6 +29,7 @@ impl std::fmt::Debug for Value {
                 .field("fun", fun)
                 .field("env", &"<opaque>".to_string())
                 .finish(),
+            Self::Builtin(name) => f.debug_tuple("Builtin").field(name).finish(),
         }
     }
 }

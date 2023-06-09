@@ -1,0 +1,26 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_prog(path)
+input_file: crates/pandalang/src/snapshot_inputs/progs/declare/fun.panda
+---
+Ok(
+    Program {
+        stmts: [
+            Declare(
+                Declare {
+                    name: "foo",
+                    typ: Fun(
+                        Fun {
+                            from: Simple(
+                                "Int",
+                            ),
+                            to: Simple(
+                                "Str",
+                            ),
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+)

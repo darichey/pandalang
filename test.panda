@@ -1,9 +1,5 @@
-let id = fun x -> x
+declare str_of_int: Int -> Str
 
-let foo = 3
+let five_str = str_of_int 5
 
-let bar = "Hello world"
-
-let baz = id ((5 + foo) * 10)
-
-let main = baz
+let main = five_str

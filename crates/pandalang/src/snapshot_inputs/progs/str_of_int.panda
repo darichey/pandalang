@@ -1,0 +1,3 @@
+declare str_of_int: Int -> Str
+
+let main = str_of_int 5
