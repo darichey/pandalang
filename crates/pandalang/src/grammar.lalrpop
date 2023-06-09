@@ -9,8 +9,8 @@ pub Program: Program = {
     (<Stmt>)+ => Program { stmts: <> }
 }
 
-pub Stmt: Box<Stmt> = {
-    "let" <name:Name> "=" <value:Expr> => Box::new(Stmt::Let(stmt::Let { name: name.to_string(), value })),
+pub Stmt: Stmt = {
+    "let" <name:Name> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value }),
 }
 
 pub Expr: Box<Expr> = {

@@ -5,5 +5,5 @@ pub mod stmt;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Program {
-    pub stmts: Vec<Box<Stmt>>,
+    pub stmts: Vec<Stmt>,
 }

@@ -1,7 +1,28 @@
 use std::collections::HashMap;
 
 use crate::ast::expr::{App, BinOp, BinOpKind, Expr, Fun, Int, Let, Var};
+use crate::ast::stmt::Stmt;
+use crate::ast::{stmt, Program};
 use crate::value::Value;
+
+pub fn run_program(program: Program) -> Result<Value, String> {
+    let mut env = Env::new();
+
+    for stmt in program.stmts {
+        match stmt {
+            Stmt::Let(stmt::Let { name, value }) => {
+                let value = env.eval(*value);
+                env.push_binding(&name, value);
+            }
+        }
+    }
+
+    let main_value = env
+        .lookup(&"main".to_string())
+        .ok_or("Couldn't find main")?;
+
+    Ok(main_value)
+}
 
 macro_rules! bindings {
     ($($k:expr => $v:expr),* $(,)?) => {{
@@ -19,6 +40,10 @@ impl Env {
         Env {
             bindings: bindings!(),
         }
+    }
+
+    pub fn with_bindings(bindings: HashMap<String, Vec<Value>>) -> Env {
+        Env { bindings }
     }
 
     pub fn eval(&mut self, expr: Expr) -> Value {

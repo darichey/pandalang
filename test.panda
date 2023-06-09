@@ -4,4 +4,6 @@ let foo = 3
 
 let bar = "Hello world"
 
-let baz = id ((5 + foo) * 0)
+let baz = id ((5 + foo) * 10)
+
+let main = baz
