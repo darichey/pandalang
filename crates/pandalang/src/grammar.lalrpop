@@ -43,12 +43,9 @@ pub Expr: Box<Expr> = {
     #[assoc(side="right")]
     "fun" <arg:Name> "->" <body:Expr> => Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body })),    
 
-    #[precedence(level="6")]
-    #[assoc(side="right")]
+    #[precedence(level="5")]
     "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value, body })),
     "let" <name:Name> <arg:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })), body })),
-
-    #[precedence(level="7")]
     "if" <check:Expr> "then" <then:Expr> "else" <els:Expr> => Box::new(Expr::If(expr::If { check, then, els })),
 };
 
