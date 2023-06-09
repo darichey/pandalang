@@ -14,6 +14,7 @@ enum Type {
     Int,
     Str,
     Unit,
+    Bool,
     Var(TVarRef),
     Fun(Box<Type>, Box<Type>),
 }

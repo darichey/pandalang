@@ -28,6 +28,7 @@ impl<'a> Monomorphize<'a> {
             Type::Int => Type::Int,
             Type::Str => Type::Str,
             Type::Unit => Type::Unit,
+            Type::Bool => Type::Bool,
             Type::Var(tvar) => match self.checker.tvars.get(tvar) {
                 TVar::Bound(t) => self.replace(t.clone()),
                 TVar::Unbound(id, _) => match self.to_replace.get(id) {

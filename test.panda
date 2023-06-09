@@ -1,5 +1,23 @@
+declare println: Str -> ()
 declare str_of_int: Int -> Str
 
-let five_str = str_of_int 5
+let fizzbuzz n =
+  let go i =
+    if i == n then
+      ()
+    else
+      let _ =
+        if i % 15 == 0 then
+          println "FizzBuzz"
+        else if i % 3 == 0 then
+          println "Fizz"
+        else if i % 5 == 0 then
+          println "Buzz"
+        else
+          println (str_of_int i)
+      in
+      go (i + 1)
+  in
+  go 0
 
-let main = five_str
+let main = fizzbuzz 10

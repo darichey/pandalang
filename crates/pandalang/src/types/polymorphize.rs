@@ -23,7 +23,7 @@ impl<'a> Polymorphize<'a> {
 
     fn collect_vars(&mut self, typ: Type) {
         match typ {
-            Type::Int | Type::Str | Type::Unit => (),
+            Type::Int | Type::Str | Type::Unit | Type::Bool => (),
             Type::Var(tvar) => match self.checker.tvars.get(tvar) {
                 TVar::Bound(t) => self.collect_vars(t.clone()),
                 TVar::Unbound(id, level) => {

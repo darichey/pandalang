@@ -3,6 +3,7 @@ pub enum Expr {
     Int(Int),
     Str(Str),
     Unit,
+    Bool(Bool),
     Var(Var),
     BinOp(BinOp),
     Let(Let),
@@ -18,6 +19,11 @@ pub struct Int {
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Str {
     pub s: String,
+}
+
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub struct Bool {
+    pub b: bool,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]

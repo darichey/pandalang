@@ -27,6 +27,7 @@ impl Checker {
             Expr::Int(_) => Ok(Type::Int),
             Expr::Str(_) => Ok(Type::Str),
             Expr::Unit => Ok(Type::Unit),
+            Expr::Bool(_) => Ok(Type::Bool),
             Expr::Var(Var { name }) => match self.bindings.get(&name) {
                 Some(t) => Ok(monomorphize(self, t.clone())),
                 None => Err(Error::NotInScope { name }),
@@ -97,7 +98,7 @@ impl Checker {
 
     fn occurs(&mut self, id: TVarRef, level: Level, typ: Type) -> bool {
         match typ {
-            Type::Int | Type::Str | Type::Unit => false,
+            Type::Int | Type::Str | Type::Unit | Type::Bool => false,
             Type::Var(tvar) => match self.tvars.get(tvar) {
                 TVar::Bound(t) => self.occurs(id, level, t.clone()),
                 TVar::Unbound(b_id, b_level) => {

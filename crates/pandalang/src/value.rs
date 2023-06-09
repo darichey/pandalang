@@ -5,6 +5,7 @@ pub enum Value {
     Int(Int),
     Str(Str),
     Unit,
+    Bool(Bool),
     Fun { fun: Fun, env: Env },
     Builtin(String),
 }
@@ -15,6 +16,7 @@ impl std::fmt::Display for Value {
             Value::Int(Int { n }) => write!(f, "{}", n),
             Value::Str(Str { s }) => write!(f, "{}", s),
             Value::Unit => write!(f, "()"),
+            Value::Bool(Bool { b }) => write!(f, "{}", b),
             Value::Fun { .. } => write!(f, "<function>"),
             Value::Builtin(_) => write!(f, "<builtin>"),
         }
@@ -27,6 +29,7 @@ impl std::fmt::Debug for Value {
             Self::Int(n) => f.debug_tuple("Int").field(n).finish(),
             Self::Str(s) => f.debug_tuple("Str").field(s).finish(),
             Self::Unit => f.debug_tuple("Unit").finish(),
+            Self::Bool(b) => f.debug_tuple("Bool").field(b).finish(),
             Self::Fun { fun, env: _ } => f
                 .debug_struct("Fun")
                 .field("fun", fun)
