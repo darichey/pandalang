@@ -1,0 +1,31 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_expr(path)
+input_file: crates/pandalang/src/snapshot_inputs/exprs/fun/apply_body.panda
+---
+Ok(
+    Fun(
+        Fun {
+            arg: "f",
+            body: Fun(
+                Fun {
+                    arg: "x",
+                    body: App(
+                        App {
+                            fun: Var(
+                                Var {
+                                    name: "f",
+                                },
+                            ),
+                            arg: Var(
+                                Var {
+                                    name: "x",
+                                },
+                            ),
+                        },
+                    ),
+                },
+            ),
+        },
+    ),
+)

@@ -20,17 +20,32 @@ pub fn parse_expr(s: &str) -> Result<Box<Expr>, ParseError<usize, Token<'_>, &'s
 mod tests {
     use std::path::Path;
 
-    use crate::{ast::expr::Expr, parser};
+    use crate::{
+        ast::{expr::Expr, Program},
+        parser,
+    };
 
-    fn test(path: &Path) -> Result<Box<Expr>, String> {
+    fn test_expr(path: &Path) -> Result<Box<Expr>, String> {
         let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
         parser::parse_expr(&source).map_err(|err| err.to_string())
     }
 
     #[test]
-    fn parses() {
-        insta::glob!("snapshot_inputs/**/*.panda", |path| {
-            insta::assert_debug_snapshot!(test(path));
+    fn parses_exprs() {
+        insta::glob!("snapshot_inputs/exprs/**/*.panda", |path| {
+            insta::assert_debug_snapshot!(test_expr(path));
+        });
+    }
+
+    fn test_prog(path: &Path) -> Result<Program, String> {
+        let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
+        parser::parse(&source).map_err(|err| err.to_string())
+    }
+
+    #[test]
+    fn parses_progs() {
+        insta::glob!("snapshot_inputs/progs/**/*.panda", |path| {
+            insta::assert_debug_snapshot!(test_prog(path));
         });
     }
 }

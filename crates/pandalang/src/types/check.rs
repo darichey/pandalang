@@ -174,7 +174,7 @@ mod tests {
 
     #[test]
     fn types() {
-        insta::glob!("..", "snapshot_inputs/**/*.panda", |path| {
+        insta::glob!("..", "snapshot_inputs/exprs/**/*.panda", |path| {
             insta::assert_debug_snapshot!(test(path));
         });
     }

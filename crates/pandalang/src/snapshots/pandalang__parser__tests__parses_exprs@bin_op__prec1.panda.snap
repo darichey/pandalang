@@ -1,0 +1,32 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_expr(path)
+input_file: crates/pandalang/src/snapshot_inputs/exprs/bin_op/prec1.panda
+---
+Ok(
+    BinOp(
+        BinOp {
+            left: BinOp(
+                BinOp {
+                    left: Var(
+                        Var {
+                            name: "a",
+                        },
+                    ),
+                    right: Var(
+                        Var {
+                            name: "b",
+                        },
+                    ),
+                    kind: Add,
+                },
+            ),
+            right: Var(
+                Var {
+                    name: "c",
+                },
+            ),
+            kind: Sub,
+        },
+    ),
+)

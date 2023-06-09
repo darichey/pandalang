@@ -1,0 +1,52 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_expr(path)
+input_file: crates/pandalang/src/snapshot_inputs/exprs/parens/parens5.panda
+---
+Ok(
+    BinOp(
+        BinOp {
+            left: BinOp(
+                BinOp {
+                    left: Var(
+                        Var {
+                            name: "a",
+                        },
+                    ),
+                    right: BinOp(
+                        BinOp {
+                            left: Var(
+                                Var {
+                                    name: "b",
+                                },
+                            ),
+                            right: BinOp(
+                                BinOp {
+                                    left: Var(
+                                        Var {
+                                            name: "c",
+                                        },
+                                    ),
+                                    right: Var(
+                                        Var {
+                                            name: "d",
+                                        },
+                                    ),
+                                    kind: Sub,
+                                },
+                            ),
+                            kind: Mul,
+                        },
+                    ),
+                    kind: Add,
+                },
+            ),
+            right: Var(
+                Var {
+                    name: "e",
+                },
+            ),
+            kind: Div,
+        },
+    ),
+)

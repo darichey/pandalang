@@ -1,7 +1,7 @@
 ---
 source: crates/pandalang/src/types/check.rs
 expression: test(path)
-input_file: crates/pandalang/src/snapshot_inputs/var/prime.panda
+input_file: crates/pandalang/src/snapshot_inputs/exprs/var/prime.panda
 ---
 Ok(
     "Int",

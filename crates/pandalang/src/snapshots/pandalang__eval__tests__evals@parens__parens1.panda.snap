@@ -1,7 +1,7 @@
 ---
 source: crates/pandalang/src/eval.rs
 expression: test(path)
-input_file: crates/pandalang/src/snapshot_inputs/parens/parens1.panda
+input_file: crates/pandalang/src/snapshot_inputs/exprs/parens/parens1.panda
 ---
 Ok(
     Int(

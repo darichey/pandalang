@@ -1,0 +1,22 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_expr(path)
+input_file: crates/pandalang/src/snapshot_inputs/exprs/bin_op/div_int.panda
+---
+Ok(
+    BinOp(
+        BinOp {
+            left: Int(
+                Int {
+                    n: 1,
+                },
+            ),
+            right: Int(
+                Int {
+                    n: 1,
+                },
+            ),
+            kind: Div,
+        },
+    ),
+)
