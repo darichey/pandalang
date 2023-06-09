@@ -14,6 +14,7 @@ pub fn run_program(program: Program) -> Result<Value, String> {
                 let value = env.eval(*value);
                 env.push_binding(&name, value);
             }
+            Stmt::Declare(_) => todo!(),
         }
     }
 

@@ -1,6 +1,7 @@
 use std::str::FromStr;
-use crate::ast::expr::{self, *};
-use crate::ast::stmt::{self, *};
+use crate::ast::expr::{self, Expr, BinOpKind};
+use crate::ast::stmt::{self, Stmt};
+use crate::ast::types::{self, Type};
 use crate::ast::Program;
 
 grammar;
@@ -11,32 +12,33 @@ pub Program: Program = {
 
 pub Stmt: Stmt = {
     "let" <name:Name> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value }),
+    "declare" <name:Name> ":" <typ:Type> => Stmt::Declare(stmt::Declare { name: name.to_string(), typ: *typ })
 }
 
 pub Expr: Box<Expr> = {
     #[precedence(level="0")]
-    Int => Box::new(Expr::Int(Int { n: <> })),
-    Str => Box::new(Expr::Str(Str { s: <> })),
-    Name => Box::new(Expr::Var(Var { name: <>.to_string() })),
+    Int => Box::new(Expr::Int(expr::Int { n: <> })),
+    Str => Box::new(Expr::Str(expr::Str { s: <> })),
+    Name => Box::new(Expr::Var(expr::Var { name: <>.to_string() })),
     "(" <ExprReset> ")",
 
     #[precedence(level="1")]
     #[assoc(side="left")]
-    <fun:Expr> <arg:Expr> => Box::new(Expr::App(App { fun, arg })),
+    <fun:Expr> <arg:Expr> => Box::new(Expr::App(expr::App { fun, arg })),
 
     #[precedence(level="2")]
     #[assoc(side="left")]
-    <left:Expr> "*" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Mul })),
-    <left:Expr> "/" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Div })),
+    <left:Expr> "*" <right:Expr> => Box::new(Expr::BinOp(expr::BinOp { left, right, kind: BinOpKind::Mul })),
+    <left:Expr> "/" <right:Expr> => Box::new(Expr::BinOp(expr::BinOp { left, right, kind: BinOpKind::Div })),
 
     #[precedence(level="3")]
     #[assoc(side="left")]
-    <left:Expr> "+" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Add })),
-    <left:Expr> "-" <right:Expr> => Box::new(Expr::BinOp(BinOp { left, right, kind: BinOpKind::Sub })),
+    <left:Expr> "+" <right:Expr> => Box::new(Expr::BinOp(expr::BinOp { left, right, kind: BinOpKind::Add })),
+    <left:Expr> "-" <right:Expr> => Box::new(Expr::BinOp(expr::BinOp { left, right, kind: BinOpKind::Sub })),
 
     #[precedence(level="4")]
     #[assoc(side="right")]
-    "fun" <arg:Name> "->" <body:Expr> => Box::new(Expr::Fun(Fun { arg: arg.to_string(), body })),
+    "fun" <arg:Name> "->" <body:Expr> => Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body })),
 
     #[precedence(level="5")]
     #[assoc(side="right")]
@@ -45,6 +47,19 @@ pub Expr: Box<Expr> = {
 
 // See https://github.com/lalrpop/lalrpop/issues/596
 ExprReset = <Expr>;
+
+pub Type: Box<Type> = {
+    #[precedence(level="0")]
+    "Int" => Box::new(Type::Simple("Int".to_string())),
+    "Str" => Box::new(Type::Simple("Str".to_string())),
+    "(" <TypeReset> ")",
+
+    #[precedence(level="1")]
+    #[assoc(side="right")]
+    <from:Type> "->" <to:Type> => Box::new(Type::Fun(types::Fun { from, to })),
+}
+
+TypeReset = <Type>;
 
 Int: i64 = r"\-?[0-9]+" => i64::from_str(<>).unwrap();
 
