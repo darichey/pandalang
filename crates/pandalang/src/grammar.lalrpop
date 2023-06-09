@@ -43,6 +43,7 @@ pub Expr: Box<Expr> = {
     #[precedence(level="5")]
     #[assoc(side="right")]
     "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value, body })),
+    "let" <name:Name> <arg:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })), body }))
 };
 
 // See https://github.com/lalrpop/lalrpop/issues/596

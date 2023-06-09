@@ -1,0 +1,27 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_expr(path)
+input_file: crates/pandalang/src/snapshot_inputs/exprs/let/shorthand_lambda.panda
+---
+Ok(
+    Let(
+        Let {
+            name: "id",
+            value: Fun(
+                Fun {
+                    arg: "x",
+                    body: Var(
+                        Var {
+                            name: "x",
+                        },
+                    ),
+                },
+            ),
+            body: Var(
+                Var {
+                    name: "id",
+                },
+            ),
+        },
+    ),
+)
