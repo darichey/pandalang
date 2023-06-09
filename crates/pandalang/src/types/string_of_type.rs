@@ -21,6 +21,7 @@ impl<'a> StringOfType<'a> {
         match typ {
             Type::Int => "Int".to_string(),
             Type::Str => "Str".to_string(),
+            Type::Unit => "()".to_string(),
             Type::Var(var) => match self.checker.tvars.get(var) {
                 TVar::Bound(t) => self.string_of_type(t.clone()),
                 TVar::Unbound(var_ref, _) => self.var_name(*var_ref),

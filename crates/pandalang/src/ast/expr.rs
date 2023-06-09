@@ -2,6 +2,7 @@
 pub enum Expr {
     Int(Int),
     Str(Str),
+    Unit,
     Var(Var),
     BinOp(BinOp),
     Let(Let),

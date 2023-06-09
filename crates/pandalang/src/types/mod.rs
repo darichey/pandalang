@@ -13,6 +13,7 @@ mod tvars;
 enum Type {
     Int,
     Str,
+    Unit,
     Var(TVarRef),
     Fun(Box<Type>, Box<Type>),
 }

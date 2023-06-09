@@ -56,6 +56,7 @@ impl Env {
         match expr {
             Expr::Int(n) => Value::Int(n),
             Expr::Str(s) => Value::Str(s),
+            Expr::Unit => Value::Unit,
             Expr::Var(Var { name }) => self
                 .lookup(&name)
                 .unwrap_or_else(|| panic!("{} is not bound!", name)),
