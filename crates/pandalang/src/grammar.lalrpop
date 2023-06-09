@@ -58,6 +58,7 @@ pub Type: Box<Type> = {
     #[precedence(level="0")]
     "Int" => Box::new(Type::Simple("Int".to_string())),
     "Str" => Box::new(Type::Simple("Str".to_string())),
+    "Unit" => Box::new(Type::Simple("Unit".to_string())),
     "(" <TypeReset> ")",
 
     #[precedence(level="1")]

@@ -1,4 +1,4 @@
-declare println: Str -> ()
+declare println: Str -> Unit
 declare str_of_int: Int -> Str
 
 let fizzbuzz n =
