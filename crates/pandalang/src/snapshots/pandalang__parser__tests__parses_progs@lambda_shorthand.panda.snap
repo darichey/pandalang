@@ -1,0 +1,26 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_prog(path)
+input_file: crates/pandalang/src/snapshot_inputs/progs/lambda_shorthand.panda
+---
+Ok(
+    Program {
+        stmts: [
+            Let(
+                Let {
+                    name: "id",
+                    value: Fun(
+                        Fun {
+                            arg: "x",
+                            body: Var(
+                                Var {
+                                    name: "x",
+                                },
+                            ),
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+)

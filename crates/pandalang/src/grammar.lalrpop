@@ -12,6 +12,7 @@ pub Program: Program = {
 
 pub Stmt: Stmt = {
     "let" <name:Name> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value }),
+    "let" <name:Name> <arg:Name> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })) }),
     "declare" <name:Name> ":" <typ:Type> => Stmt::Declare(stmt::Declare { name: name.to_string(), typ: *typ })
 }
 
