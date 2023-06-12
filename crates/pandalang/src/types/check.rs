@@ -47,7 +47,12 @@ impl Checker {
                 self.bindings.remove(&arg);
                 Ok(Type::Fun(Box::new(in_t), Box::new(out_t)))
             }
-            Expr::Let(Let { name, value, body }) => {
+            Expr::Let(Let {
+                name,
+                value,
+                body,
+                rec,
+            }) => {
                 self.enter_level();
                 let value_t = self.check(*value)?;
                 self.exit_level();

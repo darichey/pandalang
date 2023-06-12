@@ -31,6 +31,7 @@ Ok(
                     name: "x",
                 },
             ),
+            rec: false,
         },
     ),
 )

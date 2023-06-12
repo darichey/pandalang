@@ -44,6 +44,7 @@ pub struct Let {
     pub name: String,
     pub value: Box<Expr>,
     pub body: Box<Expr>,
+    pub rec: bool,
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
