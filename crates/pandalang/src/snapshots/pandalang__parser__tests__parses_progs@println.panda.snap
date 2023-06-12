@@ -1,0 +1,45 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_prog(path)
+input_file: crates/pandalang/src/snapshot_inputs/progs/println.panda
+---
+Ok(
+    Program {
+        stmts: [
+            Declare(
+                Declare {
+                    name: "println",
+                    typ: Fun(
+                        Fun {
+                            from: Simple(
+                                "Str",
+                            ),
+                            to: Simple(
+                                "Unit",
+                            ),
+                        },
+                    ),
+                },
+            ),
+            Let(
+                Let {
+                    name: "main",
+                    value: App(
+                        App {
+                            fun: Var(
+                                Var {
+                                    name: "println",
+                                },
+                            ),
+                            arg: Str(
+                                Str {
+                                    s: "Hello world",
+                                },
+                            ),
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+)
