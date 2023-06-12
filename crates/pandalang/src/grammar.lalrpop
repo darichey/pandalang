@@ -33,6 +33,7 @@ pub Expr: Box<Expr> = {
     #[assoc(side="left")]
     <left:Expr> "*" <right:Expr> => Box::new(Expr::BinOp(expr::BinOp { left, right, kind: BinOpKind::Mul })),
     <left:Expr> "/" <right:Expr> => Box::new(Expr::BinOp(expr::BinOp { left, right, kind: BinOpKind::Div })),
+    <left:Expr> "%" <right:Expr> => Box::new(Expr::BinOp(expr::BinOp { left, right, kind: BinOpKind::Rem })),
 
     #[precedence(level="3")]
     #[assoc(side="left")]

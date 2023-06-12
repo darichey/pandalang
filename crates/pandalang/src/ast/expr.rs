@@ -72,6 +72,7 @@ pub enum BinOpKind {
     Mul,
     Div,
     Eql,
+    Rem,
 }
 
 impl ToString for BinOpKind {
@@ -82,6 +83,7 @@ impl ToString for BinOpKind {
             BinOpKind::Mul => "*",
             BinOpKind::Div => "/",
             BinOpKind::Eql => "==",
+            BinOpKind::Rem => "%",
         }
         .to_string()
     }

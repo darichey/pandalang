@@ -66,6 +66,7 @@ impl Env {
                 BinOpKind::Sub => self.eval_arith(*left, *right, std::ops::Sub::sub),
                 BinOpKind::Mul => self.eval_arith(*left, *right, std::ops::Mul::mul),
                 BinOpKind::Div => self.eval_arith(*left, *right, std::ops::Div::div),
+                BinOpKind::Rem => self.eval_arith(*left, *right, std::ops::Rem::rem),
                 BinOpKind::Eql => {
                     let left = self.eval(*left);
                     let right = self.eval(*right);

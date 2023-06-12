@@ -59,7 +59,11 @@ impl Checker {
             }
             Expr::BinOp(BinOp { left, right, kind }) => {
                 let op_t = match kind {
-                    BinOpKind::Add | BinOpKind::Sub | BinOpKind::Mul | BinOpKind::Div => Type::Fun(
+                    BinOpKind::Add
+                    | BinOpKind::Sub
+                    | BinOpKind::Mul
+                    | BinOpKind::Div
+                    | BinOpKind::Rem => Type::Fun(
                         Box::new(Type::Int),
                         Box::new(Type::Fun(Box::new(Type::Int), Box::new(Type::Int))),
                     ),
