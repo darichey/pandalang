@@ -63,6 +63,13 @@ impl Checker {
                         Box::new(Type::Int),
                         Box::new(Type::Fun(Box::new(Type::Int), Box::new(Type::Int))),
                     ),
+                    BinOpKind::Eql => {
+                        let t = self.new_tvar();
+                        Type::Fun(
+                            Box::new(t.clone()),
+                            Box::new(Type::Fun(Box::new(t), Box::new(Type::Bool))),
+                        )
+                    }
                 };
                 let left_t = self.check(*left)?;
                 let right_t = self.check(*right)?;

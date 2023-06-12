@@ -1,0 +1,22 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_expr(path)
+input_file: crates/pandalang/src/snapshot_inputs/exprs/bin_op/eql.panda
+---
+Ok(
+    BinOp(
+        BinOp {
+            left: Var(
+                Var {
+                    name: "x",
+                },
+            ),
+            right: Var(
+                Var {
+                    name: "y",
+                },
+            ),
+            kind: Eql,
+        },
+    ),
+)

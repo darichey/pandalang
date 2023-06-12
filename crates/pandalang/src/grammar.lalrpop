@@ -40,10 +40,14 @@ pub Expr: Box<Expr> = {
     <left:Expr> "-" <right:Expr> => Box::new(Expr::BinOp(expr::BinOp { left, right, kind: BinOpKind::Sub })),
 
     #[precedence(level="4")]
+    #[assoc(side="none")]
+    <left:Expr> "==" <right:Expr> => Box::new(Expr::BinOp(expr::BinOp { left, right, kind: BinOpKind::Eql })),
+
+    #[precedence(level="5")]
     #[assoc(side="right")]
     "fun" <arg:Name> "->" <body:Expr> => Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body })),    
 
-    #[precedence(level="5")]
+    #[precedence(level="6")]
     "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value, body })),
     "let" <name:Name> <arg:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })), body })),
     "if" <check:Expr> "then" <then:Expr> "else" <els:Expr> => Box::new(Expr::If(expr::If { check, then, els })),

@@ -61,21 +61,17 @@ impl Env {
             Expr::Var(Var { name }) => self
                 .lookup(&name)
                 .unwrap_or_else(|| panic!("{} is not bound!", name)),
-            Expr::BinOp(BinOp { left, right, kind }) => {
-                let f = match kind {
-                    BinOpKind::Add => std::ops::Add::add,
-                    BinOpKind::Sub => std::ops::Sub::sub,
-                    BinOpKind::Mul => std::ops::Mul::mul,
-                    BinOpKind::Div => std::ops::Div::div,
-                };
-
-                let (x, y) = match (self.eval(*left), self.eval(*right)) {
-                    (Value::Int(Int { n: x }), Value::Int(Int { n: y })) => (x, y),
-                    _ => panic!("Cannot eval BinOp with non-Int operands"),
-                };
-
-                Value::Int(Int { n: f(x, y) })
-            }
+            Expr::BinOp(BinOp { left, right, kind }) => match kind {
+                BinOpKind::Add => self.eval_arith(*left, *right, std::ops::Add::add),
+                BinOpKind::Sub => self.eval_arith(*left, *right, std::ops::Sub::sub),
+                BinOpKind::Mul => self.eval_arith(*left, *right, std::ops::Mul::mul),
+                BinOpKind::Div => self.eval_arith(*left, *right, std::ops::Div::div),
+                BinOpKind::Eql => {
+                    let left = self.eval(*left);
+                    let right = self.eval(*right);
+                    Value::Bool(Bool { b: left == right })
+                }
+            },
             Expr::Fun(fun) => Value::Fun {
                 fun,
                 env: self.clone(),
@@ -132,6 +128,15 @@ impl Env {
                 }
             }
         }
+    }
+
+    fn eval_arith(&mut self, left: Expr, right: Expr, f: fn(i64, i64) -> i64) -> Value {
+        let (x, y) = match (self.eval(left), self.eval(right)) {
+            (Value::Int(Int { n: x }), Value::Int(Int { n: y })) => (x, y),
+            _ => panic!("Cannot eval BinOp with non-Int operands"),
+        };
+
+        Value::Int(Int { n: f(x, y) })
     }
 
     fn lookup(&self, name: &String) -> Option<Value> {
