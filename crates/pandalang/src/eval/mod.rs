@@ -16,7 +16,7 @@ pub fn run_program(program: Program) -> Result<Value, String> {
                 let value = env.eval(*value);
                 env.push_binding(&name, value);
             }
-            Stmt::Declare(stmt::Declare { name, typ }) => {
+            Stmt::Declare(stmt::Declare { name, .. }) => {
                 env.push_binding(&name, Value::Builtin(name.clone()))
             }
         }
@@ -47,10 +47,6 @@ impl Env {
         }
     }
 
-    pub fn with_bindings(bindings: HashMap<String, Vec<Value>>) -> Env {
-        Env { bindings }
-    }
-
     // TODO: Result instead of panic
     pub fn eval(&mut self, expr: Expr) -> Value {
         match expr {
@@ -77,37 +73,28 @@ impl Env {
                 fun,
                 env: self.clone(),
             },
-            Expr::App(App { fun, arg }) => {
-                match self.eval(*fun) {
-                    Value::Fun {
-                        fun:
-                            Fun {
-                                arg: arg_name,
-                                body,
-                            },
-                        env: mut fun_env,
-                    } => {
-                        let arg = self.eval(*arg);
+            Expr::App(App { fun, arg }) => match self.eval(*fun) {
+                Value::Fun {
+                    fun:
+                        Fun {
+                            arg: arg_name,
+                            body,
+                        },
+                    env: mut fun_env,
+                } => {
+                    let arg = self.eval(*arg);
 
-                        fun_env.push_binding(&arg_name, arg);
-                        let result = fun_env.eval(*body);
-                        fun_env.pop_binding(&arg_name);
-                        result
-                    }
-                    Value::Builtin(builtin) => {
-                        let arg = self.eval(*arg);
-                        builtins::eval(builtin, arg).unwrap()
-                    }
-                    _ => panic!("Cannot apply non-functions"),
+                    fun_env.push_binding(&arg_name, arg);
+                    let result = fun_env.eval(*body);
+                    fun_env.pop_binding(&arg_name);
+                    result
                 }
-                // let (arg_name, body, mut fun_env) = match self.eval(*fun) {
-                //     Value::Fun {
-                //         fun: Fun { arg, body },
-                //         env,
-                //     } => (arg, body, env),
-                //     _ => panic!("Cannot apply non-functions"),
-                // };
-            }
+                Value::Builtin(builtin) => {
+                    let arg = self.eval(*arg);
+                    builtins::eval(builtin, arg).unwrap()
+                }
+                _ => panic!("Cannot apply non-functions"),
+            },
             Expr::Let(Let { name, value, body }) => {
                 let value = self.eval(*value);
                 self.push_binding(&name, value);

@@ -1,5 +1,6 @@
 use crate::ast::expr::{App, BinOp, Bool, Expr, Fun, If, Int, Let, Str, Var};
 
+#[allow(unused)] // TODO: actually implement a pretty printer and expose it
 pub fn pretty(e: Expr) -> String {
     match e {
         Expr::Int(Int { n }) => n.to_string(),
