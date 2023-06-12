@@ -11,7 +11,12 @@ pub fn pretty(e: Expr) -> String {
         Expr::BinOp(BinOp { left, right, kind }) => {
             format!("{} {} {}", pretty(*left), kind.to_string(), pretty(*right))
         }
-        Expr::Let(Let { name, value, body }) => {
+        Expr::Let(Let {
+            name,
+            value,
+            body,
+            rec,
+        }) => {
             format!("let {} = {} in {}", name, pretty(*value), pretty(*body))
         }
         Expr::Fun(Fun { arg, body }) => {

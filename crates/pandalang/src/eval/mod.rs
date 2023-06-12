@@ -13,7 +13,7 @@ pub fn run_program(program: Program) -> Result<Value, String> {
     // TODO: fold
     for stmt in program.stmts {
         match stmt {
-            Stmt::Let(stmt::Let { name, value }) => {
+            Stmt::Let(stmt::Let { name, value, rec }) => {
                 let value = env.eval(*value);
                 env = env.with_binding(name, value);
             }
@@ -93,7 +93,12 @@ impl Env {
                 }
                 _ => panic!("Cannot apply non-functions"),
             },
-            Expr::Let(Let { name, value, body }) => {
+            Expr::Let(Let {
+                name,
+                value,
+                body,
+                rec,
+            }) => {
                 let value = self.eval(*value);
                 self.with_binding(name, value).eval(*body)
             }

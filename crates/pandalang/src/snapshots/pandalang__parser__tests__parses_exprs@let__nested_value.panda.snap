@@ -20,6 +20,7 @@ Ok(
                             name: "y",
                         },
                     ),
+                    rec: false,
                 },
             ),
             body: Var(
@@ -27,6 +28,7 @@ Ok(
                     name: "x",
                 },
             ),
+            rec: false,
         },
     ),
 )

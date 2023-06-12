@@ -11,8 +11,8 @@ pub Program: Program = {
 }
 
 pub Stmt: Stmt = {
-    "let" <name:Name> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value }),
-    "let" <name:Name> <arg:Name> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })) }),
+    "let" <rec:"rec"?> <name:Name> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value, rec: rec.is_some() }),
+    "let" <rec:"rec"?> <name:Name> <arg:Name> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })), rec: rec.is_some() }),
     "declare" <name:Name> ":" <typ:Type> => Stmt::Declare(stmt::Declare { name: name.to_string(), typ: *typ })
 }
 
@@ -49,8 +49,8 @@ pub Expr: Box<Expr> = {
     "fun" <arg:Name> "->" <body:Expr> => Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body })),    
 
     #[precedence(level="6")]
-    "let" <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value, body })),
-    "let" <name:Name> <arg:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })), body })),
+    "let" <rec:"rec"?> <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value, body, rec: rec.is_some() })),
+    "let" <rec:"rec"?> <name:Name> <arg:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })), body, rec: rec.is_some() })),
     "if" <check:Expr> "then" <then:Expr> "else" <els:Expr> => Box::new(Expr::If(expr::If { check, then, els })),
 };
 

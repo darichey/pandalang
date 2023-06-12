@@ -19,6 +19,7 @@ Ok(
                             name: "b",
                         },
                     ),
+                    rec: false,
                 },
             ),
             then: Let(
@@ -34,6 +35,7 @@ Ok(
                             name: "x",
                         },
                     ),
+                    rec: false,
                 },
             ),
             els: Let(
@@ -49,6 +51,7 @@ Ok(
                             name: "y",
                         },
                     ),
+                    rec: false,
                 },
             ),
         },

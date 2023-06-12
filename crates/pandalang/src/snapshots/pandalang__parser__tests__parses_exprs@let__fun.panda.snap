@@ -22,6 +22,7 @@ Ok(
                     name: "id",
                 },
             ),
+            rec: false,
         },
     ),
 )
