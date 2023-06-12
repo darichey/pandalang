@@ -1,6 +1,5 @@
 use crate::{ast::expr::*, eval::Env};
 
-#[derive(Clone)]
 pub enum Value {
     Int(Int),
     Str(Str),
