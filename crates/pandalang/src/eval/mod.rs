@@ -1,6 +1,6 @@
 mod builtins;
 
-use std::collections::HashMap;
+use rpds::HashTrieMap;
 
 use crate::ast::expr::{App, BinOp, BinOpKind, Bool, Expr, Fun, If, Int, Let, Var};
 use crate::ast::stmt::Stmt;
@@ -10,14 +10,15 @@ use crate::value::Value;
 pub fn run_program(program: Program) -> Result<Value, String> {
     let mut env = Env::new();
 
+    // TODO: fold
     for stmt in program.stmts {
         match stmt {
             Stmt::Let(stmt::Let { name, value }) => {
                 let value = env.eval(*value);
-                env.push_binding(&name, value);
+                env = env.with_binding(name, value);
             }
             Stmt::Declare(stmt::Declare { name, .. }) => {
-                env.push_binding(&name, Value::Builtin(name.clone()))
+                env = env.with_binding(name.clone(), Value::Builtin(name))
             }
         }
     }
@@ -31,13 +32,14 @@ pub fn run_program(program: Program) -> Result<Value, String> {
 
 macro_rules! bindings {
     ($($k:expr => $v:expr),* $(,)?) => {{
-        std::collections::HashMap::from([$(($k.to_string(), vec![Value::Int(Int { n: $v })]),)*])
+        rpds::HashTrieMap::from_iter([$(($k.to_string(), Value::Int(Int { n: $v })),)*])
     }};
 }
 
 #[derive(Debug, Clone)]
 pub struct Env {
-    pub bindings: HashMap<String, Vec<Value>>,
+    // pub bindings: HashMap<String, Vec<Value>>,
+    pub bindings: HashTrieMap<String, Value>,
 }
 
 impl Env {
@@ -48,7 +50,7 @@ impl Env {
     }
 
     // TODO: Result instead of panic
-    pub fn eval(&mut self, expr: Expr) -> Value {
+    pub fn eval(&self, expr: Expr) -> Value {
         match expr {
             Expr::Int(n) => Value::Int(n),
             Expr::Str(s) => Value::Str(s),
@@ -80,14 +82,10 @@ impl Env {
                             arg: arg_name,
                             body,
                         },
-                    env: mut fun_env,
+                    env: fun_env,
                 } => {
                     let arg = self.eval(*arg);
-
-                    fun_env.push_binding(&arg_name, arg);
-                    let result = fun_env.eval(*body);
-                    fun_env.pop_binding(&arg_name);
-                    result
+                    fun_env.with_binding(arg_name, arg).eval(*body)
                 }
                 Value::Builtin(builtin) => {
                     let arg = self.eval(*arg);
@@ -97,10 +95,7 @@ impl Env {
             },
             Expr::Let(Let { name, value, body }) => {
                 let value = self.eval(*value);
-                self.push_binding(&name, value);
-                let result = self.eval(*body);
-                self.pop_binding(&name);
-                result
+                self.with_binding(name, value).eval(*body)
             }
             Expr::If(If { check, then, els }) => {
                 let check = self.eval(*check);
@@ -118,7 +113,7 @@ impl Env {
         }
     }
 
-    fn eval_arith(&mut self, left: Expr, right: Expr, f: fn(i64, i64) -> i64) -> Value {
+    fn eval_arith(&self, left: Expr, right: Expr, f: fn(i64, i64) -> i64) -> Value {
         let (x, y) = match (self.eval(left), self.eval(right)) {
             (Value::Int(Int { n: x }), Value::Int(Int { n: y })) => (x, y),
             _ => panic!("Cannot eval BinOp with non-Int operands"),
@@ -128,23 +123,13 @@ impl Env {
     }
 
     fn lookup(&self, name: &String) -> Option<Value> {
-        let bindings = self.bindings.get(name)?;
-        let value = bindings.last()?;
+        let value = self.bindings.get(name)?;
         Some(value.clone()) // TODO: story around cloning here?
     }
 
-    fn push_binding(&mut self, name: &String, value: Value) {
-        match self.bindings.get_mut(name) {
-            Some(current_bindings) => current_bindings.push(value),
-            None => {
-                self.bindings.insert(name.clone(), vec![value]);
-            }
-        };
-    }
-
-    fn pop_binding(&mut self, name: &String) {
-        if let Some(current_bindings) = self.bindings.get_mut(name) {
-            current_bindings.pop();
+    fn with_binding(&self, name: String, value: Value) -> Env {
+        Env {
+            bindings: self.bindings.insert(name, value),
         }
     }
 }
@@ -159,7 +144,7 @@ mod tests {
     use crate::value::Value;
 
     fn test_expr(path: &Path) -> Result<Value, String> {
-        let mut env = Env {
+        let env = Env {
             bindings: bindings!("x" => 0, "y" => 1, "x'" => 2, "foo" => 3, "a" => 4, "b" => 5, "c" => 6, "d" => 7, "e" => 8, "foo_bar" => 9),
         };
         let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
