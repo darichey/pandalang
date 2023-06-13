@@ -2,7 +2,9 @@ use std::collections::HashMap;
 
 use crate::{ast::expr, value::Value};
 
-type BuiltinFunction = fn(Value) -> Result<Value, String>;
+use super::BoundValue;
+
+type BuiltinFunction = fn(BoundValue) -> Result<BoundValue, String>;
 
 lazy_static! {
     static ref BUILTINS: HashMap<&'static str, BuiltinFunction> = {
@@ -13,25 +15,29 @@ lazy_static! {
     };
 }
 
-pub fn eval(builtin_name: String, arg: Value) -> Result<Value, String> {
+pub fn eval(builtin_name: String, arg: BoundValue) -> Result<BoundValue, String> {
     let builtin = BUILTINS
         .get(builtin_name.as_str())
         .ok_or("Builtin not found")?;
     builtin(arg)
 }
 
-pub fn str_of_int(x: Value) -> Result<Value, String> {
+pub fn str_of_int(x: BoundValue) -> Result<BoundValue, String> {
     match x {
-        Value::Int(expr::Int { n }) => Ok(Value::Str(expr::Str { s: n.to_string() })),
+        BoundValue::Value(Value::Int(expr::Int { n })) => {
+            Ok(BoundValue::Value(Value::Str(expr::Str {
+                s: n.to_string(),
+            })))
+        }
         _ => Err("Not an Int".to_string()),
     }
 }
 
-pub fn println_(x: Value) -> Result<Value, String> {
+pub fn println_(x: BoundValue) -> Result<BoundValue, String> {
     match x {
-        Value::Str(expr::Str { s }) => {
+        BoundValue::Value(Value::Str(expr::Str { s })) => {
             println!("{}", s);
-            Ok(Value::Unit)
+            Ok(BoundValue::Value(Value::Unit))
         }
         _ => Err("Not a Str".to_string()),
     }

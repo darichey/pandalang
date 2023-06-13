@@ -18,7 +18,7 @@ pub fn run_program(program: Program) -> Result<Value, String> {
                 env = env.with_binding(name, value);
             }
             Stmt::Declare(stmt::Declare { name, .. }) => {
-                env = env.with_binding(name.clone(), Value::Builtin(name))
+                env = env.with_binding(name.clone(), BoundValue::Value(Value::Builtin(name)))
             }
         }
     }
@@ -27,19 +27,46 @@ pub fn run_program(program: Program) -> Result<Value, String> {
         .lookup(&"main".to_string())
         .ok_or("Couldn't find main")?;
 
+    let main_value = check_fully_evaluated(main_value)?;
+
     Ok(main_value)
+}
+
+pub fn eval(env: Env, expr: Expr) -> Result<Value, String> {
+    check_fully_evaluated(env.eval(expr))
+}
+
+fn check_fully_evaluated(v: BoundValue) -> Result<Value, String> {
+    match v {
+        BoundValue::Value(v) => Ok(v),
+        BoundValue::Thunk(_) => Err("Final value should be fully evaluated".to_string()),
+    }
+}
+
+#[derive(Clone)]
+pub enum BoundValue {
+    Value(Value),
+    Thunk(Expr),
+}
+
+impl PartialEq for BoundValue {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Value(l0), Self::Value(r0)) => l0 == r0,
+            _ => false,
+        }
+    }
 }
 
 macro_rules! bindings {
     ($($k:expr => $v:expr),* $(,)?) => {{
-        rpds::HashTrieMap::from_iter([$(($k.to_string(), Value::Int(Int { n: $v })),)*])
+        rpds::HashTrieMap::from_iter([$(($k.to_string(), BoundValue::Value(Value::Int(Int { n: $v }))),)*])
     }};
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Env {
-    // pub bindings: HashMap<String, Vec<Value>>,
-    pub bindings: HashTrieMap<String, Value>,
+    pub bindings: HashTrieMap<String, BoundValue>,
 }
 
 impl Env {
@@ -50,12 +77,12 @@ impl Env {
     }
 
     // TODO: Result instead of panic
-    pub fn eval(&self, expr: Expr) -> Value {
+    fn eval(&self, expr: Expr) -> BoundValue {
         match expr {
-            Expr::Int(n) => Value::Int(n),
-            Expr::Str(s) => Value::Str(s),
-            Expr::Unit => Value::Unit,
-            Expr::Bool(b) => Value::Bool(b),
+            Expr::Int(n) => BoundValue::Value(Value::Int(n)),
+            Expr::Str(s) => BoundValue::Value(Value::Str(s)),
+            Expr::Unit => BoundValue::Value(Value::Unit),
+            Expr::Bool(b) => BoundValue::Value(Value::Bool(b)),
             Expr::Var(Var { name }) => self
                 .lookup(&name)
                 .unwrap_or_else(|| panic!("{} is not bound!", name)),
@@ -68,26 +95,26 @@ impl Env {
                 BinOpKind::Eql => {
                     let left = self.eval(*left);
                     let right = self.eval(*right);
-                    Value::Bool(Bool { b: left == right })
+                    BoundValue::Value(Value::Bool(Bool { b: left == right }))
                 }
             },
-            Expr::Fun(fun) => Value::Fun {
+            Expr::Fun(fun) => BoundValue::Value(Value::Fun {
                 fun,
                 env: self.clone(),
-            },
+            }),
             Expr::App(App { fun, arg }) => match self.eval(*fun) {
-                Value::Fun {
+                BoundValue::Value(Value::Fun {
                     fun:
                         Fun {
                             arg: arg_name,
                             body,
                         },
                     env: fun_env,
-                } => {
+                }) => {
                     let arg = self.eval(*arg);
                     fun_env.with_binding(arg_name, arg).eval(*body)
                 }
-                Value::Builtin(builtin) => {
+                BoundValue::Value(Value::Builtin(builtin)) => {
                     let arg = self.eval(*arg);
                     builtins::eval(builtin, arg).unwrap()
                 }
@@ -105,7 +132,7 @@ impl Env {
             Expr::If(If { check, then, els }) => {
                 let check = self.eval(*check);
                 match check {
-                    Value::Bool(Bool { b }) => {
+                    BoundValue::Value(Value::Bool(Bool { b })) => {
                         if b {
                             self.eval(*then)
                         } else {
@@ -118,21 +145,24 @@ impl Env {
         }
     }
 
-    fn eval_arith(&self, left: Expr, right: Expr, f: fn(i64, i64) -> i64) -> Value {
+    fn eval_arith(&self, left: Expr, right: Expr, f: fn(i64, i64) -> i64) -> BoundValue {
         let (x, y) = match (self.eval(left), self.eval(right)) {
-            (Value::Int(Int { n: x }), Value::Int(Int { n: y })) => (x, y),
+            (
+                BoundValue::Value(Value::Int(Int { n: x })),
+                BoundValue::Value(Value::Int(Int { n: y })),
+            ) => (x, y),
             _ => panic!("Cannot eval BinOp with non-Int operands"),
         };
 
-        Value::Int(Int { n: f(x, y) })
+        BoundValue::Value(Value::Int(Int { n: f(x, y) }))
     }
 
-    fn lookup(&self, name: &String) -> Option<Value> {
+    fn lookup(&self, name: &String) -> Option<BoundValue> {
         let value = self.bindings.get(name)?;
         Some(value.clone()) // TODO: story around cloning here?
     }
 
-    fn with_binding(&self, name: String, value: Value) -> Env {
+    fn with_binding(&self, name: String, value: BoundValue) -> Env {
         Env {
             bindings: self.bindings.insert(name, value),
         }
@@ -143,7 +173,7 @@ impl Env {
 mod tests {
     use std::path::Path;
 
-    use super::{run_program, Env};
+    use super::{eval, run_program, BoundValue, Env};
     use crate::ast::expr::Int;
     use crate::parser;
     use crate::value::Value;
@@ -154,7 +184,7 @@ mod tests {
         };
         let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
         let ast = parser::parse_expr(&source).map_err(|err| err.to_string())?;
-        Ok(env.eval(*ast))
+        eval(env, *ast)
     }
 
     #[test]
