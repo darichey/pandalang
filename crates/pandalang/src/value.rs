@@ -1,15 +1,15 @@
 use crate::{ast::expr::*, eval::Env};
 
-pub enum Value {
+pub enum Value<'a> {
     Int(Int),
     Str(Str),
     Unit,
     Bool(Bool),
-    Fun { fun: Fun, env: Env },
+    Fun { fun: Fun, env: Env<'a> },
     Builtin(String),
 }
 
-impl PartialEq for Value {
+impl PartialEq for Value<'_> {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Int(l0), Self::Int(r0)) => l0 == r0,
@@ -20,7 +20,7 @@ impl PartialEq for Value {
     }
 }
 
-impl std::fmt::Display for Value {
+impl std::fmt::Display for Value<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Value::Int(Int { n }) => write!(f, "{}", n),
@@ -33,7 +33,7 @@ impl std::fmt::Display for Value {
     }
 }
 
-impl std::fmt::Debug for Value {
+impl std::fmt::Debug for Value<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Int(n) => f.debug_tuple("Int").field(n).finish(),

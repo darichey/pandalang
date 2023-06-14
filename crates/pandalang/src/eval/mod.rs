@@ -9,7 +9,7 @@ use crate::ast::stmt::Stmt;
 use crate::ast::{stmt, Program};
 use crate::value::Value;
 
-pub fn run_program(program: Program) -> Result<Rc<Value>, String> {
+pub fn run_program<'a>(program: Program) -> Result<Rc<Value<'a>>, String> {
     let mut env = Env::new();
 
     // TODO: fold
@@ -49,12 +49,12 @@ fn check_fully_evaluated(v: BoundValue) -> Result<Rc<Value>, String> {
 }
 
 #[derive(Clone)]
-pub enum BoundValue {
-    Value(Rc<Value>),
-    Thunk(Rc<dyn FnOnce() -> Value>),
+pub enum BoundValue<'a> {
+    Value(Rc<Value<'a>>),
+    Thunk(Rc<dyn Fn() -> BoundValue<'a> + 'a>),
 }
 
-impl PartialEq for BoundValue {
+impl PartialEq for BoundValue<'_> {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Value(l0), Self::Value(r0)) => l0 == r0,
@@ -70,19 +70,19 @@ macro_rules! bindings {
 }
 
 #[derive(Clone)]
-pub struct Env {
-    pub bindings: HashTrieMap<String, BoundValue>,
+pub struct Env<'a> {
+    pub bindings: HashTrieMap<String, BoundValue<'a>>,
 }
 
-impl Env {
-    pub fn new() -> Env {
+impl<'a> Env<'a> {
+    pub fn new() -> Env<'a> {
         Env {
             bindings: bindings!(),
         }
     }
 
     // TODO: Result instead of panic
-    fn eval(&self, expr: Expr) -> BoundValue {
+    fn eval(&self, expr: Expr) -> BoundValue<'a> {
         match expr {
             Expr::Int(n) => BoundValue::Value(Rc::new(Value::Int(n))),
             Expr::Str(s) => BoundValue::Value(Rc::new(Value::Str(s))),
@@ -158,7 +158,7 @@ impl Env {
         }
     }
 
-    fn eval_arith(&self, left: Expr, right: Expr, f: fn(i64, i64) -> i64) -> BoundValue {
+    fn eval_arith(&self, left: Expr, right: Expr, f: fn(i64, i64) -> i64) -> BoundValue<'a> {
         let (x, y) = match (self.eval(left), self.eval(right)) {
             (BoundValue::Value(left), BoundValue::Value(right)) => {
                 match (left.as_ref(), right.as_ref()) {
@@ -172,7 +172,7 @@ impl Env {
         BoundValue::Value(Rc::new(Value::Int(Int { n: f(x, y) })))
     }
 
-    fn eval_let_value(&self, name: String, value: Expr, rec: bool) -> BoundValue {
+    fn eval_let_value(&self, name: String, value: Expr, rec: bool) -> BoundValue<'a> {
         if rec {
             todo!()
         } else {
@@ -180,12 +180,12 @@ impl Env {
         }
     }
 
-    fn lookup(&self, name: &String) -> Option<BoundValue> {
+    fn lookup(&self, name: &String) -> Option<BoundValue<'a>> {
         let value = self.bindings.get(name)?;
         Some(value.clone())
     }
 
-    fn with_binding(&self, name: String, value: BoundValue) -> Env {
+    fn with_binding(&self, name: String, value: BoundValue<'a>) -> Env<'a> {
         Env {
             bindings: self.bindings.insert(name, value),
         }
