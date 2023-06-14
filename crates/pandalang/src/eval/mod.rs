@@ -14,7 +14,7 @@ pub fn run_program(program: Program) -> Result<Value, String> {
     for stmt in program.stmts {
         match stmt {
             Stmt::Let(stmt::Let { name, value, rec }) => {
-                let value = env.eval(*value);
+                let value = env.eval_let_value(name.clone(), *value, rec);
                 env = env.with_binding(name, value);
             }
             Stmt::Declare(stmt::Declare { name, .. }) => {
@@ -126,7 +126,7 @@ impl Env {
                 body,
                 rec,
             }) => {
-                let value = self.eval(*value);
+                let value = self.eval_let_value(name.clone(), *value, rec);
                 self.with_binding(name, value).eval(*body)
             }
             Expr::If(If { check, then, els }) => {
@@ -155,6 +155,14 @@ impl Env {
         };
 
         BoundValue::Value(Value::Int(Int { n: f(x, y) }))
+    }
+
+    fn eval_let_value(&self, name: String, value: Expr, rec: bool) -> BoundValue {
+        if rec {
+            todo!()
+        } else {
+            self.eval(value)
+        }
     }
 
     fn lookup(&self, name: &String) -> Option<BoundValue> {
