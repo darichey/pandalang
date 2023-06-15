@@ -8,20 +8,18 @@ use crate::ast::{stmt, Program};
 use crate::value::Value;
 
 pub fn run_program(program: Program) -> Result<Value, String> {
-    let mut env = Env::new();
-
-    // TODO: fold
-    for stmt in program.stmts {
-        match stmt {
+    let env = program
+        .stmts
+        .into_iter()
+        .fold(Env::new(), |env, stmt| match stmt {
             Stmt::Let(stmt::Let { name, value, rec }) => {
                 let value = env.eval_let_value(name.clone(), *value, rec);
-                env = env.with_binding(name, value);
+                env.with_binding(name, value)
             }
             Stmt::Declare(stmt::Declare { name, .. }) => {
-                env = env.with_binding(name.clone(), BoundValue::Value(Value::Builtin(name)))
+                env.with_binding(name.clone(), BoundValue::Value(Value::Builtin(name)))
             }
-        }
-    }
+        });
 
     let main_value = env
         .lookup(&"main".to_string())
