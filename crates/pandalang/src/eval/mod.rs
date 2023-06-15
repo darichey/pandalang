@@ -21,13 +21,7 @@ pub fn run_program(program: Program) -> Result<Value, String> {
             }
         });
 
-    let main_value = env
-        .lookup(&"main".to_string())
-        .ok_or("Couldn't find main")?;
-
-    let main_value = check_fully_evaluated(main_value)?;
-
-    Ok(main_value)
+    check_fully_evaluated(env.lookup("main").ok_or("Couldn't find main")?)
 }
 
 pub fn eval(env: Env, expr: Expr) -> Result<Value, String> {
@@ -168,7 +162,7 @@ impl Env {
         }
     }
 
-    fn lookup(&self, name: &String) -> Option<BoundValue> {
+    fn lookup(&self, name: &str) -> Option<BoundValue> {
         let value = self.bindings.get(name)?;
         Some(value.clone()) // TODO: story around cloning here?
     }
