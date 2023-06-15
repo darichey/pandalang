@@ -2,7 +2,7 @@ declare println: Str -> Unit
 declare str_of_int: Int -> Str
 
 let fizzbuzz n =
-  let go i =
+  let rec go i =
     if i == n then
       ()
     else
@@ -18,6 +18,6 @@ let fizzbuzz n =
       in
       go (i + 1)
   in
-  go 0
+  go 1
 
-let main = fizzbuzz 10
+let main = fizzbuzz 16
