@@ -1,0 +1,145 @@
+---
+source: crates/pandalang/src/parser.rs
+expression: test_prog(path)
+input_file: crates/pandalang/src/snapshot_inputs/progs/count.panda
+---
+Ok(
+    Program {
+        stmts: [
+            Declare(
+                Declare {
+                    name: "println",
+                    typ: Fun(
+                        Fun {
+                            from: Simple(
+                                "Str",
+                            ),
+                            to: Simple(
+                                "Unit",
+                            ),
+                        },
+                    ),
+                },
+            ),
+            Declare(
+                Declare {
+                    name: "str_of_int",
+                    typ: Fun(
+                        Fun {
+                            from: Simple(
+                                "Int",
+                            ),
+                            to: Simple(
+                                "Str",
+                            ),
+                        },
+                    ),
+                },
+            ),
+            Let(
+                Let {
+                    name: "count",
+                    value: Fun(
+                        Fun {
+                            arg: "n",
+                            body: If(
+                                If {
+                                    check: BinOp(
+                                        BinOp {
+                                            left: Var(
+                                                Var {
+                                                    name: "n",
+                                                },
+                                            ),
+                                            right: Int(
+                                                Int {
+                                                    n: 0,
+                                                },
+                                            ),
+                                            kind: Eql,
+                                        },
+                                    ),
+                                    then: Unit,
+                                    els: Let(
+                                        Let {
+                                            name: "_",
+                                            value: App(
+                                                App {
+                                                    fun: Var(
+                                                        Var {
+                                                            name: "println",
+                                                        },
+                                                    ),
+                                                    arg: App(
+                                                        App {
+                                                            fun: Var(
+                                                                Var {
+                                                                    name: "str_of_int",
+                                                                },
+                                                            ),
+                                                            arg: Var(
+                                                                Var {
+                                                                    name: "n",
+                                                                },
+                                                            ),
+                                                        },
+                                                    ),
+                                                },
+                                            ),
+                                            body: App(
+                                                App {
+                                                    fun: Var(
+                                                        Var {
+                                                            name: "count",
+                                                        },
+                                                    ),
+                                                    arg: BinOp(
+                                                        BinOp {
+                                                            left: Var(
+                                                                Var {
+                                                                    name: "n",
+                                                                },
+                                                            ),
+                                                            right: Int(
+                                                                Int {
+                                                                    n: 1,
+                                                                },
+                                                            ),
+                                                            kind: Sub,
+                                                        },
+                                                    ),
+                                                },
+                                            ),
+                                            rec: false,
+                                        },
+                                    ),
+                                },
+                            ),
+                        },
+                    ),
+                    rec: true,
+                },
+            ),
+            Let(
+                Let {
+                    name: "main",
+                    value: App(
+                        App {
+                            fun: Var(
+                                Var {
+                                    name: "count",
+                                },
+                            ),
+                            arg: Int(
+                                Int {
+                                    n: 10,
+                                },
+                            ),
+                        },
+                    ),
+                    rec: false,
+                },
+            ),
+        ],
+    },
+)

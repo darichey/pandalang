@@ -1,0 +1,12 @@
+---
+source: crates/pandalang/src/eval/mod.rs
+expression: test_prog(path)
+input_file: crates/pandalang/src/snapshot_inputs/progs/factorial.panda
+---
+Ok(
+    Int(
+        Int {
+            n: 120,
+        },
+    ),
+)

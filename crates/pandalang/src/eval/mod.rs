@@ -118,6 +118,10 @@ impl Env {
                     let arg = self.eval(*arg);
                     builtins::eval(builtin, arg).unwrap()
                 }
+                BoundValue::Thunk(expr) => self.eval(Expr::App(App {
+                    fun: Box::new(expr),
+                    arg,
+                })),
                 _ => panic!("Cannot apply non-functions"),
             },
             Expr::Let(Let {
@@ -159,7 +163,8 @@ impl Env {
 
     fn eval_let_value(&self, name: String, value: Expr, rec: bool) -> BoundValue {
         if rec {
-            todo!()
+            self.with_binding(name, BoundValue::Thunk(value.clone()))
+                .eval(value)
         } else {
             self.eval(value)
         }
