@@ -1,0 +1,14 @@
+Ok(
+    Program {
+        stmts: [
+            Declare(
+                Declare {
+                    name: "foo",
+                    typ: Simple(
+                        "Unit",
+                    ),
+                },
+            ),
+        ],
+    },
+)

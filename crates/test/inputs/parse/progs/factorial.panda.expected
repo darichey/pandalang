@@ -1,0 +1,95 @@
+Ok(
+    Program {
+        stmts: [
+            Let(
+                Let {
+                    name: "factorial",
+                    value: Fun(
+                        Fun {
+                            arg: "n",
+                            body: If(
+                                If {
+                                    check: BinOp(
+                                        BinOp {
+                                            left: Var(
+                                                Var {
+                                                    name: "n",
+                                                },
+                                            ),
+                                            right: Int(
+                                                Int {
+                                                    n: 0,
+                                                },
+                                            ),
+                                            kind: Eql,
+                                        },
+                                    ),
+                                    then: Int(
+                                        Int {
+                                            n: 1,
+                                        },
+                                    ),
+                                    els: BinOp(
+                                        BinOp {
+                                            left: Var(
+                                                Var {
+                                                    name: "n",
+                                                },
+                                            ),
+                                            right: App(
+                                                App {
+                                                    fun: Var(
+                                                        Var {
+                                                            name: "factorial",
+                                                        },
+                                                    ),
+                                                    arg: BinOp(
+                                                        BinOp {
+                                                            left: Var(
+                                                                Var {
+                                                                    name: "n",
+                                                                },
+                                                            ),
+                                                            right: Int(
+                                                                Int {
+                                                                    n: 1,
+                                                                },
+                                                            ),
+                                                            kind: Sub,
+                                                        },
+                                                    ),
+                                                },
+                                            ),
+                                            kind: Mul,
+                                        },
+                                    ),
+                                },
+                            ),
+                        },
+                    ),
+                    rec: true,
+                },
+            ),
+            Let(
+                Let {
+                    name: "main",
+                    value: App(
+                        App {
+                            fun: Var(
+                                Var {
+                                    name: "factorial",
+                                },
+                            ),
+                            arg: Int(
+                                Int {
+                                    n: 5,
+                                },
+                            ),
+                        },
+                    ),
+                    rec: false,
+                },
+            ),
+        ],
+    },
+)

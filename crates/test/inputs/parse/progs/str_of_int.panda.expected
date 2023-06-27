@@ -1,0 +1,41 @@
+Ok(
+    Program {
+        stmts: [
+            Declare(
+                Declare {
+                    name: "str_of_int",
+                    typ: Fun(
+                        Fun {
+                            from: Simple(
+                                "Int",
+                            ),
+                            to: Simple(
+                                "Str",
+                            ),
+                        },
+                    ),
+                },
+            ),
+            Let(
+                Let {
+                    name: "main",
+                    value: App(
+                        App {
+                            fun: Var(
+                                Var {
+                                    name: "str_of_int",
+                                },
+                            ),
+                            arg: Int(
+                                Int {
+                                    n: 5,
+                                },
+                            ),
+                        },
+                    ),
+                    rec: false,
+                },
+            ),
+        ],
+    },
+)

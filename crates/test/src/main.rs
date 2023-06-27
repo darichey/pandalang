@@ -32,13 +32,21 @@ fn get_eval_tests() -> Vec<Trial> {
 }
 
 fn get_parse_tests(record: bool) -> Vec<Trial> {
-    get_input_sources("inputs/parse/exprs/**/*.panda")
+    let expr_trials = get_input_sources("inputs/parse/exprs/**/*.panda")
         .into_iter()
         .map(|(path, src)| {
             let actual = format!("{:#?}", pandalang::parser::parse_expr(&src));
             get_snapshot_trial(path, record, actual)
-        })
-        .collect()
+        });
+
+    let prog_trials = get_input_sources("inputs/parse/progs/**/*.panda")
+        .into_iter()
+        .map(|(path, src)| {
+            let actual = format!("{:#?}", pandalang::parser::parse(&src));
+            get_snapshot_trial(path, record, actual)
+        });
+
+    expr_trials.chain(prog_trials).collect()
 }
 
 fn get_type_check_tests() -> Vec<Trial> {

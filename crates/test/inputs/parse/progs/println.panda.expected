@@ -1,0 +1,41 @@
+Ok(
+    Program {
+        stmts: [
+            Declare(
+                Declare {
+                    name: "println",
+                    typ: Fun(
+                        Fun {
+                            from: Simple(
+                                "Str",
+                            ),
+                            to: Simple(
+                                "Unit",
+                            ),
+                        },
+                    ),
+                },
+            ),
+            Let(
+                Let {
+                    name: "main",
+                    value: App(
+                        App {
+                            fun: Var(
+                                Var {
+                                    name: "println",
+                                },
+                            ),
+                            arg: Str(
+                                Str {
+                                    s: "Hello world",
+                                },
+                            ),
+                        },
+                    ),
+                    rec: false,
+                },
+            ),
+        ],
+    },
+)

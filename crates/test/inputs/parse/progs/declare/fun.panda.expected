@@ -1,0 +1,21 @@
+Ok(
+    Program {
+        stmts: [
+            Declare(
+                Declare {
+                    name: "foo",
+                    typ: Fun(
+                        Fun {
+                            from: Simple(
+                                "Int",
+                            ),
+                            to: Simple(
+                                "Str",
+                            ),
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+)

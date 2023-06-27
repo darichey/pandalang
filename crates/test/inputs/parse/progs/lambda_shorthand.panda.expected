@@ -1,0 +1,22 @@
+Ok(
+    Program {
+        stmts: [
+            Let(
+                Let {
+                    name: "id",
+                    value: Fun(
+                        Fun {
+                            arg: "x",
+                            body: Var(
+                                Var {
+                                    name: "x",
+                                },
+                            ),
+                        },
+                    ),
+                    rec: false,
+                },
+            ),
+        ],
+    },
+)
