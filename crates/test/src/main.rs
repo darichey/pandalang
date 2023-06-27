@@ -5,6 +5,7 @@ extern crate glob;
 use clap::Parser;
 use glob::glob;
 use libtest_mimic::Trial;
+use similar_asserts::SimpleDiff;
 use std::{fs, path::PathBuf};
 
 #[derive(Parser, Debug, Clone, Default)]
@@ -45,7 +46,8 @@ fn get_parse_tests(record: bool) -> Vec<Trial> {
                     if expected == actual {
                         Ok(())
                     } else {
-                        Err("expected != actual".into())
+                        let diff = SimpleDiff::from_str(&expected, &actual, "expected", "actual");
+                        Err(diff.into())
                     }
                 } else {
                     Err("Couldn't find .expected file. Did you mean to --record it?".into())
