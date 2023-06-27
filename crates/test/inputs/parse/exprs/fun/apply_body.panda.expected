@@ -1,0 +1,26 @@
+Ok(
+    Fun(
+        Fun {
+            arg: "f",
+            body: Fun(
+                Fun {
+                    arg: "x",
+                    body: App(
+                        App {
+                            fun: Var(
+                                Var {
+                                    name: "f",
+                                },
+                            ),
+                            arg: Var(
+                                Var {
+                                    name: "x",
+                                },
+                            ),
+                        },
+                    ),
+                },
+            ),
+        },
+    ),
+)

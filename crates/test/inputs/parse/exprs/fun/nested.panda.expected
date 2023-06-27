@@ -1,0 +1,27 @@
+Ok(
+    Fun(
+        Fun {
+            arg: "x",
+            body: Fun(
+                Fun {
+                    arg: "y",
+                    body: BinOp(
+                        BinOp {
+                            left: Var(
+                                Var {
+                                    name: "x",
+                                },
+                            ),
+                            right: Var(
+                                Var {
+                                    name: "y",
+                                },
+                            ),
+                            kind: Add,
+                        },
+                    ),
+                },
+            ),
+        },
+    ),
+)

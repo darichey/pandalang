@@ -1,0 +1,49 @@
+Ok(
+    If(
+        If {
+            check: Bool(
+                Bool {
+                    b: true,
+                },
+            ),
+            then: If(
+                If {
+                    check: Bool(
+                        Bool {
+                            b: false,
+                        },
+                    ),
+                    then: Str(
+                        Str {
+                            s: "foo",
+                        },
+                    ),
+                    els: If(
+                        If {
+                            check: Bool(
+                                Bool {
+                                    b: false,
+                                },
+                            ),
+                            then: Str(
+                                Str {
+                                    s: "bar",
+                                },
+                            ),
+                            els: Str(
+                                Str {
+                                    s: "baz",
+                                },
+                            ),
+                        },
+                    ),
+                },
+            ),
+            els: Str(
+                Str {
+                    s: "qux",
+                },
+            ),
+        },
+    ),
+)

@@ -1,0 +1,23 @@
+Ok(
+    Let(
+        Let {
+            name: "id",
+            value: Fun(
+                Fun {
+                    arg: "x",
+                    body: Var(
+                        Var {
+                            name: "x",
+                        },
+                    ),
+                },
+            ),
+            body: Var(
+                Var {
+                    name: "id",
+                },
+            ),
+            rec: false,
+        },
+    ),
+)

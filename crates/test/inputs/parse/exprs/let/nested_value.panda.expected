@@ -1,0 +1,29 @@
+Ok(
+    Let(
+        Let {
+            name: "x",
+            value: Let(
+                Let {
+                    name: "y",
+                    value: Int(
+                        Int {
+                            n: 1,
+                        },
+                    ),
+                    body: Var(
+                        Var {
+                            name: "y",
+                        },
+                    ),
+                    rec: false,
+                },
+            ),
+            body: Var(
+                Var {
+                    name: "x",
+                },
+            ),
+            rec: false,
+        },
+    ),
+)

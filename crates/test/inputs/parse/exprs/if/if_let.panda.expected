@@ -1,0 +1,54 @@
+Ok(
+    If(
+        If {
+            check: Let(
+                Let {
+                    name: "b",
+                    value: Bool(
+                        Bool {
+                            b: true,
+                        },
+                    ),
+                    body: Var(
+                        Var {
+                            name: "b",
+                        },
+                    ),
+                    rec: false,
+                },
+            ),
+            then: Let(
+                Let {
+                    name: "x",
+                    value: Int(
+                        Int {
+                            n: 1,
+                        },
+                    ),
+                    body: Var(
+                        Var {
+                            name: "x",
+                        },
+                    ),
+                    rec: false,
+                },
+            ),
+            els: Let(
+                Let {
+                    name: "y",
+                    value: Int(
+                        Int {
+                            n: 0,
+                        },
+                    ),
+                    body: Var(
+                        Var {
+                            name: "y",
+                        },
+                    ),
+                    rec: false,
+                },
+            ),
+        },
+    ),
+)

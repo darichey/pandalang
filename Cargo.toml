@@ -1,10 +1,5 @@
 [workspace]
 members = [
-    "crates/pandalang"
+    "crates/pandalang",
+    "crates/test",
 ]
-
-[profile.dev.package.insta]
-opt-level = 3
-
-[profile.dev.package.similar]
-opt-level = 3

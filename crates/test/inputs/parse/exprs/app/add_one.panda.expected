@@ -1,0 +1,31 @@
+Ok(
+    App(
+        App {
+            fun: Fun(
+                Fun {
+                    arg: "x",
+                    body: BinOp(
+                        BinOp {
+                            left: Var(
+                                Var {
+                                    name: "x",
+                                },
+                            ),
+                            right: Int(
+                                Int {
+                                    n: 1,
+                                },
+                            ),
+                            kind: Add,
+                        },
+                    ),
+                },
+            ),
+            arg: Int(
+                Int {
+                    n: 3,
+                },
+            ),
+        },
+    ),
+)

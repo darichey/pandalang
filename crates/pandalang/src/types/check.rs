@@ -171,38 +171,3 @@ impl Checker {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use std::path::Path;
-
-    use crate::{parser, types::string_of_type::string_of_type};
-
-    use super::{Checker, Polytype, Type};
-
-    fn test(path: &Path) -> Result<String, String> {
-        let source = std::fs::read_to_string(path).map_err(|err| err.to_string())?;
-        let ast = parser::parse_expr(&source).map_err(|err| err.to_string())?;
-        let mut checker = Checker::new();
-        let bindings = &mut checker.bindings;
-        bindings.insert("x".to_string(), Polytype(vec![], Type::Int));
-        bindings.insert("y".to_string(), Polytype(vec![], Type::Int));
-        bindings.insert("x'".to_string(), Polytype(vec![], Type::Int));
-        bindings.insert("foo".to_string(), Polytype(vec![], Type::Int));
-        bindings.insert("a".to_string(), Polytype(vec![], Type::Int));
-        bindings.insert("b".to_string(), Polytype(vec![], Type::Int));
-        bindings.insert("c".to_string(), Polytype(vec![], Type::Int));
-        bindings.insert("d".to_string(), Polytype(vec![], Type::Int));
-        bindings.insert("e".to_string(), Polytype(vec![], Type::Int));
-        bindings.insert("foo_bar".to_string(), Polytype(vec![], Type::Int));
-        let t = checker.check(*ast).map_err(|err| err.to_string())?;
-        Ok(string_of_type(&mut checker, t))
-    }
-
-    #[test]
-    fn types() {
-        insta::glob!("..", "snapshot_inputs/exprs/**/*.panda", |path| {
-            insta::assert_debug_snapshot!(test(path));
-        });
-    }
-}

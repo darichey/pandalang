@@ -1,0 +1,18 @@
+Ok(
+    Let(
+        Let {
+            name: "x",
+            value: Str(
+                Str {
+                    s: "foo",
+                },
+            ),
+            body: Var(
+                Var {
+                    name: "x",
+                },
+            ),
+            rec: false,
+        },
+    ),
+)

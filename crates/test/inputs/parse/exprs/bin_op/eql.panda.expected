@@ -1,0 +1,17 @@
+Ok(
+    BinOp(
+        BinOp {
+            left: Var(
+                Var {
+                    name: "x",
+                },
+            ),
+            right: Var(
+                Var {
+                    name: "y",
+                },
+            ),
+            kind: Eql,
+        },
+    ),
+)

@@ -1,0 +1,7 @@
+Ok(
+    Str(
+        Str {
+            s: "hello world",
+        },
+    ),
+)

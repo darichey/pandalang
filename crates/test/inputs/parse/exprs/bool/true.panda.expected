@@ -1,0 +1,7 @@
+Ok(
+    Bool(
+        Bool {
+            b: true,
+        },
+    ),
+)

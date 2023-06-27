@@ -1,0 +1,21 @@
+Ok(
+    If(
+        If {
+            check: Bool(
+                Bool {
+                    b: false,
+                },
+            ),
+            then: Int(
+                Int {
+                    n: 1,
+                },
+            ),
+            els: Int(
+                Int {
+                    n: 0,
+                },
+            ),
+        },
+    ),
+)

@@ -1,0 +1,27 @@
+Ok(
+    BinOp(
+        BinOp {
+            left: BinOp(
+                BinOp {
+                    left: Var(
+                        Var {
+                            name: "a",
+                        },
+                    ),
+                    right: Var(
+                        Var {
+                            name: "b",
+                        },
+                    ),
+                    kind: Add,
+                },
+            ),
+            right: Var(
+                Var {
+                    name: "c",
+                },
+            ),
+            kind: Add,
+        },
+    ),
+)

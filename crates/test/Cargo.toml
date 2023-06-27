@@ -1,0 +1,15 @@
+[package]
+name = "pandalang-test"
+version = "0.1.0"
+edition = "2021"
+
+[[test]]
+name = "test"
+path = "src/main.rs"
+harness = false
+
+[dependencies]
+libtest-mimic = "0.6.1"
+glob = "0.3.1"
+clap = "4.3.8"
+pandalang = { path = "../pandalang" }

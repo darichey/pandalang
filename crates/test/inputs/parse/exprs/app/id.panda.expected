@@ -1,0 +1,21 @@
+Ok(
+    App(
+        App {
+            fun: Fun(
+                Fun {
+                    arg: "x",
+                    body: Var(
+                        Var {
+                            name: "x",
+                        },
+                    ),
+                },
+            ),
+            arg: Int(
+                Int {
+                    n: 3,
+                },
+            ),
+        },
+    ),
+)

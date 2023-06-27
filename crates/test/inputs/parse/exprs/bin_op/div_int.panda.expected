@@ -1,0 +1,17 @@
+Ok(
+    BinOp(
+        BinOp {
+            left: Int(
+                Int {
+                    n: 1,
+                },
+            ),
+            right: Int(
+                Int {
+                    n: 1,
+                },
+            ),
+            kind: Div,
+        },
+    ),
+)

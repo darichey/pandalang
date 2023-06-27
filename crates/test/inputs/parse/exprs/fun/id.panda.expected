@@ -1,0 +1,12 @@
+Ok(
+    Fun(
+        Fun {
+            arg: "x",
+            body: Var(
+                Var {
+                    name: "x",
+                },
+            ),
+        },
+    ),
+)
