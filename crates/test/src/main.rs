@@ -35,24 +35,8 @@ fn get_parse_tests(record: bool) -> Vec<Trial> {
     get_input_sources("inputs/parse/exprs/**/*.panda")
         .into_iter()
         .map(|(path, src)| {
-            Trial::test(path.clone(), move || {
-                let actual = format!("{:#?}", pandalang::parser::parse_expr(&src));
-                let expected_path: PathBuf = format!("{}.expected", path).into();
-                if record {
-                    fs::write(expected_path, actual).unwrap();
-                    Ok(())
-                } else if expected_path.exists() {
-                    let expected = fs::read_to_string(expected_path).unwrap();
-                    if expected == actual {
-                        Ok(())
-                    } else {
-                        let diff = SimpleDiff::from_str(&expected, &actual, "expected", "actual");
-                        Err(diff.into())
-                    }
-                } else {
-                    Err("Couldn't find .expected file. Did you mean to --record it?".into())
-                }
-            })
+            let actual = format!("{:#?}", pandalang::parser::parse_expr(&src));
+            get_snapshot_trial(path, record, actual)
         })
         .collect()
 }
@@ -71,4 +55,24 @@ fn get_input_sources(pattern: &str) -> Vec<(String, String)> {
             (path, src)
         })
         .collect()
+}
+
+fn get_snapshot_trial(path: String, record: bool, actual: String) -> Trial {
+    Trial::test(path.clone(), move || {
+        let expected_path: PathBuf = format!("{}.expected", path).into();
+        if record {
+            fs::write(expected_path, actual).unwrap();
+            Ok(())
+        } else if expected_path.exists() {
+            let expected = fs::read_to_string(expected_path).unwrap();
+            if expected == actual {
+                Ok(())
+            } else {
+                let diff = SimpleDiff::from_str(&expected, &actual, "expected", "actual");
+                Err(diff.into())
+            }
+        } else {
+            Err("Couldn't find .expected file. Did you mean to --record it?".into())
+        }
+    })
 }
