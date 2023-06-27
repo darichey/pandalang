@@ -24,33 +24,42 @@ fn main() {
 }
 
 fn get_tests(record: bool) -> Vec<Trial> {
-    get_parse_tests(record)
+    let parse_tests = get_parse_tests(record);
+    let type_check_tests = get_type_check_tests(record);
+
+    parse_tests.chain(type_check_tests).collect()
 }
 
 fn get_eval_tests() -> Vec<Trial> {
     todo!()
 }
 
-fn get_parse_tests(record: bool) -> Vec<Trial> {
+fn get_parse_tests(record: bool) -> impl Iterator<Item = Trial> {
     let expr_trials = get_input_sources("inputs/parse/exprs/**/*.panda")
         .into_iter()
-        .map(|(path, src)| {
+        .map(move |(path, src)| {
             let actual = format!("{:#?}", pandalang::parser::parse_expr(&src));
             get_snapshot_trial(path, record, actual)
         });
 
     let prog_trials = get_input_sources("inputs/parse/progs/**/*.panda")
         .into_iter()
-        .map(|(path, src)| {
+        .map(move |(path, src)| {
             let actual = format!("{:#?}", pandalang::parser::parse(&src));
             get_snapshot_trial(path, record, actual)
         });
 
-    expr_trials.chain(prog_trials).collect()
+    expr_trials.chain(prog_trials)
 }
 
-fn get_type_check_tests() -> Vec<Trial> {
-    todo!()
+fn get_type_check_tests(record: bool) -> impl Iterator<Item = Trial> {
+    get_input_sources("inputs/type_check/exprs/**/*.panda")
+        .into_iter()
+        .map(move |(path, src)| {
+            let ast = *pandalang::parser::parse_expr(&src).unwrap();
+            let actual = format!("{:#?}", pandalang::types::check_to_string(ast));
+            get_snapshot_trial(path, record, actual)
+        })
 }
 
 fn get_input_sources(pattern: &str) -> Vec<(String, String)> {
@@ -65,6 +74,7 @@ fn get_input_sources(pattern: &str) -> Vec<(String, String)> {
         .collect()
 }
 
+// TODO: actual should be computed inside the runner closure... Rust makes this _really_ hard??
 fn get_snapshot_trial(path: String, record: bool, actual: String) -> Trial {
     Trial::test(path.clone(), move || {
         let expected_path: PathBuf = format!("{}.expected", path).into();
