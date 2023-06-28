@@ -82,7 +82,8 @@ fn ast_command() -> ReplCommand {
 fn eval_command() -> ReplCommand {
     ReplCommand {
         execute: |source| {
-            let env = Evaluator::new();
+            let mut stdout = std::io::stdout();
+            let env = Evaluator::new(&mut stdout);
             let ast = *parser::parse_expr(source).map_err(|err| err.to_string())?;
             let value_string = eval(env, ast).unwrap().to_string();
             Ok(value_string)

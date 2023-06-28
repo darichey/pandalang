@@ -35,7 +35,8 @@ fn get_tests(record: bool) -> Vec<Trial> {
 fn get_eval_tests(record: bool) -> impl Iterator<Item = Trial> {
     get_input_sources("inputs/eval/**/*.panda").map(snapshot_trial(record, |src| {
         let program = pandalang::parser::parse(&src).unwrap();
-        format!("{:#?}", pandalang::eval::run_program(program))
+        let mut stdout = std::io::stdout();
+        format!("{:#?}", pandalang::eval::run_program(program, &mut stdout))
     }))
 }
 

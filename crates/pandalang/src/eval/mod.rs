@@ -1,6 +1,8 @@
 mod builtins;
 pub mod env;
 
+use std::io::Write;
+
 use crate::ast::expr::{App, BinOp, BinOpKind, Bool, Expr, Fun, If, Int, Let, Var};
 use crate::ast::stmt::Stmt;
 use crate::ast::{stmt, Program};
@@ -9,8 +11,8 @@ use crate::value::Value;
 use self::builtins::Builtins;
 use self::env::{BoundValue, Env};
 
-pub fn run_program(program: Program) -> Result<Value, String> {
-    let mut evaluator = Evaluator::new();
+pub fn run_program(program: Program, stdout: &mut dyn Write) -> Result<Value, String> {
+    let mut evaluator = Evaluator::new(stdout);
 
     for stmt in program.stmts {
         match stmt {
@@ -40,16 +42,16 @@ fn check_fully_evaluated(v: BoundValue) -> Result<Value, String> {
     }
 }
 
-pub struct Evaluator {
+pub struct Evaluator<'a> {
     env: Env,
-    builtins: Builtins,
+    builtins: Builtins<'a>,
 }
 
-impl Evaluator {
-    pub fn new() -> Self {
+impl<'a> Evaluator<'a> {
+    pub fn new(stdout: &'a mut dyn Write) -> Self {
         Self {
             env: Env::new(),
-            builtins: Builtins::new(),
+            builtins: Builtins::new(stdout),
         }
     }
 
