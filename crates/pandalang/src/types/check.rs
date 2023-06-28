@@ -185,4 +185,12 @@ impl Checker {
         let poly = polymorphize(self, typ);
         self.bindings.insert(name, poly);
     }
+
+    pub fn get_bindings(&mut self) -> HashMap<String, Type> {
+        self.bindings
+            .clone()
+            .into_iter()
+            .map(|(name, typ)| (name, monomorphize(self, typ)))
+            .collect()
+    }
 }

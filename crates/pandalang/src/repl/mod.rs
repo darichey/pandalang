@@ -95,7 +95,7 @@ fn type_check_command() -> ReplCommand {
     ReplCommand {
         execute: |source| {
             let ast = parser::parse_expr(source).map_err(|err| err.to_string())?;
-            let type_string = types::check_to_string(*ast).map_err(|err| err.to_string())?;
+            let type_string = types::check_expr_to_string(*ast).map_err(|err| err.to_string())?;
             Ok(type_string)
         },
     }

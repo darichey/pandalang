@@ -77,7 +77,10 @@ fn get_type_check_tests(record: bool) -> impl Iterator<Item = Trial> {
         record,
         |src| {
             let ast = *pandalang::parser::parse_expr(&src).map_err(|err| err.to_string())?;
-            Ok(format!("{:#?}", pandalang::types::check_to_string(ast)))
+            Ok(format!(
+                "{:#?}",
+                pandalang::types::check_expr_to_string(ast)
+            ))
         },
     ));
 
@@ -85,7 +88,10 @@ fn get_type_check_tests(record: bool) -> impl Iterator<Item = Trial> {
         record,
         |src| {
             let program = pandalang::parser::parse(&src).map_err(|err| err.to_string())?;
-            Ok(format!("{:#?}", pandalang::types::check(program)))
+            Ok(format!(
+                "{:#?}",
+                pandalang::types::check_prog_to_strings(program)
+            ))
         },
     ));
 

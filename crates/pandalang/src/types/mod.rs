@@ -49,7 +49,7 @@ struct Polytype(Vec<TVarRef>, Type);
 // all to strings too. We should instead have some "Concretizer" that does this
 // process and whatever it spits out can be that exported Type type. We need to
 // decide how best to represent unbound tvars for that type first.
-pub fn check_to_string(ast: Expr) -> Result<String, Error> {
+pub fn check_expr_to_string(ast: Expr) -> Result<String, Error> {
     let mut checker = Checker::new();
     let typ = checker.check(ast)?;
     Ok(string_of_type::string_of_type(&checker, typ))
@@ -71,7 +71,7 @@ fn checker_type_of_ast_type(ast_type: ast::types::Type) -> Result<Type, Error> {
     }
 }
 
-pub fn check(program: Program) -> Result<(), Error> {
+pub fn check_prog_to_strings(program: Program) -> Result<Vec<(String, String)>, Error> {
     let mut checker = Checker::new();
 
     for stmt in program.stmts {
@@ -88,5 +88,13 @@ pub fn check(program: Program) -> Result<(), Error> {
 
     // TODO: check type of main
 
-    Ok(())
+    let mut bindings: Vec<(String, String)> = checker
+        .get_bindings()
+        .into_iter()
+        .map(|(name, typ)| (name, string_of_type::string_of_type(&checker, typ)))
+        .collect();
+
+    bindings.sort();
+
+    Ok(bindings)
 }
