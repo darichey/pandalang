@@ -60,7 +60,7 @@ fn checker_type_of_ast_type(ast_type: ast::types::Type) -> Result<Type, Error> {
         ast::types::Type::Simple(name) => match name.as_str() {
             "Int" => Ok(Type::Int),
             "Str" => Ok(Type::Str),
-            "()" => Ok(Type::Unit),
+            "Unit" => Ok(Type::Unit),
             "Bool" => Ok(Type::Bool),
             _ => Err(Error::UnknownType { name }),
         },
