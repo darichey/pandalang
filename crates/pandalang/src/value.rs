@@ -1,4 +1,4 @@
-use crate::{ast::expr::*, eval::Env};
+use crate::{ast::expr::*, eval::env::Env};
 
 #[derive(Clone)]
 pub enum Value {

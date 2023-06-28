@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
-use crate::eval::{eval, Env};
+use crate::eval::{eval, Evaluator};
 use crate::{parser, types};
 
 lazy_static! {
@@ -82,7 +82,7 @@ fn ast_command() -> ReplCommand {
 fn eval_command() -> ReplCommand {
     ReplCommand {
         execute: |source| {
-            let env = Env::new();
+            let env = Evaluator::new();
             let ast = *parser::parse_expr(source).map_err(|err| err.to_string())?;
             let value_string = eval(env, ast).unwrap().to_string();
             Ok(value_string)

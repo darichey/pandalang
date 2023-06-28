@@ -1,6 +1,5 @@
 mod builtins;
-
-use rpds::HashTrieMap;
+pub mod env;
 
 use crate::ast::expr::{App, BinOp, BinOpKind, Bool, Expr, Fun, If, Int, Let, Var};
 use crate::ast::stmt::Stmt;
@@ -8,29 +7,30 @@ use crate::ast::{stmt, Program};
 use crate::value::Value;
 
 use self::builtins::Builtins;
+use self::env::{BoundValue, Env};
 
 pub fn run_program(program: Program) -> Result<Value, String> {
-    let env =
-        program
-            .stmts
-            .into_iter()
-            .try_fold(Env::new(), |env, stmt| -> Result<Env, String> {
-                match stmt {
-                    Stmt::Let(stmt::Let { name, value, rec }) => {
-                        let value = env.eval_let_value(name.clone(), *value, rec)?;
-                        Ok(env.with_binding(name, value))
-                    }
-                    Stmt::Declare(stmt::Declare { name, .. }) => {
-                        Ok(env.with_binding(name.clone(), BoundValue::Value(Value::Builtin(name))))
-                    }
-                }
-            })?;
+    let mut evaluator = Evaluator::new();
 
-    check_fully_evaluated(env.lookup("main").ok_or("Couldn't find main")?)
+    for stmt in program.stmts {
+        match stmt {
+            Stmt::Let(stmt::Let { name, value, rec }) => {
+                let value = evaluator.eval_let_value(name.clone(), *value, rec)?;
+                evaluator.env.push_binding(&name, value)
+            }
+            Stmt::Declare(stmt::Declare { name, .. }) => evaluator
+                .env
+                .push_binding(&name.clone(), BoundValue::Value(Value::Builtin(name))),
+        }
+    }
+
+    let main = evaluator.env.lookup("main").ok_or("Couldn't find main")?;
+
+    check_fully_evaluated(main)
 }
 
-pub fn eval(env: Env, expr: Expr) -> Result<Value, String> {
-    check_fully_evaluated(env.eval(expr)?)
+pub fn eval(mut evaluator: Evaluator, expr: Expr) -> Result<Value, String> {
+    check_fully_evaluated(evaluator.eval(expr)?)
 }
 
 fn check_fully_evaluated(v: BoundValue) -> Result<Value, String> {
@@ -40,42 +40,27 @@ fn check_fully_evaluated(v: BoundValue) -> Result<Value, String> {
     }
 }
 
-#[derive(Clone)]
-pub enum BoundValue {
-    Value(Value),
-    Thunk(Expr),
+pub struct Evaluator {
+    env: Env,
+    builtins: Builtins,
 }
 
-impl PartialEq for BoundValue {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::Value(l0), Self::Value(r0)) => l0 == r0,
-            _ => false,
-        }
-    }
-}
-
-#[derive(Clone)]
-pub struct Env {
-    pub bindings: HashTrieMap<String, BoundValue>,
-    pub builtins: Builtins,
-}
-
-impl Env {
-    pub fn new() -> Env {
-        Env {
-            bindings: HashTrieMap::new(),
+impl Evaluator {
+    pub fn new() -> Self {
+        Self {
+            env: Env::new(),
             builtins: Builtins::new(),
         }
     }
 
-    fn eval(&self, expr: Expr) -> Result<BoundValue, String> {
+    fn eval(&mut self, expr: Expr) -> Result<BoundValue, String> {
         match expr {
             Expr::Int(n) => Ok(BoundValue::Value(Value::Int(n))),
             Expr::Str(s) => Ok(BoundValue::Value(Value::Str(s))),
             Expr::Unit => Ok(BoundValue::Value(Value::Unit)),
             Expr::Bool(b) => Ok(BoundValue::Value(Value::Bool(b))),
             Expr::Var(Var { name }) => Ok(self
+                .env
                 .lookup(&name)
                 .ok_or(format!("{} is not bound!", name))?),
             Expr::BinOp(BinOp { left, right, kind }) => match kind {
@@ -92,7 +77,7 @@ impl Env {
             },
             Expr::Fun(fun) => Ok(BoundValue::Value(Value::Fun {
                 fun,
-                env: self.clone(),
+                env: self.env.clone(),
             })),
             Expr::App(App { fun, arg }) => match self.eval(*fun)? {
                 BoundValue::Value(Value::Fun {
@@ -104,7 +89,13 @@ impl Env {
                     env: fun_env,
                 }) => {
                     let arg = self.eval(*arg)?;
-                    fun_env.with_binding(arg_name, arg).eval(*body)
+
+                    // set evaluator env to the captured env of the closure, evaluate the body, and then set the env back
+                    let mut temp_env = fun_env;
+                    std::mem::swap(&mut self.env, &mut temp_env);
+                    let result = self.eval_with_binding(arg_name, arg, *body);
+                    std::mem::swap(&mut self.env, &mut temp_env);
+                    result
                 }
                 BoundValue::Value(Value::Builtin(builtin)) => {
                     let arg = self.eval(*arg)?;
@@ -123,7 +114,7 @@ impl Env {
                 rec,
             }) => {
                 let value = self.eval_let_value(name.clone(), *value, rec)?;
-                self.with_binding(name, value).eval(*body)
+                self.eval_with_binding(name, value, *body)
             }
             Expr::If(If { check, then, els }) => {
                 let check = self.eval(*check)?;
@@ -142,7 +133,7 @@ impl Env {
     }
 
     fn eval_arith(
-        &self,
+        &mut self,
         left: Expr,
         right: Expr,
         f: fn(i64, i64) -> i64,
@@ -158,24 +149,28 @@ impl Env {
         Ok(BoundValue::Value(Value::Int(Int { n: f(x, y) })))
     }
 
-    fn eval_let_value(&self, name: String, value: Expr, rec: bool) -> Result<BoundValue, String> {
+    fn eval_let_value(
+        &mut self,
+        name: String,
+        value: Expr,
+        rec: bool,
+    ) -> Result<BoundValue, String> {
         if rec {
-            self.with_binding(name, BoundValue::Thunk(value.clone()))
-                .eval(value)
+            self.eval_with_binding(name, BoundValue::Thunk(value.clone()), value)
         } else {
             self.eval(value)
         }
     }
 
-    fn lookup(&self, name: &str) -> Option<BoundValue> {
-        let value = self.bindings.get(name)?;
-        Some(value.clone()) // TODO: story around cloning here?
-    }
-
-    fn with_binding(&self, name: String, value: BoundValue) -> Env {
-        Env {
-            bindings: self.bindings.insert(name, value),
-            builtins: self.builtins.clone(),
-        }
+    fn eval_with_binding(
+        &mut self,
+        name: String,
+        value: BoundValue,
+        expr: Expr,
+    ) -> Result<BoundValue, String> {
+        self.env.push_binding(&name, value);
+        let result = self.eval(expr);
+        self.env.pop_binding(&name);
+        result
     }
 }
