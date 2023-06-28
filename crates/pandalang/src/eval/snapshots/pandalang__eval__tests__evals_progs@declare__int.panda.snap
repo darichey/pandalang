@@ -1,8 +1,0 @@
----
-source: crates/pandalang/src/eval/mod.rs
-expression: test_prog(path)
-input_file: crates/pandalang/src/snapshot_inputs/progs/declare/int.panda
----
-Err(
-    "Couldn't find main",
-)
