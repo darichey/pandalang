@@ -35,24 +35,20 @@ fn get_tests(record: bool) -> Vec<Trial> {
 }
 
 fn get_eval_tests(record: bool) -> impl Iterator<Item = Trial> {
-    get_input_sources("inputs/eval/**/*.panda")
-        .into_iter()
-        .map(snapshot_trial(record, |_path, src| {
-            let program = pandalang::parser::parse(&src).unwrap();
-            format!("{:#?}", pandalang::eval::run_program(program))
-        }))
+    get_input_sources("inputs/eval/**/*.panda").map(snapshot_trial(record, |src| {
+        let program = pandalang::parser::parse(&src).unwrap();
+        format!("{:#?}", pandalang::eval::run_program(program))
+    }))
 }
 
 fn get_parse_tests(record: bool) -> impl Iterator<Item = Trial> {
     let expr_trials = get_input_sources("inputs/parse/exprs/**/*.panda")
-        .into_iter()
-        .map(snapshot_trial(record, |_path, src| {
+        .map(snapshot_trial(record, |src| {
             format!("{:#?}", pandalang::parser::parse_expr(&src))
         }));
 
     let prog_trials = get_input_sources("inputs/parse/progs/**/*.panda")
-        .into_iter()
-        .map(snapshot_trial(record, |_path, src| {
+        .map(snapshot_trial(record, |src| {
             format!("{:#?}", pandalang::parser::parse(&src))
         }));
 
@@ -60,33 +56,33 @@ fn get_parse_tests(record: bool) -> impl Iterator<Item = Trial> {
 }
 
 fn get_type_check_tests(record: bool) -> impl Iterator<Item = Trial> {
-    get_input_sources("inputs/type_check/exprs/**/*.panda")
-        .into_iter()
-        .map(snapshot_trial(record, |_path, src| {
-            let ast = *pandalang::parser::parse_expr(&src).unwrap();
-            format!("{:#?}", pandalang::types::check_to_string(ast))
-        }))
+    get_input_sources("inputs/type_check/exprs/**/*.panda").map(snapshot_trial(record, |src| {
+        let ast = *pandalang::parser::parse_expr(&src).unwrap();
+        format!("{:#?}", pandalang::types::check_to_string(ast))
+    }))
 }
 
-fn get_input_sources(pattern: &str) -> Vec<(String, String)> {
-    glob(pattern)
-        .unwrap()
-        .map(|path| {
-            let path = path.unwrap();
-            let src = fs::read_to_string(&path).unwrap();
-            let path = path.into_os_string().into_string().unwrap();
-            (path, src)
-        })
-        .collect()
+struct InputSource {
+    path: String,
+    src: String,
+}
+
+fn get_input_sources(pattern: &str) -> impl Iterator<Item = InputSource> {
+    glob(pattern).unwrap().map(|path| {
+        let path = path.unwrap();
+        let src = fs::read_to_string(&path).unwrap();
+        let path = path.into_os_string().into_string().unwrap();
+        InputSource { path, src }
+    })
 }
 
 fn snapshot_trial(
     record: bool,
-    get_actual: fn(String, String) -> String,
-) -> impl FnMut((String, String)) -> Trial {
-    move |(path, src)| {
+    get_actual: fn(String) -> String,
+) -> impl FnMut(InputSource) -> Trial {
+    move |InputSource { path, src }| {
         Trial::test(path.clone(), move || {
-            let actual = get_actual(path.clone(), src);
+            let actual = get_actual(src);
             let expected_path: PathBuf = format!("{}.expected", path).into();
             if record {
                 fs::write(expected_path, actual).unwrap();
