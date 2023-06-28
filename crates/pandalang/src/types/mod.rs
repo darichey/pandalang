@@ -86,5 +86,7 @@ pub fn check(program: Program) -> Result<(), Error> {
         }
     }
 
+    // TODO: check type of main
+
     Ok(())
 }

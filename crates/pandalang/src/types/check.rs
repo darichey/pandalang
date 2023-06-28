@@ -171,7 +171,7 @@ impl Checker {
         &mut self,
         name: &String,
         value: Box<Expr>,
-        rec: bool,
+        rec: bool, // TODO: checking for recursive functions
     ) -> Result<(), Error> {
         self.enter_level();
         let value_t = self.check(*value)?;

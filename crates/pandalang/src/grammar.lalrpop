@@ -57,6 +57,7 @@ pub Expr: Box<Expr> = {
 // See https://github.com/lalrpop/lalrpop/issues/596
 ExprReset = <Expr>;
 
+// TODO: built-in types should be specialized here (e.g., Type::Int, Type::Str, etc.)
 pub Type: Box<Type> = {
     #[precedence(level="0")]
     TypeName => Box::new(Type::Simple(<>.to_string())),
