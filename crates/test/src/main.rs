@@ -1,5 +1,3 @@
-#![feature(iterator_try_collect)]
-
 extern crate glob;
 
 use clap::Parser;
