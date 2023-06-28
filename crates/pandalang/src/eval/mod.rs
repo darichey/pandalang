@@ -53,12 +53,6 @@ impl PartialEq for BoundValue {
     }
 }
 
-macro_rules! bindings {
-    ($($k:expr => $v:expr),* $(,)?) => {{
-        rpds::HashTrieMap::from_iter([$(($k.to_string(), BoundValue::Value(Value::Int(Int { n: $v }))),)*])
-    }};
-}
-
 #[derive(Clone)]
 pub struct Env {
     pub bindings: HashTrieMap<String, BoundValue>,
@@ -67,7 +61,7 @@ pub struct Env {
 impl Env {
     pub fn new() -> Env {
         Env {
-            bindings: bindings!(),
+            bindings: HashTrieMap::new(),
         }
     }
 
