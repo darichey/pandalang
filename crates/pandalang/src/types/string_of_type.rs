@@ -3,13 +3,13 @@ use std::collections::{hash_map::Entry, HashMap};
 use super::{check::Checker, TVar, TVarRef, Type};
 
 struct StringOfType<'a> {
-    checker: &'a mut Checker,
+    checker: &'a Checker,
     names: HashMap<TVarRef, String>,
     i: u8,
 }
 
 impl<'a> StringOfType<'a> {
-    fn new(checker: &'a mut Checker) -> StringOfType {
+    fn new(checker: &'a Checker) -> StringOfType {
         StringOfType {
             checker,
             names: HashMap::new(),
@@ -50,6 +50,6 @@ impl<'a> StringOfType<'a> {
     }
 }
 
-pub(super) fn string_of_type(checker: &mut Checker, typ: Type) -> String {
+pub(super) fn string_of_type(checker: &Checker, typ: Type) -> String {
     StringOfType::new(checker).string_of_type(typ)
 }

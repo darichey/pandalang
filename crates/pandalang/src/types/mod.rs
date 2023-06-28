@@ -47,5 +47,5 @@ struct Polytype(Vec<TVarRef>, Type);
 pub fn check_to_string(ast: Expr) -> Result<String, Error> {
     let mut checker = Checker::new();
     let typ = checker.check(ast)?;
-    Ok(string_of_type::string_of_type(&mut checker, typ))
+    Ok(string_of_type::string_of_type(&checker, typ))
 }
