@@ -7,6 +7,8 @@ use crate::ast::stmt::Stmt;
 use crate::ast::{stmt, Program};
 use crate::value::Value;
 
+use self::builtins::Builtins;
+
 pub fn run_program(program: Program) -> Result<Value, String> {
     let env =
         program
@@ -56,12 +58,14 @@ impl PartialEq for BoundValue {
 #[derive(Clone)]
 pub struct Env {
     pub bindings: HashTrieMap<String, BoundValue>,
+    pub builtins: Builtins,
 }
 
 impl Env {
     pub fn new() -> Env {
         Env {
             bindings: HashTrieMap::new(),
+            builtins: Builtins::new(),
         }
     }
 
@@ -104,7 +108,7 @@ impl Env {
                 }
                 BoundValue::Value(Value::Builtin(builtin)) => {
                     let arg = self.eval(*arg)?;
-                    builtins::eval(builtin, arg)
+                    self.builtins.eval(builtin, arg)
                 }
                 BoundValue::Thunk(expr) => self.eval(Expr::App(App {
                     fun: Box::new(expr),
@@ -171,6 +175,7 @@ impl Env {
     fn with_binding(&self, name: String, value: BoundValue) -> Env {
         Env {
             bindings: self.bindings.insert(name, value),
+            builtins: self.builtins.clone(),
         }
     }
 }
