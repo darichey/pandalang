@@ -1,0 +1,19 @@
+Ok(
+    Fun(
+        Fun {
+            from: Fun(
+                Fun {
+                    from: Simple(
+                        "Int",
+                    ),
+                    to: Simple(
+                        "Bool",
+                    ),
+                },
+            ),
+            to: Simple(
+                "Str",
+            ),
+        },
+    ),
+)

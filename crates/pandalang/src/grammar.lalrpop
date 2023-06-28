@@ -11,9 +11,9 @@ pub Program: Program = {
 }
 
 pub Stmt: Stmt = {
-    "let" <rec:"rec"?> <name:Name> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value, rec: rec.is_some() }),
-    "let" <rec:"rec"?> <name:Name> <arg:Name> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })), rec: rec.is_some() }),
-    "declare" <name:Name> ":" <typ:Type> => Stmt::Declare(stmt::Declare { name: name.to_string(), typ: *typ })
+    "let" <rec:"rec"?> <name:ValueName> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value, rec: rec.is_some() }),
+    "let" <rec:"rec"?> <name:ValueName> <arg:ValueName> "=" <value:Expr> => Stmt::Let(stmt::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })), rec: rec.is_some() }),
+    "declare" <name:ValueName> ":" <typ:Type> => Stmt::Declare(stmt::Declare { name: name.to_string(), typ: *typ })
 }
 
 pub Expr: Box<Expr> = {
@@ -22,7 +22,7 @@ pub Expr: Box<Expr> = {
     Str => Box::new(Expr::Str(expr::Str { s: <> })),
     Unit => Box::new(Expr::Unit),
     Bool => Box::new(Expr::Bool(expr::Bool { b: <> })),
-    Name => Box::new(Expr::Var(expr::Var { name: <>.to_string() })),
+    ValueName => Box::new(Expr::Var(expr::Var { name: <>.to_string() })),
     "(" <ExprReset> ")",
 
     #[precedence(level="1")]
@@ -46,11 +46,11 @@ pub Expr: Box<Expr> = {
 
     #[precedence(level="5")]
     #[assoc(side="right")]
-    "fun" <arg:Name> "->" <body:Expr> => Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body })),    
+    "fun" <arg:ValueName> "->" <body:Expr> => Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body })),    
 
     #[precedence(level="6")]
-    "let" <rec:"rec"?> <name:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value, body, rec: rec.is_some() })),
-    "let" <rec:"rec"?> <name:Name> <arg:Name> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })), body, rec: rec.is_some() })),
+    "let" <rec:"rec"?> <name:ValueName> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value, body, rec: rec.is_some() })),
+    "let" <rec:"rec"?> <name:ValueName> <arg:ValueName> "=" <value:Expr> "in" <body:Expr> => Box::new(Expr::Let(expr::Let { name: name.to_string(), value: Box::new(Expr::Fun(expr::Fun { arg: arg.to_string(), body: value })), body, rec: rec.is_some() })),
     "if" <check:Expr> "then" <then:Expr> "else" <els:Expr> => Box::new(Expr::If(expr::If { check, then, els })),
 };
 
@@ -59,9 +59,7 @@ ExprReset = <Expr>;
 
 pub Type: Box<Type> = {
     #[precedence(level="0")]
-    "Int" => Box::new(Type::Simple("Int".to_string())),
-    "Str" => Box::new(Type::Simple("Str".to_string())),
-    "Unit" => Box::new(Type::Simple("Unit".to_string())),
+    TypeName => Box::new(Type::Simple(<>.to_string())),
     "(" <TypeReset> ")",
 
     #[precedence(level="1")]
@@ -82,4 +80,8 @@ Bool: bool = {
     "false" => false,
 };
 
-Name: &'input str = r"[a-zA-Z_]+'?";
+// TODO: underscore should really be its own thing rather than parsing like a normal identifier
+// (maybe wait until pattern matching to do anything about that though)
+ValueName: &'input str = r"[a-z_][a-zA-Z_]*'?";
+
+TypeName: &'input str = r"[A-Z][a-zA-Z_]*'?";

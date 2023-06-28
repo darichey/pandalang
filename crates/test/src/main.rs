@@ -64,7 +64,12 @@ fn get_parse_tests(record: bool) -> impl Iterator<Item = Trial> {
             format!("{:#?}", pandalang::parser::parse(&src))
         }));
 
-    expr_trials.chain(prog_trials)
+    let type_trials = get_input_sources("inputs/parse/types/**/*.panda")
+        .map(snapshot_trial(record, |src| {
+            format!("{:#?}", pandalang::parser::parse_type(&src))
+        }));
+
+    expr_trials.chain(prog_trials).chain(type_trials)
 }
 
 fn get_type_check_tests(record: bool) -> impl Iterator<Item = Trial> {

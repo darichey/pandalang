@@ -1,0 +1,16 @@
+Err(
+    UnrecognizedToken {
+        token: (
+            0,
+            Token(
+                6,
+                "()",
+            ),
+            2,
+        ),
+        expected: [
+            "\"(\"",
+            "r#\"[A-Z][a-zA-Z_]*'?\"#",
+        ],
+    },
+)

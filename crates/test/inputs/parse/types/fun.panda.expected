@@ -1,0 +1,12 @@
+Ok(
+    Fun(
+        Fun {
+            from: Simple(
+                "Int",
+            ),
+            to: Simple(
+                "Int",
+            ),
+        },
+    ),
+)
