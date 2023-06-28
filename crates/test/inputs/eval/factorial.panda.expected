@@ -1,7 +1,10 @@
 Ok(
-    Int(
-        Int {
-            n: 120,
-        },
-    ),
+    ProgramOutput {
+        main_return: Int(
+            Int {
+                n: 120,
+            },
+        ),
+        stdout: "",
+    },
 )

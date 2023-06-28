@@ -1,3 +1,6 @@
 Ok(
-    Unit,
+    ProgramOutput {
+        main_return: Unit,
+        stdout: "Hello world\n",
+    },
 )

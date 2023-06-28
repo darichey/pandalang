@@ -3,6 +3,7 @@ extern crate glob;
 use clap::Parser;
 use glob::glob;
 use libtest_mimic::Trial;
+use pandalang::value::Value;
 use similar_asserts::SimpleDiff;
 use std::{fs, path::PathBuf};
 
@@ -32,11 +33,23 @@ fn get_tests(record: bool) -> Vec<Trial> {
         .collect()
 }
 
+#[allow(dead_code)] // This struct is only used for debug print
+#[derive(Debug)]
+struct ProgramOutput {
+    main_return: Value,
+    stdout: String,
+}
+
 fn get_eval_tests(record: bool) -> impl Iterator<Item = Trial> {
     get_input_sources("inputs/eval/**/*.panda").map(snapshot_trial(record, |src| {
         let program = pandalang::parser::parse(&src).unwrap();
-        let mut stdout = std::io::stdout();
-        format!("{:#?}", pandalang::eval::run_program(program, &mut stdout))
+        let mut stdout = Vec::new();
+        let result =
+            pandalang::eval::run_program(program, &mut stdout).map(|main_return| ProgramOutput {
+                main_return,
+                stdout: String::from_utf8_lossy(&stdout).into_owned(),
+            });
+        format!("{:#?}", result)
     }))
 }
 

@@ -1,7 +1,10 @@
 Ok(
-    Str(
-        Str {
-            s: "5",
-        },
-    ),
+    ProgramOutput {
+        main_return: Str(
+            Str {
+                s: "5",
+            },
+        ),
+        stdout: "",
+    },
 )
