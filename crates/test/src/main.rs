@@ -26,12 +26,21 @@ fn main() {
 fn get_tests(record: bool) -> Vec<Trial> {
     let parse_tests = get_parse_tests(record);
     let type_check_tests = get_type_check_tests(record);
+    let eval_tests = get_eval_tests(record);
 
-    parse_tests.chain(type_check_tests).collect()
+    parse_tests
+        .chain(type_check_tests)
+        .chain(eval_tests)
+        .collect()
 }
 
-fn get_eval_tests() -> Vec<Trial> {
-    todo!()
+fn get_eval_tests(record: bool) -> impl Iterator<Item = Trial> {
+    get_input_sources("inputs/eval/**/*.panda")
+        .into_iter()
+        .map(snapshot_trial(record, |_path, src| {
+            let program = pandalang::parser::parse(&src).unwrap();
+            format!("{:#?}", pandalang::eval::run_program(program))
+        }))
 }
 
 fn get_parse_tests(record: bool) -> impl Iterator<Item = Trial> {
