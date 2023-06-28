@@ -1,3 +1,4 @@
+// TODO: syntax for polymorphic types
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum Type {
     Simple(String),

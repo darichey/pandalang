@@ -68,10 +68,23 @@ fn get_parse_tests(record: bool) -> impl Iterator<Item = Trial> {
 }
 
 fn get_type_check_tests(record: bool) -> impl Iterator<Item = Trial> {
-    get_input_sources("inputs/type_check/exprs/**/*.panda").map(snapshot_trial(record, |src| {
-        let ast = *pandalang::parser::parse_expr(&src).unwrap();
-        format!("{:#?}", pandalang::types::check_to_string(ast))
-    }))
+    let expr_trials = get_input_sources("inputs/type_check/exprs/**/*.panda").map(snapshot_trial(
+        record,
+        |src| {
+            let ast = *pandalang::parser::parse_expr(&src).unwrap();
+            format!("{:#?}", pandalang::types::check_to_string(ast))
+        },
+    ));
+
+    let prog_trials = get_input_sources("inputs/type_check/progs/**/*.panda").map(snapshot_trial(
+        record,
+        |src| {
+            let program = pandalang::parser::parse(&src).unwrap();
+            format!("{:#?}", pandalang::types::check(program))
+        },
+    ));
+
+    expr_trials.chain(prog_trials)
 }
 
 struct InputSource {

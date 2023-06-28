@@ -1,4 +1,9 @@
-use crate::ast::expr::Expr;
+use crate::ast::{
+    self,
+    expr::Expr,
+    stmt::{self, Stmt},
+    Program,
+};
 
 use self::{check::Checker, error::Error};
 
@@ -48,4 +53,38 @@ pub fn check_to_string(ast: Expr) -> Result<String, Error> {
     let mut checker = Checker::new();
     let typ = checker.check(ast)?;
     Ok(string_of_type::string_of_type(&checker, typ))
+}
+
+fn checker_type_of_ast_type(ast_type: ast::types::Type) -> Result<Type, Error> {
+    match ast_type {
+        ast::types::Type::Simple(name) => match name.as_str() {
+            "Int" => Ok(Type::Int),
+            "Str" => Ok(Type::Str),
+            "()" => Ok(Type::Unit),
+            "Bool" => Ok(Type::Bool),
+            _ => Err(Error::UnknownType { name }),
+        },
+        ast::types::Type::Fun(ast::types::Fun { from, to }) => Ok(Type::Fun(
+            Box::new(checker_type_of_ast_type(*from)?),
+            Box::new(checker_type_of_ast_type(*to)?),
+        )),
+    }
+}
+
+pub fn check(program: Program) -> Result<(), Error> {
+    let mut checker = Checker::new();
+
+    for stmt in program.stmts {
+        match stmt {
+            Stmt::Let(stmt::Let { name, value, rec }) => {
+                checker.check_let_value(&name, value, rec)?;
+            }
+            Stmt::Declare(stmt::Declare { name, typ }) => {
+                let typ = checker_type_of_ast_type(typ)?;
+                checker.insert_declare(name, typ);
+            }
+        }
+    }
+
+    Ok(())
 }

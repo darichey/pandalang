@@ -53,11 +53,7 @@ impl Checker {
                 body,
                 rec,
             }) => {
-                self.enter_level();
-                let value_t = self.check(*value)?;
-                self.exit_level();
-                let poly = polymorphize(self, value_t);
-                self.bindings.insert(name.clone(), poly);
+                self.check_let_value(&name, value, rec)?;
                 let t = self.check(*body)?;
                 self.bindings.remove(&name);
                 Ok(t)
@@ -169,5 +165,24 @@ impl Checker {
             }
             _ => Err(Error::NoUnify),
         }
+    }
+
+    pub fn check_let_value(
+        &mut self,
+        name: &String,
+        value: Box<Expr>,
+        rec: bool,
+    ) -> Result<(), Error> {
+        self.enter_level();
+        let value_t = self.check(*value)?;
+        self.exit_level();
+        let poly = polymorphize(self, value_t);
+        self.bindings.insert(name.clone(), poly);
+        Ok(())
+    }
+
+    pub fn insert_declare(&mut self, name: String, typ: Type) {
+        let poly = polymorphize(self, typ);
+        self.bindings.insert(name, poly);
     }
 }

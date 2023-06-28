@@ -1,0 +1,7 @@
+declare x : Int
+
+declare y : Int
+
+declare z : Str
+
+let foo = x + y

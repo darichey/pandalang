@@ -3,6 +3,7 @@ pub enum Error {
     NotInScope { name: String },
     NoUnify,
     Occurs,
+    UnknownType { name: String },
 }
 
 impl std::fmt::Display for Error {
@@ -11,6 +12,7 @@ impl std::fmt::Display for Error {
             Error::NotInScope { name } => write!(f, "{} is not in scope", name),
             Error::NoUnify => write!(f, "Unification failure"),
             Error::Occurs => write!(f, "Occurs check failed"),
+            Error::UnknownType { name } => write!(f, "{} is not a known type", name),
         }
     }
 }
