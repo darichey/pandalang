@@ -1,0 +1,20 @@
+Ok(
+    [
+        (
+            "count",
+            "(Int -> Unit)",
+        ),
+        (
+            "main",
+            "Unit",
+        ),
+        (
+            "println",
+            "(Str -> Unit)",
+        ),
+        (
+            "str_of_int",
+            "(Int -> Str)",
+        ),
+    ],
+)

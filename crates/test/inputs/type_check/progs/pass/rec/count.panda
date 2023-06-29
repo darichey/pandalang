@@ -1,0 +1,11 @@
+declare println : Str -> Unit
+declare str_of_int : Int -> Str
+
+let rec count n =
+  if n == 0 then
+    ()
+  else
+    let _ = println (str_of_int n) in
+    count (n - 1)
+
+let main = count 10

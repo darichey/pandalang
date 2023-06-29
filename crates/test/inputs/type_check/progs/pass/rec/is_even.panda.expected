@@ -1,0 +1,12 @@
+Ok(
+    [
+        (
+            "is_even",
+            "(Int -> Bool)",
+        ),
+        (
+            "not",
+            "(Bool -> Bool)",
+        ),
+    ],
+)

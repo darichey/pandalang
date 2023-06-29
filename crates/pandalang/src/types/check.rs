@@ -1,3 +1,6 @@
+// An implementation of Algorithm J for Hindley-Milner type checking
+// Based in part on this implementation: https://github.com/jfecher/algorithm-j/blob/7119150ae1822deac1dfe1dbb14f172d7c75e921/j.ml
+
 use std::{cmp::min, collections::HashMap};
 
 use crate::ast::expr::*;
@@ -53,11 +56,12 @@ impl Checker {
                 body,
                 rec,
             }) => {
-                self.check_let_value(&name, value, rec)?;
+                self.check_let_value(name.clone(), *value, rec)?;
                 let t = self.check(*body)?;
                 self.bindings.remove(&name);
                 Ok(t)
             }
+            // TODO: everything after this point can be desugared to the rules above. We should do that to make the type checker simpler
             Expr::BinOp(BinOp { left, right, kind }) => {
                 let op_t = match kind {
                     BinOpKind::Add
@@ -167,17 +171,24 @@ impl Checker {
         }
     }
 
-    pub fn check_let_value(
-        &mut self,
-        name: &String,
-        value: Box<Expr>,
-        rec: bool, // TODO: checking for recursive functions
-    ) -> Result<(), Error> {
+    pub fn check_let_value(&mut self, name: String, value: Expr, rec: bool) -> Result<(), Error> {
         self.enter_level();
-        let value_t = self.check(*value)?;
+        let value_t = if rec {
+            // In the expression `let rec v = e1 in e2`,
+            // `e1` is checked with `v` bound to a fresh tvar in monotype position
+            let value_t = self.new_tvar();
+            self.bindings
+                .insert(name.clone(), Polytype(vec![], value_t.clone()));
+            self.check(value)?;
+            self.bindings.remove(&name);
+            value_t
+        } else {
+            // Otherwise, we have `let v = e1 in e2` where referring to `v` in `e1` is illegal
+            self.check(value)?
+        };
         self.exit_level();
         let poly = polymorphize(self, value_t);
-        self.bindings.insert(name.clone(), poly);
+        self.bindings.insert(name, poly);
         Ok(())
     }
 

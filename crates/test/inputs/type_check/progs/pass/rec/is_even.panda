@@ -1,0 +1,8 @@
+declare not : Bool -> Bool
+
+let rec is_even n =
+  if n == 0 then
+    true
+  else
+    not (is_even (n - 1))
+    

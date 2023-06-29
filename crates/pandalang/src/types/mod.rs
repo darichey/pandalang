@@ -77,7 +77,7 @@ pub fn check_prog_to_strings(program: Program) -> Result<Vec<(String, String)>, 
     for stmt in program.stmts {
         match stmt {
             Stmt::Let(stmt::Let { name, value, rec }) => {
-                checker.check_let_value(&name, value, rec)?;
+                checker.check_let_value(name, *value, rec)?;
             }
             Stmt::Declare(stmt::Declare { name, typ }) => {
                 let typ = checker_type_of_ast_type(typ)?;
