@@ -1,18 +1,11 @@
 [package]
-name = "pandalang-test"
+name = "pandalang-repl"
 version = "0.1.0"
 edition = "2021"
 
-[[test]]
-name = "test"
-path = "src/main.rs"
-harness = false
-
 [dependencies]
-libtest-mimic = "0.6.1"
-glob = "0.3.1"
-clap = "4.3.8"
-similar-asserts = "1.4.2"
+rustyline = "10.0.0"
+lazy_static = "1.4.0"
 pandalang-parser = { path = "../parser" }
 pandalang-eval = { path = "../eval" }
 pandalang-types = { path = "../types" }

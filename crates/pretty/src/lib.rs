@@ -1,4 +1,4 @@
-use crate::ast::expr::{App, BinOp, Bool, Expr, Fun, If, Int, Let, Str, Var};
+use pandalang_parser::ast::expr::{App, BinOp, Bool, Expr, Fun, If, Int, Let, Str, Var};
 
 #[allow(unused)] // TODO: actually implement a pretty printer and expose it
 pub fn pretty(e: Expr) -> String {

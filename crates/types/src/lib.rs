@@ -1,4 +1,6 @@
-use crate::ast::{
+#![feature(if_let_guard)]
+
+use pandalang_parser::ast::{
     self,
     expr::Expr,
     stmt::{self, Stmt},

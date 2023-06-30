@@ -3,7 +3,7 @@
 
 use std::{cmp::min, collections::HashMap};
 
-use crate::ast::expr::*;
+use pandalang_parser::ast::expr::*;
 
 use super::{
     error::Error, monomorphize::monomorphize, polymorphize::polymorphize, tvars::TVars, Level,

@@ -1,5 +1,4 @@
 [workspace]
 members = [
-    "crates/pandalang",
-    "crates/test",
+    "crates/*"
 ]

@@ -1,4 +1,6 @@
-use crate::{ast::expr::*, eval::env::Env};
+use pandalang_parser::ast::expr::{Bool, Fun, Int, Str};
+
+use crate::env::Env;
 
 #[derive(Clone)]
 pub enum Value {

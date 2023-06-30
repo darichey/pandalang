@@ -1,6 +1,8 @@
 use std::io::Write;
 
-use crate::{ast::expr, value::Value};
+use pandalang_parser::ast::expr::{Int, Str};
+
+use crate::value::Value;
 
 use super::BoundValue;
 
@@ -23,10 +25,8 @@ impl<'a> Builtins<'a> {
 
     fn str_of_int(&self, x: BoundValue) -> Result<BoundValue, String> {
         match x {
-            BoundValue::Value(Value::Int(expr::Int { n })) => {
-                Ok(BoundValue::Value(Value::Str(expr::Str {
-                    s: n.to_string(),
-                })))
+            BoundValue::Value(Value::Int(Int { n })) => {
+                Ok(BoundValue::Value(Value::Str(Str { s: n.to_string() })))
             }
             _ => Err("Not an Int".to_string()),
         }
@@ -34,7 +34,7 @@ impl<'a> Builtins<'a> {
 
     fn println_(&mut self, x: BoundValue) -> Result<BoundValue, String> {
         match x {
-            BoundValue::Value(Value::Str(expr::Str { s })) => {
+            BoundValue::Value(Value::Str(Str { s })) => {
                 writeln!(self.stdout, "{}", s).map_err(|err| err.to_string())?;
                 Ok(BoundValue::Value(Value::Unit))
             }

@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use crate::{ast::expr::Expr, value::Value};
+use pandalang_parser::ast::expr::Expr;
+
+use crate::value::Value;
 
 #[derive(Clone)]
 pub enum BoundValue {

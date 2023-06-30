@@ -1,6 +1,7 @@
-use lalrpop_util::{lexer::Token, ParseError};
+pub mod ast;
 
-use crate::ast::{expr::Expr, types::Type, Program};
+use ast::{expr::Expr, types::Type, Program};
+use lalrpop_util::{lalrpop_mod, lexer::Token, ParseError};
 
 lalrpop_mod!(
     #[allow(clippy::all)]

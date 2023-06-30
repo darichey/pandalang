@@ -1,13 +1,16 @@
 // TODO: command aliases
 // TODO: "behavioral" commands like :quit (need more than just str -> str)
 
+#![feature(str_split_whitespace_remainder)]
+
+#[macro_use]
+extern crate lazy_static;
+
 use std::collections::HashMap;
 
+use pandalang_eval::{eval, Evaluator};
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
-
-use crate::eval::{eval, Evaluator};
-use crate::{parser, types};
 
 lazy_static! {
     static ref COMMANDS: HashMap<&'static str, ReplCommand> = {
@@ -75,7 +78,7 @@ struct ReplCommand {
 
 fn ast_command() -> ReplCommand {
     ReplCommand {
-        execute: |source| Ok(format!("{:?}", parser::parse_expr(source))),
+        execute: |source| Ok(format!("{:?}", pandalang_parser::parse_expr(source))),
     }
 }
 
@@ -84,7 +87,7 @@ fn eval_command() -> ReplCommand {
         execute: |source| {
             let mut stdout = std::io::stdout();
             let env = Evaluator::new(&mut stdout);
-            let ast = *parser::parse_expr(source).map_err(|err| err.to_string())?;
+            let ast = *pandalang_parser::parse_expr(source).map_err(|err| err.to_string())?;
             let value_string = eval(env, ast).unwrap().to_string();
             Ok(value_string)
         },
@@ -94,8 +97,9 @@ fn eval_command() -> ReplCommand {
 fn type_check_command() -> ReplCommand {
     ReplCommand {
         execute: |source| {
-            let ast = parser::parse_expr(source).map_err(|err| err.to_string())?;
-            let type_string = types::check_expr_to_string(*ast).map_err(|err| err.to_string())?;
+            let ast = pandalang_parser::parse_expr(source).map_err(|err| err.to_string())?;
+            let type_string =
+                pandalang_types::check_expr_to_string(*ast).map_err(|err| err.to_string())?;
             Ok(type_string)
         },
     }

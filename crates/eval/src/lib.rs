@@ -1,12 +1,13 @@
 mod builtins;
 pub mod env;
+mod value;
 
 use std::io::Write;
 
-use crate::ast::expr::{App, BinOp, BinOpKind, Bool, Expr, Fun, If, Int, Let, Var};
-use crate::ast::stmt::Stmt;
-use crate::ast::{stmt, Program};
-use crate::value::Value;
+use pandalang_parser::ast::expr::{App, BinOp, BinOpKind, Bool, Expr, Fun, If, Int, Let, Var};
+use pandalang_parser::ast::stmt::Stmt;
+use pandalang_parser::ast::{stmt, Program};
+pub use value::Value;
 
 use self::builtins::Builtins;
 use self::env::{BoundValue, Env};
