@@ -1,4 +1,4 @@
-import * as wasm from "pandalang-parser";
+import * as wasm from "pandalang-playground";
 import { useState } from "react";
 
 export default function App() {
@@ -6,7 +6,7 @@ export default function App() {
 
   function onInputChange(value: string) {
     try {
-      setOutput(wasm.parse(value));
+      setOutput(wasm.run(value));
     } catch (e) {
       setOutput(JSON.stringify(e));
     }

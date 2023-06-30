@@ -20,13 +20,13 @@
             # Rust dev
             (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default.override {
               extensions = [ "rust-src" ];
+              targets = ["wasm32-unknown-unknown"];
             }))
-            
-            # rustc
-            # cargo
-            # rust-analyzer
-            # rustfmt
-            # clippy
+            wasm-pack
+
+            # Needed for transitive wasm-pack ssl dependency
+            pkgconfig
+            openssl.dev 
 
             # JavaScript dev
             nodejs
