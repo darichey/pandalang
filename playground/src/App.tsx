@@ -1,24 +1,70 @@
+import { Editor } from "@monaco-editor/react";
 import * as wasm from "pandalang-playground";
 import { useState } from "react";
+import { Panel, PanelGroup } from "react-resizable-panels";
+import ResizeHandle from "./ResizeHandle";
+import OutputPanel from "./OutputPanel";
 
 export default function App() {
+  const [ast, setAst] = useState("");
+  const [types, setTypes] = useState("");
   const [output, setOutput] = useState("");
 
-  function onInputChange(value: string) {
+  function onSourceChange(source?: string) {
+    setAst("");
+    setTypes("");
+    setOutput("");
+
+    source = source ?? "";
+
     try {
-      setOutput(wasm.run(value));
+      setAst(wasm.parse(source));
     } catch (e) {
-      setOutput(JSON.stringify(e));
+      setAst(e as string);
+      return;
+    }
+
+    try {
+      setTypes(wasm.typecheck(source));
+    } catch (e) {
+      setTypes(e as string);
+      return;
+    }
+
+    try {
+      setOutput(wasm.run(source));
+    } catch (e) {
+      setOutput(e as string);
+      return;
     }
   }
 
   return (
     <>
-      <textarea
-        className="input"
-        onChange={(event) => onInputChange(event.target.value)}
-      ></textarea>
-      <div className="output">{output}</div>
+      <div className="header">PandaLang Playground</div>
+      <PanelGroup direction="horizontal">
+        <Panel>
+          <Editor
+            options={{
+              minimap: {
+                enabled: false,
+              },
+            }}
+            onChange={onSourceChange}
+            language="ml"
+          />
+        </Panel>
+        <ResizeHandle />
+        <Panel>
+          <PanelGroup direction="vertical">
+            <OutputPanel name="AST" content={ast} />
+            <ResizeHandle />
+            <OutputPanel name="Types" content={types} />
+            <ResizeHandle />
+            <OutputPanel name="Output" content={output} />
+          </PanelGroup>
+        </Panel>
+      </PanelGroup>
     </>
   );
 }

@@ -10,9 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.5.1",
     "pandalang-playground": "file:../crates/playground/pkg",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-resizable-panels": "^0.0.53"
   },
   "devDependencies": {
     "@types/react": "^18.0.37",
