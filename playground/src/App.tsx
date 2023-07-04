@@ -1,6 +1,6 @@
 import { Editor } from "@monaco-editor/react";
 import * as wasm from "pandalang-playground";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Panel, PanelGroup } from "react-resizable-panels";
 import ResizeHandle from "./ResizeHandle";
 import OutputPanel from "./OutputPanel";
@@ -38,6 +38,8 @@ export default function App() {
       return;
     }
   }
+
+  useEffect(() => onSourceChange(""), []);
 
   return (
     <>
