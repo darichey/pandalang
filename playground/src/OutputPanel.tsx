@@ -9,9 +9,9 @@ export default function OutputPanel({
 }) {
   return (
     <Panel>
-      <div className="panel-header">{name}</div>
-      <div className="output">
-        <pre className="output-text">{content}</pre>
+      <div className="border-b p-1">{name}</div>
+      <div className="w-full h-full overflow-auto">
+        <pre className="p-1">{content}</pre>
       </div>
     </Panel>
   );

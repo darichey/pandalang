@@ -41,7 +41,7 @@ export default function App() {
 
   return (
     <>
-      <div className="header">PandaLang Playground</div>
+      <div className="text-2xl px-2 py-4 border-b-2">PandaLang Playground</div>
       <PanelGroup direction="horizontal">
         <Panel>
           <Editor
