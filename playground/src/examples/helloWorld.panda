@@ -1,0 +1,3 @@
+declare println : Str -> Unit
+
+let main = println "Hello, World!"

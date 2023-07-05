@@ -1,0 +1,23 @@
+declare println: Str -> Unit
+declare str_of_int: Int -> Str
+
+let fizzbuzz n =
+  let rec go i =
+    if i == n then
+      ()
+    else
+      let _ =
+        if i % 15 == 0 then
+          println "FizzBuzz"
+        else if i % 3 == 0 then
+          println "Fizz"
+        else if i % 5 == 0 then
+          println "Buzz"
+        else
+          println (str_of_int i)
+      in
+      go (i + 1)
+  in
+  go 1
+
+let main = fizzbuzz 16
