@@ -36,6 +36,7 @@ export default function App() {
               minimap: {
                 enabled: false,
               },
+              scrollBeyondLastLine: false,
             }}
             value={source}
             onChange={(source) => setSource(source ?? "")}
