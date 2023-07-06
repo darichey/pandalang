@@ -27,10 +27,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: cachix/install-nix-action@v22
-    - run: cd playground
     - name: npm ci
+      working-directory: ./playground
       run: nix develop --command npm ci
     - name: Build
+      working-directory: ./playground
       run: nix develop --command npm run build
     - name: Setup Pages
       uses: actions/configure-pages@v3
@@ -38,7 +39,7 @@ jobs:
       uses: actions/upload-pages-artifact@v1
       with:
         # Upload dist repository
-        path: './dist'
+        path: './playground/dist'
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v1
