@@ -1,0 +1,10 @@
+declare println : Str -> Unit
+declare str_of_int : Int -> Str
+
+let rec factorial n =
+  if n == 0 then
+    1
+  else
+    n * (factorial (n - 1))
+
+let main = println (str_of_int (factorial 5))
