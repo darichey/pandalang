@@ -1,3 +1,13 @@
 Err(
-    NoUnify,
+    NoUnify(
+        Str,
+        Fun(
+            Int,
+            Var(
+                TVarRef(
+                    0,
+                ),
+            ),
+        ),
+    ),
 )

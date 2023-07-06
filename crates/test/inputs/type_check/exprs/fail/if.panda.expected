@@ -1,3 +1,6 @@
 Err(
-    NoUnify,
+    NoUnify(
+        Unit,
+        Bool,
+    ),
 )

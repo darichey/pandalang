@@ -16,8 +16,9 @@ mod polymorphize;
 mod string_of_type;
 mod tvars;
 
+// TODO: this shouldn't be public, see comment on check_expr_to_string
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone)]
-enum Type {
+pub enum Type {
     Int,
     Str,
     Unit,
@@ -32,8 +33,9 @@ enum TVar {
     Unbound(TVarRef, Level),
 }
 
+// TODO: this shouldn't be public, see comment on check_expr_to_string
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
-struct TVarRef(usize);
+pub struct TVarRef(usize);
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
 struct Level(usize);

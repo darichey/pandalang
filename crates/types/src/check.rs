@@ -167,7 +167,7 @@ impl Checker {
                     Ok(())
                 }
             }
-            _ => Err(Error::NoUnify),
+            (t1, t2) => Err(Error::NoUnify(t1, t2)),
         }
     }
 
