@@ -43,6 +43,7 @@ struct ProgramOutput {
 fn get_eval_tests(record: bool) -> impl Iterator<Item = Trial> {
     get_input_sources("inputs/eval/**/*.panda").map(snapshot_trial(record, |src| {
         let program = pandalang_parser::parse(&src).map_err(|err| err.to_string())?;
+        pandalang_types::check_prog_to_strings(program.clone()).map_err(|err| err.to_string())?;
         let mut stdout = Vec::new();
         let result =
             pandalang_eval::run_program(program, &mut stdout).map(|main_return| ProgramOutput {
@@ -111,6 +112,8 @@ fn get_input_sources(pattern: &str) -> impl Iterator<Item = InputSource> {
 
 fn snapshot_trial(
     record: bool,
+    // TODO: we should differentiate get_actual failing abnormally vs failing the test.
+    // e.g., rn an eval test failing to type check will fail the whole test, but we could just say the result of the test is an error
     get_actual: fn(String) -> Result<String, String>,
 ) -> impl FnMut(InputSource) -> Trial {
     move |InputSource { path, src }| {
