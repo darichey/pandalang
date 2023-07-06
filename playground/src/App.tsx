@@ -1,10 +1,12 @@
 import { Editor } from "@monaco-editor/react";
-import * as wasm from "pandalang-playground";
 import { useState } from "react";
 import { Panel, PanelGroup } from "react-resizable-panels";
 import ResizeHandle from "./ResizeHandle";
 import OutputPanel from "./OutputPanel";
 import { getExample, getExampleNames } from "./examples";
+
+// @ts-ignore (TODO: figure out how to use generated typescript types. https://github.com/wasm-tool/rollup-plugin-rust/issues/9)
+import * as wasm from "../../crates/playground/Cargo.toml";
 
 export default function App() {
   const [source, setSource] = useState(getExample("Hello world"));
