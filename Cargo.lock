@@ -534,6 +534,7 @@ dependencies = [
  "pandalang-eval",
  "pandalang-parser",
  "pandalang-repl",
+ "pandalang-types",
 ]
 
 [[package]]

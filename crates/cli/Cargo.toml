@@ -8,3 +8,4 @@ clap = { version = "4.3.2", features = ["derive"] }
 pandalang-repl = { path = "../repl" }
 pandalang-eval = { path = "../eval" }
 pandalang-parser = { path = "../parser" }
+pandalang-types = { path = "../types" }
