@@ -1,16 +1,36 @@
 import { Editor } from "@monaco-editor/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Panel, PanelGroup } from "react-resizable-panels";
 import ResizeHandle from "./ResizeHandle";
 import OutputPanel from "./OutputPanel";
 import { getExample, getExampleNames } from "./examples";
+import * as LZString from "lz-string";
 
 // @ts-ignore (TODO: figure out how to use generated typescript types. https://github.com/wasm-tool/rollup-plugin-rust/issues/9)
 import * as wasm from "../../crates/playground/Cargo.toml";
 
 export default function App() {
-  const [source, setSource] = useState(getExample("Hello world"));
+  const [selectedExample, setSelectedExample] = useState(
+    window.location.hash ? "none" : "Hello world"
+  );
+  const [source, setSource] = useState(
+    window.location.hash
+      ? LZString.decompressFromEncodedURIComponent(
+          window.location.hash.slice(1)
+        )
+      : getExample(selectedExample)
+  );
   const [ast, types, output] = run(source);
+
+  useEffect(() => {
+    window.location.hash = LZString.compressToEncodedURIComponent(source);
+  }, [source]);
+
+  useEffect(() => {
+    if (selectedExample !== "none") {
+      setSource(getExample(selectedExample));
+    }
+  }, [selectedExample]);
 
   return (
     <div className="h-full w-full flex flex-col">
@@ -21,10 +41,14 @@ export default function App() {
             <label>
               <span>Example: </span>
               <select
+                value={selectedExample}
                 onChange={(event) => {
-                  setSource(getExample(event.target.value));
+                  setSelectedExample(event.target.value);
                 }}
               >
+                <option value="none" disabled hidden>
+                  Select an example
+                </option>
                 {getExampleNames().map((key) => (
                   <option key={key} value={key}>
                     {key}
@@ -41,7 +65,10 @@ export default function App() {
               scrollBeyondLastLine: false,
             }}
             value={source}
-            onChange={(source) => setSource(source ?? "")}
+            onChange={(source) => {
+              setSource(source ?? "");
+              setSelectedExample("none");
+            }}
             language="ml"
           />
         </Panel>
