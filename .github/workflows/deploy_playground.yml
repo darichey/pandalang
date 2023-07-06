@@ -32,7 +32,8 @@ jobs:
       run: nix develop --command npm ci
     - name: Build
       working-directory: ./playground
-      run: nix develop --command npm run build
+      # Note that we specify the base path when deploying to Pages
+      run: nix develop --command npm run build -- --base=/pandalang/
     - name: Setup Pages
       uses: actions/configure-pages@v3
     - name: Upload artifact
