@@ -141,6 +141,7 @@ impl Checker {
             (Type::Int, Type::Int) => Ok(()),
             (Type::Str, Type::Str) => Ok(()),
             (Type::Bool, Type::Bool) => Ok(()),
+            (Type::Unit, Type::Unit) => Ok(()),
             (Type::Fun(a, b), Type::Fun(c, d)) => {
                 self.unify(*a, *c)?;
                 self.unify(*b, *d)
